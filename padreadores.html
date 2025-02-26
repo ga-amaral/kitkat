@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gatil - Padreadores</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Nossos Gatos</a></li>
+                <li><a href="matrizes.html">Matrizes</a></li>
+                <li><a href="padreadores.html" class="active">Padreadores</a></li>
+                <li><a href="contato.html">Sobre & Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Nossos Padreadores</h1>
+        <div id="padreadores-container" class="matrizes-grid"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Zaidan Gatil. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // Dados dos padreadores
+        const dados = {
+            "padreadores": [
+                {
+                    "nome": "Zeus",
+                    "idade": "4 anos",
+                    "raca": "British Shorthair",
+                    "caracteristicas_filhotes": "Pelagem densa, estrutura robusta, temperamento equilibrado",
+                    "foto": "./img/8.jpg",
+                    "premios": ["Campeão Internacional 2023", "Melhor da Raça 2022"]
+                },
+                {
+                    "nome": "Max",
+                    "idade": "5 anos",
+                    "raca": "Maine Coon",
+                    "caracteristicas_filhotes": "Pelagem longa, porte grande, personalidade dócil",
+                    "foto": "./img/9.jpg",
+                    "premios": ["Grande Campeão 2023", "Melhor Maine Coon 2022"]
+                },
+                {
+                    "nome": "Tom",
+                    "idade": "3 anos",
+                    "raca": "Ragdoll",
+                    "caracteristicas_filhotes": "Pelagem sedosa, olhos azuis, temperamento calmo",
+                    "foto": "./img/10.jpg",
+                    "premios": ["Melhor Ragdoll 2023", "Vice-Campeão Nacional 2022"]
+                }
+            ]
+        };
+
+        const padreadoresContainer = document.getElementById('padreadores-container');
+        dados.padreadores.forEach(padreador => {
+            const padreadorCard = document.createElement('div');
+            padreadorCard.className = 'matriz-card';
+            padreadorCard.innerHTML = `
+                <img src="${padreador.foto}" alt="${padreador.nome}">
+                <h2>${padreador.nome}</h2>
+                <div class="caracteristicas-gato">
+                    <div class="caracteristica-bloco">
+                        <i class="fas fa-birthday-cake"></i>
+                        <span>Idade: ${padreador.idade}</span>
+                    </div>
+                    <div class="caracteristica-bloco">
+                        <i class="fas fa-cat"></i>
+                        <span>Raça: ${padreador.raca}</span>
+                    </div>
+                    <div class="caracteristica-bloco">
+                        <i class="fas fa-trophy"></i>
+                        <span>Premiações: ${padreador.premios.length}</span>
+                    </div>
+                </div>
+                <div class="matriz-info">
+                    <h3><i class="fas fa-paw"></i> Características dos Filhotes:</h3>
+                    <p>${padreador.caracteristicas_filhotes}</p>
+                </div>
+                <div class="premios-lista">
+                    <h3><i class="fas fa-award"></i> Principais Prêmios:</h3>
+                    <ul>
+                        ${padreador.premios.map(premio => `<li>${premio}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            padreadoresContainer.appendChild(padreadorCard);
+        });
+    </script>
+</body>
+</html> 

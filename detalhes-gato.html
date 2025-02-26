@@ -40,7 +40,7 @@
                     "idade": "6 meses",
                     "cor": "Branco e Cinza",
                     "foto": "./img/1.jpg",
-                    "descricao": "Luna é uma gatinha doce e brincalhona. Ela adora brincar com bolinhas e se esconder em caixas. Muito sociável, se dá bem com outros gatos e adora receber carinho.",
+                    "descricao": "Luna é uma gatinha doce e brincalhona. Ela adora brincar com bolinhas e se esconder em caixas. Muito sociável, se dá bem com outros gatos e adora receber carinho. Filha de Bella, uma Persa premiada, e Zeus, um campeão da raça British Shorthair.",
                     "personalidade": ["Dócil", "Brincalhona", "Sociável"],
                     "saude": ["Vacinada", "Vermifugada", "Microchipada", "Castrada"],
                     "pais": {
@@ -53,7 +53,7 @@
                     "idade": "4 meses",
                     "cor": "Laranja Tigrado",
                     "foto": "./img/2.jpg",
-                    "descricao": "Thor é um filhote muito energético e corajoso. Adora explorar novos ambientes e é muito carinhoso com humanos. Será um excelente companheiro para famílias ativas.",
+                    "descricao": "Thor é um filhote muito energético e corajoso. Adora explorar novos ambientes e é muito carinhoso com humanos. Será um excelente companheiro para famílias ativas. Filho de Mia, uma Siamesa de linhagem pura, e Max, um premiado Maine Coon.",
                     "personalidade": ["Energético", "Corajoso", "Carinhoso"],
                     "saude": ["Vacinado", "Vermifugado", "Microchipado"],
                     "pais": {
@@ -66,7 +66,7 @@
                     "idade": "5 meses",
                     "cor": "Preto",
                     "foto": "./img/3.jpg",
-                    "descricao": "Nina é uma gatinha elegante e independente. Muito inteligente, aprende rapidamente e adora brinquedos interativos. Tem um ronronar suave e constante.",
+                    "descricao": "Nina é uma gatinha elegante e independente. Muito inteligente, aprende rapidamente e adora brinquedos interativos. Tem um ronronar suave e constante. Filha de Bella, nossa Persa premiada, e Tom, um Ragdoll de exposição.",
                     "personalidade": ["Elegante", "Independente", "Inteligente"],
                     "saude": ["Vacinada", "Vermifugada", "Microchipada"],
                     "pais": {
@@ -79,7 +79,7 @@
                     "idade": "3 meses",
                     "cor": "Tricolor",
                     "foto": "./img/7.jpg",
-                    "descricao": "Felix é pura alegria e diversão! Este pequeno tricolor é muito afetuoso e adora brincar com outros gatos. Será perfeito para famílias que já têm outros felinos.",
+                    "descricao": "Felix é pura alegria e diversão! Este pequeno tricolor é muito afetuoso e adora brincar com outros gatos. Será perfeito para famílias que já têm outros felinos. Filho de Mia, nossa Siamesa campeã, e Zeus, nosso British Shorthair premiado.",
                     "personalidade": ["Afetuoso", "Brincalhão", "Sociável"],
                     "saude": ["Vacinado", "Vermifugado", "Microchipado"],
                     "pais": {
@@ -95,7 +95,8 @@
                     "raca": "Persa",
                     "ninhadas": "2",
                     "caracteristicas_filhotes": "Pelagem longa, temperamento dócil, cores variadas incluindo branco, cinza e bicolor",
-                    "foto": "./img/5.jpg"
+                    "foto": "./img/5.jpg",
+                    "premios": ["Melhor da Raça 2023", "1º Lugar Exposição Nacional 2022"]
                 },
                 {
                     "nome": "Mia",
@@ -103,7 +104,34 @@
                     "raca": "Siamês",
                     "ninhadas": "3",
                     "caracteristicas_filhotes": "Pelagem curta, olhos azuis, pontas escuras e personalidade ativa",
-                    "foto": "./img/6.jpg"
+                    "foto": "./img/6.jpg",
+                    "premios": ["Campeã Nacional 2023", "Melhor Fêmea Siamês 2022"]
+                }
+            ],
+            "padreadores": [
+                {
+                    "nome": "Zeus",
+                    "idade": "4 anos",
+                    "raca": "British Shorthair",
+                    "caracteristicas_filhotes": "Pelagem densa, estrutura robusta, temperamento equilibrado",
+                    "foto": "./img/8.jpg",
+                    "premios": ["Campeão Internacional 2023", "Melhor da Raça 2022"]
+                },
+                {
+                    "nome": "Max",
+                    "idade": "5 anos",
+                    "raca": "Maine Coon",
+                    "caracteristicas_filhotes": "Pelagem longa, porte grande, personalidade dócil",
+                    "foto": "./img/9.jpg",
+                    "premios": ["Grande Campeão 2023", "Melhor Maine Coon 2022"]
+                },
+                {
+                    "nome": "Tom",
+                    "idade": "3 anos",
+                    "raca": "Ragdoll",
+                    "caracteristicas_filhotes": "Pelagem sedosa, olhos azuis, temperamento calmo",
+                    "foto": "./img/10.jpg",
+                    "premios": ["Melhor Ragdoll 2023", "Vice-Campeão Nacional 2022"]
                 }
             ]
         };
@@ -153,6 +181,7 @@
                 // Mostrar informações dos pais
                 const paisGrid = document.querySelector('.pais-grid');
                 const mae = dados.matrizes.find(m => m.nome === gato.pais.mae);
+                const pai = dados.padreadores.find(p => p.nome === gato.pais.pai);
                 
                 if (mae) {
                     paisGrid.innerHTML += `
@@ -166,12 +195,46 @@
                                     <span>Raça: ${mae.raca}</span>
                                 </div>
                                 <div class="caracteristica-bloco">
-                                    <i class="fas fa-baby"></i>
-                                    <span>Ninhadas: ${mae.ninhadas}</span>
+                                    <i class="fas fa-trophy"></i>
+                                    <span>Premiações: ${mae.premios.length}</span>
                                 </div>
                             </div>
                             <p class="matriz-info">${mae.caracteristicas_filhotes}</p>
+                            <div class="premios-lista">
+                                <h4><i class="fas fa-award"></i> Principais Prêmios:</h4>
+                                <ul>
+                                    ${mae.premios.map(premio => `<li>${premio}</li>`).join('')}
+                                </ul>
+                            </div>
                             <a href="matrizes.html" class="btn-interesse">Ver Detalhes da Matriz</a>
+                        </div>
+                    `;
+                }
+
+                if (pai) {
+                    paisGrid.innerHTML += `
+                        <div class="matriz-card">
+                            <h3>Pai</h3>
+                            <img src="${pai.foto}" alt="${pai.nome}">
+                            <h2>${pai.nome}</h2>
+                            <div class="caracteristicas-gato">
+                                <div class="caracteristica-bloco">
+                                    <i class="fas fa-cat"></i>
+                                    <span>Raça: ${pai.raca}</span>
+                                </div>
+                                <div class="caracteristica-bloco">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>Premiações: ${pai.premios.length}</span>
+                                </div>
+                            </div>
+                            <p class="matriz-info">${pai.caracteristicas_filhotes}</p>
+                            <div class="premios-lista">
+                                <h4><i class="fas fa-award"></i> Principais Prêmios:</h4>
+                                <ul>
+                                    ${pai.premios.map(premio => `<li>${premio}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <a href="padreadores.html" class="btn-interesse">Ver Detalhes do Padreador</a>
                         </div>
                     `;
                 }
