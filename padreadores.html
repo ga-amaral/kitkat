@@ -36,10 +36,27 @@
 
         .padreador-card img {
             width: 100%;
-            height: 250px;
+            height: 350px;
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 1rem;
+        }
+
+        .padreador-foto-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .padreador-rotulo {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
         .padreador-card h2 {
@@ -51,8 +68,8 @@
 
         .caracteristicas-padreador {
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
+            flex-direction: column;
+            gap: 0.5rem;
             margin: 1rem 0;
             padding: 0.5rem 0;
         }
@@ -66,6 +83,7 @@
             border-radius: 20px;
             font-size: 0.9rem;
             color: #666;
+            width: fit-content;
         }
 
         .caracteristica-bloco i {
@@ -192,7 +210,10 @@
                     ${padreadores.map(padreador => `
                         <div class="padreador-card">
                             <div class="padreador-link">
-                                <img src="${padreador.foto}" alt="${padreador.nome}">
+                                <div class="padreador-foto-container">
+                                    <img src="${padreador.foto}" alt="${padreador.nome}">
+                                    <span class="padreador-rotulo">Padreador</span>
+                                </div>
                                 <h2>${padreador.nome}</h2>
                                 <div class="caracteristicas-padreador">
                                     <div class="caracteristica-bloco">
@@ -222,7 +243,6 @@
                                     </div>
                                 ` : ''}
                             </div>
-                            <a href="contato.html?padreador=${padreador.nome}" class="btn-contato">Entre em Contato</a>
                         </div>
                     `).join('')}
                 </div>
