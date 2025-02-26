@@ -123,122 +123,107 @@
     </script>
 
     <style>
-        .tags-personalidade {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 0.5rem 0;
-        }
-
-        .tag-personalidade {
-            font-size: 0.8rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            background-color: #e3f2fd;
-            color: #1565c0;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .tag-personalidade i {
-            font-size: 0.7rem;
-        }
-
-        .cat-info {
-            margin: 1rem 0;
-        }
-
-        .cat-info p {
-            margin: 0.5rem 0;
-            line-height: 1.5;
-        }
-
-        .tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 1rem 0;
-            align-items: center;
-        }
-
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-
-        .tag i {
-            font-size: 0.8rem;
-        }
-
-        .tag-saude {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .tag-personalidade {
-            background-color: #e3f2fd;
-            color: #1565c0;
-        }
-
-        .cat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 2rem;
-        }
-
-        .cat-card {
+        .gato-card {
             background: white;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             overflow: hidden;
             transition: transform 0.2s;
+            margin-bottom: 2rem;
         }
 
-        .cat-card:hover {
+        .gato-card:hover {
             transform: translateY(-5px);
         }
 
-        .cat-card img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-        }
-
-        .cat-card-content {
+        .gato-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
             padding: 1.5rem;
         }
 
-        .cat-card h3 {
+        .gato-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .gato-card h2 {
             margin: 0 0 1rem 0;
             color: #333;
+            font-size: 1.5rem;
         }
 
-        .cat-details {
+        .caracteristicas-gato {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
             margin: 1rem 0;
+            padding: 0.5rem 0;
         }
 
-        .cat-details p {
-            margin: 0.5rem 0;
-            color: #666;
-        }
-
-        .cat-parents {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
-        }
-
-        .cat-parents p {
-            margin: 0.3rem 0;
+        .caracteristica-bloco {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
             font-size: 0.9rem;
             color: #666;
+        }
+
+        .caracteristica-bloco i {
+            color: #4CAF50;
+        }
+
+        .tags-personalidade {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+            padding: 0.5rem 0;
+        }
+
+        .tag-personalidade {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tag-personalidade i {
+            font-size: 0.8rem;
+        }
+
+        .btn-interesse {
+            display: block;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 1rem;
+            border-radius: 0 0 8px 8px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .btn-interesse:hover {
+            background-color: #388E3C;
+        }
+
+        .gatos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
         }
     </style>
 </body>
