@@ -61,43 +61,57 @@
     </footer>
 
     <script>
-        // Dados do site diretamente no JavaScript
-        const dados = {
-            "gatos": [
-                {
-                    "nome": "Luna",
-                    "idade": "6 meses",
-                    "cor": "Branco e Cinza",
-                    "foto": "https://placekitten.com/400/300"
-                },
-                {
-                    "nome": "Thor",
-                    "idade": "4 meses",
-                    "cor": "Laranja Tigrado",
-                    "foto": "https://placekitten.com/401/300"
-                },
-                {
-                    "nome": "Nina",
-                    "idade": "5 meses",
-                    "cor": "Preto",
-                    "foto": "https://placekitten.com/402/300"
-                },
-                {
-                    "nome": "Felix",
-                    "idade": "3 meses",
-                    "cor": "Tricolor",
-                    "foto": "https://placekitten.com/403/300"
-                }
-            ],
-            "sobre": "<h2>Bem-vindo ao nosso Gatil</h2><p>Somos um gatil especializado na criação e cuidado de gatos com muito amor e dedicação. Nossa missão é encontrar lares amorosos para nossos gatinhos e garantir que cada um deles tenha uma vida feliz e saudável.</p><p>Todos os nossos gatos recebem:</p><ul><li>Acompanhamento veterinário regular</li><li>Vacinas em dia</li><li>Vermifugação</li><li>Microchipagem</li><li>Socialização adequada</li></ul><p>Estamos localizados em uma área tranquila e espaçosa, onde nossos gatos têm todo o conforto e espaço para brincar e se desenvolver.</p>"
-        };
+        // Carregar dados do localStorage
+        const gatos = JSON.parse(localStorage.getItem('gatos')) || [
+            {
+                "nome": "Luna",
+                "idade": "6 meses",
+                "cor": "Branco e Cinza",
+                "foto": "./img/1.jpg"
+            },
+            {
+                "nome": "Thor",
+                "idade": "4 meses",
+                "cor": "Laranja Tigrado",
+                "foto": "./img/2.jpg"
+            },
+            {
+                "nome": "Nina",
+                "idade": "5 meses",
+                "cor": "Preto",
+                "foto": "./img/3.jpg"
+            },
+            {
+                "nome": "Felix",
+                "idade": "3 meses",
+                "cor": "Tricolor",
+                "foto": "./img/7.jpg"
+            }
+        ];
 
         // Preencher informações sobre o gatil
-        document.getElementById('sobre-content').innerHTML = dados.sobre;
+        document.getElementById('sobre-content').innerHTML = `
+            <h2>Bem-vindo ao nosso Gatil</h2>
+            <p>Somos um gatil especializado na criação e cuidado de gatos com muito amor e dedicação. Nossa missão é encontrar lares amorosos para nossos gatinhos e garantir que cada um deles tenha uma vida feliz e saudável.</p>
+            <p>Todos os nossos gatos recebem:</p>
+            <ul>
+                <li>Acompanhamento veterinário regular</li>
+                <li>Vacinas em dia</li>
+                <li>Vermifugação</li>
+                <li>Microchipagem</li>
+                <li>Socialização adequada</li>
+            </ul>
+            <p>Estamos localizados em uma área tranquila e espaçosa, onde nossos gatos têm todo o conforto e espaço para brincar e se desenvolver.</p>
+        `;
 
         // Preencher select com os gatos disponíveis
         const select = document.getElementById('gato-interesse');
-        dados.gatos.forEach(gato => {
+        select.innerHTML = '<option value="">Selecione um gato</option>';
+        
+        // Filtrar apenas gatos disponíveis
+        const gatosDisponiveis = gatos.filter(gato => gato.status !== 'vendido');
+        
+        gatosDisponiveis.forEach(gato => {
             const option = document.createElement('option');
             option.value = gato.nome;
             option.textContent = gato.nome;

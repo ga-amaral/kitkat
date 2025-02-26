@@ -30,38 +30,47 @@
     </footer>
 
     <script>
-        // Dados dos gatos diretamente no JavaScript
-        const dados = {
-            "gatos": [
-                {
-                    "nome": "Luna",
-                    "idade": "6 meses",
-                    "cor": "Branco e Cinza",
-                    "foto": "./img/1.jpg"
-                },
-                {
-                    "nome": "Thor",
-                    "idade": "4 meses",
-                    "cor": "Laranja Tigrado",
-                    "foto": "./img/2.jpg"
-                },
-                {
-                    "nome": "Nina",
-                    "idade": "5 meses",
-                    "cor": "Preto",
-                    "foto": "./img/3.jpg"
-                },
-                {
-                    "nome": "Felix",
-                    "idade": "3 meses",
-                    "cor": "Tricolor",
-                    "foto": "./img/7.jpg"
-                }
-            ]
-        };
+        // Verificar estado de login
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        const adminLink = document.querySelector('a[href="login.html"]');
+        if (usuarioLogado && usuarioLogado.tipo === 'admin') {
+            adminLink.href = 'admin.html';
+        }
+
+        // Carregar dados do localStorage
+        const gatos = JSON.parse(localStorage.getItem('gatos')) || [
+            {
+                "nome": "Luna",
+                "idade": "6 meses",
+                "cor": "Branco e Cinza",
+                "foto": "./img/1.jpg"
+            },
+            {
+                "nome": "Thor",
+                "idade": "4 meses",
+                "cor": "Laranja Tigrado",
+                "foto": "./img/2.jpg"
+            },
+            {
+                "nome": "Nina",
+                "idade": "5 meses",
+                "cor": "Preto",
+                "foto": "./img/3.jpg"
+            },
+            {
+                "nome": "Felix",
+                "idade": "3 meses",
+                "cor": "Tricolor",
+                "foto": "./img/7.jpg"
+            }
+        ];
 
         const gatosContainer = document.getElementById('gatos-container');
-        dados.gatos.forEach(gato => {
+        
+        // Filtrar apenas gatos disponíveis
+        const gatosDisponiveis = gatos.filter(gato => gato.status !== 'vendido');
+        
+        gatosDisponiveis.forEach(gato => {
             const gatoCard = document.createElement('div');
             gatoCard.className = 'gato-card';
             gatoCard.innerHTML = `

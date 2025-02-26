@@ -30,30 +30,35 @@
     </footer>
 
     <script>
-        // Dados das matrizes diretamente no JavaScript
-        const dados = {
-            "matrizes": [
-                {
-                    "nome": "Bella",
-                    "idade": "3 anos",
-                    "raca": "Persa",
-                    "ninhadas": "2",
-                    "caracteristicas_filhotes": "Pelagem longa, temperamento dócil, cores variadas incluindo branco, cinza e bicolor",
-                    "foto": "./img/5.jpg"
-                },
-                {
-                    "nome": "Mia",
-                    "idade": "4 anos",
-                    "raca": "Siamês",
-                    "ninhadas": "3",
-                    "caracteristicas_filhotes": "Pelagem curta, olhos azuis, pontas escuras e personalidade ativa",
-                    "foto": "./img/6.jpg"
-                }
-            ]
-        };
+        // Verificar estado de login
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        const adminLink = document.querySelector('a[href="login.html"]');
+        if (usuarioLogado && usuarioLogado.tipo === 'admin') {
+            adminLink.href = 'admin.html';
+        }
+
+        // Carregar dados do localStorage
+        const matrizes = JSON.parse(localStorage.getItem('matrizes')) || [
+            {
+                "nome": "Bella",
+                "idade": "3 anos",
+                "raca": "Persa",
+                "ninhadas": "2",
+                "caracteristicas_filhotes": "Pelagem longa, temperamento dócil, cores variadas incluindo branco, cinza e bicolor",
+                "foto": "./img/5.jpg"
+            },
+            {
+                "nome": "Mia",
+                "idade": "4 anos",
+                "raca": "Siamês",
+                "ninhadas": "3",
+                "caracteristicas_filhotes": "Pelagem curta, olhos azuis, pontas escuras e personalidade ativa",
+                "foto": "./img/6.jpg"
+            }
+        ];
 
         const matrizesContainer = document.getElementById('matrizes-container');
-        dados.matrizes.forEach(matriz => {
+        matrizes.forEach(matriz => {
             const matrizCard = document.createElement('div');
             matrizCard.className = 'matriz-card';
             matrizCard.innerHTML = `
@@ -77,6 +82,14 @@
                     <h3><i class="fas fa-paw"></i> Características dos Filhotes:</h3>
                     <p>${matriz.caracteristicas_filhotes}</p>
                 </div>
+                ${matriz.premios ? `
+                <div class="premios-lista">
+                    <h3><i class="fas fa-award"></i> Principais Prêmios:</h3>
+                    <ul>
+                        ${matriz.premios.map(premio => `<li>${premio}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
             `;
             matrizesContainer.appendChild(matrizCard);
         });

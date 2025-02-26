@@ -80,8 +80,14 @@
     </footer>
 
     <script>
+        // Verificar se já existe um usuário logado
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (usuarioLogado && usuarioLogado.tipo === 'admin') {
+            window.location.href = 'admin.html';
+        }
+
         // Dados de usuário (em produção, isso deveria estar no servidor)
-        const usuarios = [
+        const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [
             {
                 username: 'admin',
                 password: 'amaral123',

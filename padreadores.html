@@ -30,38 +30,43 @@
     </footer>
 
     <script>
-        // Dados dos padreadores
-        const dados = {
-            "padreadores": [
-                {
-                    "nome": "Zeus",
-                    "idade": "4 anos",
-                    "raca": "British Shorthair",
-                    "caracteristicas_filhotes": "Pelagem densa, estrutura robusta, temperamento equilibrado",
-                    "foto": "./img/8.jpg",
-                    "premios": ["Campeão Internacional 2023", "Melhor da Raça 2022"]
-                },
-                {
-                    "nome": "Max",
-                    "idade": "5 anos",
-                    "raca": "Maine Coon",
-                    "caracteristicas_filhotes": "Pelagem longa, porte grande, personalidade dócil",
-                    "foto": "./img/9.jpg",
-                    "premios": ["Grande Campeão 2023", "Melhor Maine Coon 2022"]
-                },
-                {
-                    "nome": "Tom",
-                    "idade": "3 anos",
-                    "raca": "Ragdoll",
-                    "caracteristicas_filhotes": "Pelagem sedosa, olhos azuis, temperamento calmo",
-                    "foto": "./img/10.jpg",
-                    "premios": ["Melhor Ragdoll 2023", "Vice-Campeão Nacional 2022"]
-                }
-            ]
-        };
+        // Verificar estado de login
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        const adminLink = document.querySelector('a[href="login.html"]');
+        if (usuarioLogado && usuarioLogado.tipo === 'admin') {
+            adminLink.href = 'admin.html';
+        }
+
+        // Carregar dados do localStorage
+        const padreadores = JSON.parse(localStorage.getItem('padreadores')) || [
+            {
+                "nome": "Zeus",
+                "idade": "4 anos",
+                "raca": "British Shorthair",
+                "caracteristicas_filhotes": "Pelagem densa, estrutura robusta, temperamento equilibrado",
+                "foto": "./img/8.jpg",
+                "premios": ["Campeão Internacional 2023", "Melhor da Raça 2022"]
+            },
+            {
+                "nome": "Max",
+                "idade": "5 anos",
+                "raca": "Maine Coon",
+                "caracteristicas_filhotes": "Pelagem longa, porte grande, personalidade dócil",
+                "foto": "./img/9.jpg",
+                "premios": ["Grande Campeão 2023", "Melhor Maine Coon 2022"]
+            },
+            {
+                "nome": "Tom",
+                "idade": "3 anos",
+                "raca": "Ragdoll",
+                "caracteristicas_filhotes": "Pelagem sedosa, olhos azuis, temperamento calmo",
+                "foto": "./img/10.jpg",
+                "premios": ["Melhor Ragdoll 2023", "Vice-Campeão Nacional 2022"]
+            }
+        ];
 
         const padreadoresContainer = document.getElementById('padreadores-container');
-        dados.padreadores.forEach(padreador => {
+        padreadores.forEach(padreador => {
             const padreadorCard = document.createElement('div');
             padreadorCard.className = 'matriz-card';
             padreadorCard.innerHTML = `
