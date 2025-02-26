@@ -6,6 +6,75 @@
     <title>Gatil - Padreadores</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ... existing styles ... */
+
+        .padreador-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .padreador-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .padreador-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .padreador-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .padreador-card-content {
+            padding: 1.5rem;
+        }
+
+        .padreador-card h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+
+        .padreador-details {
+            margin: 1rem 0;
+        }
+
+        .padreador-details p {
+            margin: 0.5rem 0;
+            color: #666;
+        }
+
+        .padreador-premios {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .padreador-premios h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .padreador-premios ul {
+            margin: 0;
+            padding-left: 1.2rem;
+            color: #666;
+        }
+
+        .padreador-premios li {
+            margin: 0.3rem 0;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -22,7 +91,7 @@
 
     <main>
         <h1>Nossos Padreadores</h1>
-        <div id="padreadores-container" class="matrizes-grid"></div>
+        <div id="padreadores-container" class="padreador-grid"></div>
     </main>
 
     <footer>
@@ -65,40 +134,39 @@
             }
         ];
 
-        const padreadoresContainer = document.getElementById('padreadores-container');
-        padreadores.forEach(padreador => {
-            const padreadorCard = document.createElement('div');
-            padreadorCard.className = 'matriz-card';
-            padreadorCard.innerHTML = `
-                <img src="${padreador.foto}" alt="${padreador.nome}">
-                <h2>${padreador.nome}</h2>
-                <div class="caracteristicas-gato">
-                    <div class="caracteristica-bloco">
-                        <i class="fas fa-birthday-cake"></i>
-                        <span>Idade: ${padreador.idade}</span>
-                    </div>
-                    <div class="caracteristica-bloco">
-                        <i class="fas fa-cat"></i>
-                        <span>Raça: ${padreador.raca}</span>
-                    </div>
-                    <div class="caracteristica-bloco">
-                        <i class="fas fa-trophy"></i>
-                        <span>Premiações: ${padreador.premios.length}</span>
-                    </div>
-                </div>
-                <div class="matriz-info">
-                    <h3><i class="fas fa-paw"></i> Características dos Filhotes:</h3>
-                    <p>${padreador.caracteristicas_filhotes}</p>
-                </div>
-                <div class="premios-lista">
-                    <h3><i class="fas fa-award"></i> Principais Prêmios:</h3>
-                    <ul>
-                        ${padreador.premios.map(premio => `<li>${premio}</li>`).join('')}
-                    </ul>
+        function exibirPadreadores() {
+            const container = document.getElementById('padreadores-container');
+            const padreadores = JSON.parse(localStorage.getItem('padreadores')) || [];
+            
+            container.innerHTML = `
+                <div class="padreador-grid">
+                    ${padreadores.map(padreador => `
+                        <div class="padreador-card">
+                            <img src="${padreador.foto}" alt="${padreador.nome}">
+                            <div class="padreador-card-content">
+                                <h3>${padreador.nome}</h3>
+                                <div class="padreador-details">
+                                    <p><strong>Idade:</strong> ${padreador.idade}</p>
+                                    <p><strong>Raça:</strong> ${padreador.raca}</p>
+                                    <p><strong>Características dos Filhotes:</strong></p>
+                                    <p>${padreador.caracteristicas_filhotes}</p>
+                                </div>
+                                ${padreador.premios && padreador.premios.length > 0 ? `
+                                    <div class="padreador-premios">
+                                        <h4>Prêmios</h4>
+                                        <ul>
+                                            ${padreador.premios.map(premio => `<li>${premio}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
             `;
-            padreadoresContainer.appendChild(padreadorCard);
-        });
+        }
+
+        exibirPadreadores();
     </script>
 </body>
 </html> 

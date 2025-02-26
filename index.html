@@ -144,6 +144,102 @@
         .tag-personalidade i {
             font-size: 0.7rem;
         }
+
+        .cat-info {
+            margin: 1rem 0;
+        }
+
+        .cat-info p {
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            align-items: center;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .tag i {
+            font-size: 0.8rem;
+        }
+
+        .tag-saude {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .tag-personalidade {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .cat-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .cat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .cat-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .cat-card-content {
+            padding: 1.5rem;
+        }
+
+        .cat-card h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+
+        .cat-details {
+            margin: 1rem 0;
+        }
+
+        .cat-details p {
+            margin: 0.5rem 0;
+            color: #666;
+        }
+
+        .cat-parents {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .cat-parents p {
+            margin: 0.3rem 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
     </style>
 </body>
 </html> 

@@ -591,6 +591,96 @@
         </div>
     </div>
 
+    <!-- Popup de Edição de Matriz -->
+    <div id="popup-editar-matriz" class="popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2><i class="fas fa-edit"></i> Editar Matriz</h2>
+                <button class="btn-fechar" onclick="fecharPopupEditarMatriz()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="form-editar-matriz" class="form-contato">
+                <input type="hidden" id="editar-matriz-id">
+                <div class="form-group">
+                    <label for="editar-matriz-nome">Nome:</label>
+                    <input type="text" id="editar-matriz-nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-matriz-idade">Idade:</label>
+                    <input type="text" id="editar-matriz-idade" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-matriz-raca">Raça:</label>
+                    <input type="text" id="editar-matriz-raca" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-matriz-ninhadas">Ninhadas:</label>
+                    <input type="number" id="editar-matriz-ninhadas" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-matriz-caracteristicas">Características dos Filhotes:</label>
+                    <textarea id="editar-matriz-caracteristicas" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editar-matriz-foto">URL da Foto:</label>
+                    <input type="text" id="editar-matriz-foto" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-matriz-premios">Prêmios (um por linha):</label>
+                    <textarea id="editar-matriz-premios" required></textarea>
+                </div>
+                <div class="popup-actions">
+                    <button type="button" class="btn-cancelar" onclick="fecharPopupEditarMatriz()">Cancelar</button>
+                    <button type="submit" class="btn-enviar">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Popup de Edição de Padreador -->
+    <div id="popup-editar-padreador" class="popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2><i class="fas fa-edit"></i> Editar Padreador</h2>
+                <button class="btn-fechar" onclick="fecharPopupEditarPadreador()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="form-editar-padreador" class="form-contato">
+                <input type="hidden" id="editar-padreador-id">
+                <div class="form-group">
+                    <label for="editar-padreador-nome">Nome:</label>
+                    <input type="text" id="editar-padreador-nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-padreador-idade">Idade:</label>
+                    <input type="text" id="editar-padreador-idade" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-padreador-raca">Raça:</label>
+                    <input type="text" id="editar-padreador-raca" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-padreador-caracteristicas">Características dos Filhotes:</label>
+                    <textarea id="editar-padreador-caracteristicas" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editar-padreador-foto">URL da Foto:</label>
+                    <input type="text" id="editar-padreador-foto" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-padreador-premios">Prêmios (um por linha):</label>
+                    <textarea id="editar-padreador-premios" required></textarea>
+                </div>
+                <div class="popup-actions">
+                    <button type="button" class="btn-cancelar" onclick="fecharPopupEditarPadreador()">Cancelar</button>
+                    <button type="submit" class="btn-enviar">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2025 Zaidan Gatil. Todos os direitos reservados.</p>
     </footer>
@@ -1030,6 +1120,113 @@
         document.getElementById('popup-editar').addEventListener('click', function(e) {
             if (e.target === this) {
                 fecharPopupEditar();
+            }
+        });
+
+        // Funções para o popup de edição de matriz
+        window.editarMatriz = function(nome) {
+            const matriz = matrizes.find(m => m.nome === nome);
+            if (!matriz) return;
+
+            document.getElementById('editar-matriz-id').value = nome;
+            document.getElementById('editar-matriz-nome').value = matriz.nome;
+            document.getElementById('editar-matriz-idade').value = matriz.idade;
+            document.getElementById('editar-matriz-raca').value = matriz.raca;
+            document.getElementById('editar-matriz-ninhadas').value = matriz.ninhadas;
+            document.getElementById('editar-matriz-caracteristicas').value = matriz.caracteristicas_filhotes;
+            document.getElementById('editar-matriz-foto').value = matriz.foto;
+            document.getElementById('editar-matriz-premios').value = matriz.premios.join('\n');
+
+            document.getElementById('popup-editar-matriz').style.display = 'block';
+        };
+
+        window.fecharPopupEditarMatriz = function() {
+            document.getElementById('popup-editar-matriz').style.display = 'none';
+        };
+
+        // Funções para o popup de edição de padreador
+        window.editarPadreador = function(nome) {
+            const padreador = padreadores.find(p => p.nome === nome);
+            if (!padreador) return;
+
+            document.getElementById('editar-padreador-id').value = nome;
+            document.getElementById('editar-padreador-nome').value = padreador.nome;
+            document.getElementById('editar-padreador-idade').value = padreador.idade;
+            document.getElementById('editar-padreador-raca').value = padreador.raca;
+            document.getElementById('editar-padreador-caracteristicas').value = padreador.caracteristicas_filhotes;
+            document.getElementById('editar-padreador-foto').value = padreador.foto;
+            document.getElementById('editar-padreador-premios').value = padreador.premios.join('\n');
+
+            document.getElementById('popup-editar-padreador').style.display = 'block';
+        };
+
+        window.fecharPopupEditarPadreador = function() {
+            document.getElementById('popup-editar-padreador').style.display = 'none';
+        };
+
+        // Evento de submit do formulário de edição de matriz
+        document.getElementById('form-editar-matriz').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nomeAntigo = document.getElementById('editar-matriz-id').value;
+            const matrizIndex = matrizes.findIndex(m => m.nome === nomeAntigo);
+            
+            if (matrizIndex === -1) return;
+
+            const matrizAtualizada = {
+                nome: document.getElementById('editar-matriz-nome').value,
+                idade: document.getElementById('editar-matriz-idade').value,
+                raca: document.getElementById('editar-matriz-raca').value,
+                ninhadas: document.getElementById('editar-matriz-ninhadas').value,
+                caracteristicas_filhotes: document.getElementById('editar-matriz-caracteristicas').value,
+                foto: document.getElementById('editar-matriz-foto').value,
+                premios: document.getElementById('editar-matriz-premios').value.split('\n').filter(p => p.trim())
+            };
+
+            matrizes[matrizIndex] = matrizAtualizada;
+            localStorage.setItem('matrizes', JSON.stringify(matrizes));
+            
+            fecharPopupEditarMatriz();
+            atualizarListaMatrizes();
+            preencherSelectsPais();
+        });
+
+        // Evento de submit do formulário de edição de padreador
+        document.getElementById('form-editar-padreador').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nomeAntigo = document.getElementById('editar-padreador-id').value;
+            const padreadorIndex = padreadores.findIndex(p => p.nome === nomeAntigo);
+            
+            if (padreadorIndex === -1) return;
+
+            const padreadorAtualizado = {
+                nome: document.getElementById('editar-padreador-nome').value,
+                idade: document.getElementById('editar-padreador-idade').value,
+                raca: document.getElementById('editar-padreador-raca').value,
+                caracteristicas_filhotes: document.getElementById('editar-padreador-caracteristicas').value,
+                foto: document.getElementById('editar-padreador-foto').value,
+                premios: document.getElementById('editar-padreador-premios').value.split('\n').filter(p => p.trim())
+            };
+
+            padreadores[padreadorIndex] = padreadorAtualizado;
+            localStorage.setItem('padreadores', JSON.stringify(padreadores));
+            
+            fecharPopupEditarPadreador();
+            atualizarListaPadreadores();
+            preencherSelectsPais();
+        });
+
+        // Fechar popups ao clicar fora
+        document.getElementById('popup-editar-matriz').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharPopupEditarMatriz();
+            }
+        });
+
+        document.getElementById('popup-editar-padreador').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharPopupEditarPadreador();
             }
         });
     </script>

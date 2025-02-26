@@ -6,6 +6,75 @@
     <title>Gatil - Matrizes</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ... existing styles ... */
+
+        .matriz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .matriz-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .matriz-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .matriz-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .matriz-card-content {
+            padding: 1.5rem;
+        }
+
+        .matriz-card h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+
+        .matriz-details {
+            margin: 1rem 0;
+        }
+
+        .matriz-details p {
+            margin: 0.5rem 0;
+            color: #666;
+        }
+
+        .matriz-premios {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .matriz-premios h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .matriz-premios ul {
+            margin: 0;
+            padding-left: 1.2rem;
+            color: #666;
+        }
+
+        .matriz-premios li {
+            margin: 0.3rem 0;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -57,42 +126,40 @@
             }
         ];
 
-        const matrizesContainer = document.getElementById('matrizes-container');
-        matrizes.forEach(matriz => {
-            const matrizCard = document.createElement('div');
-            matrizCard.className = 'matriz-card';
-            matrizCard.innerHTML = `
-                <img src="${matriz.foto}" alt="${matriz.nome}">
-                <h2>${matriz.nome}</h2>
-                <div class="caracteristicas-gato">
-                    <div class="caracteristica-bloco">
-                        <i class="fas fa-birthday-cake"></i>
-                        <span>Idade: ${matriz.idade}</span>
-                    </div>
-                    <div class="caracteristica-bloco">
-                        <i class="fas fa-cat"></i>
-                        <span>Raça: ${matriz.raca}</span>
-                    </div>
-                    <div class="caracteristica-bloco">
-                        <i class="fas fa-baby"></i>
-                        <span>Ninhadas: ${matriz.ninhadas}</span>
-                    </div>
+        function exibirMatrizes() {
+            const container = document.getElementById('matrizes-container');
+            const matrizes = JSON.parse(localStorage.getItem('matrizes')) || [];
+            
+            container.innerHTML = `
+                <div class="matriz-grid">
+                    ${matrizes.map(matriz => `
+                        <div class="matriz-card">
+                            <img src="${matriz.foto}" alt="${matriz.nome}">
+                            <div class="matriz-card-content">
+                                <h3>${matriz.nome}</h3>
+                                <div class="matriz-details">
+                                    <p><strong>Idade:</strong> ${matriz.idade}</p>
+                                    <p><strong>Raça:</strong> ${matriz.raca}</p>
+                                    <p><strong>Ninhadas:</strong> ${matriz.ninhadas}</p>
+                                    <p><strong>Características dos Filhotes:</strong></p>
+                                    <p>${matriz.caracteristicas_filhotes}</p>
+                                </div>
+                                ${matriz.premios && matriz.premios.length > 0 ? `
+                                    <div class="matriz-premios">
+                                        <h4>Prêmios</h4>
+                                        <ul>
+                                            ${matriz.premios.map(premio => `<li>${premio}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
-                <div class="matriz-info">
-                    <h3><i class="fas fa-paw"></i> Características dos Filhotes:</h3>
-                    <p>${matriz.caracteristicas_filhotes}</p>
-                </div>
-                ${matriz.premios ? `
-                <div class="premios-lista">
-                    <h3><i class="fas fa-award"></i> Principais Prêmios:</h3>
-                    <ul>
-                        ${matriz.premios.map(premio => `<li>${premio}</li>`).join('')}
-                    </ul>
-                </div>
-                ` : ''}
             `;
-            matrizesContainer.appendChild(matrizCard);
-        });
+        }
+
+        exibirMatrizes();
     </script>
 </body>
 </html> 
