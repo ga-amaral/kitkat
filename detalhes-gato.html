@@ -6,6 +6,207 @@
     <title>Gatil - Detalhes do Gato</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        #detalhes-container {
+            padding: 2rem;
+        }
+
+        .gato-detalhes-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .gato-foto-container {
+            width: 100%;
+            max-height: 400px;
+            overflow: hidden;
+        }
+
+        .gato-foto-grande {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .detalhes-content {
+            padding: 2rem;
+        }
+
+        .detalhes-content h1 {
+            color: #333;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 0 1.5rem 0;
+        }
+
+        .caracteristicas-gato {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 0.5rem 0;
+        }
+
+        .caracteristica-bloco {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .caracteristica-bloco i {
+            color: #4CAF50;
+            width: 16px;
+            text-align: center;
+        }
+
+        .descricao-gato {
+            color: #666;
+            line-height: 1.6;
+            margin: 1.5rem 0;
+        }
+
+        .tags-section {
+            margin: 1.5rem 0;
+        }
+
+        .tags-section h3 {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tags-section h3 i {
+            color: #4CAF50;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .tag {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tag i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .tag-saude {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .tag-personalidade {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        #pais-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+        #pais-container h2 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        #pais-container h2 i {
+            color: #4CAF50;
+        }
+
+        .pais-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .pai-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .pai-card h3 {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .pai-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .pai-info p {
+            margin: 0.5rem 0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pai-info p i {
+            color: #4CAF50;
+            width: 16px;
+            text-align: center;
+        }
+
+        .btn-interesse {
+            display: block;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            margin-top: 2rem;
+        }
+
+        .btn-interesse:hover {
+            background-color: #388E3C;
+        }
+
+        .erro-mensagem {
+            text-align: center;
+            color: #d32f2f;
+            font-size: 1.2rem;
+            margin: 2rem 0;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -13,7 +214,9 @@
             <ul>
                 <li><a href="index.html">Nossos Gatos</a></li>
                 <li><a href="matrizes.html">Matrizes</a></li>
+                <li><a href="padreadores.html">Padreadores</a></li>
                 <li><a href="contato.html">Sobre & Contato</a></li>
+                <li><a href="login.html"><i class="fas fa-user-lock"></i> Área Admin</a></li>
             </ul>
         </nav>
     </header>
@@ -33,6 +236,13 @@
     </footer>
 
     <script>
+        // Verificar estado de login
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        const adminLink = document.querySelector('a[href="login.html"]');
+        if (usuarioLogado && usuarioLogado.tipo === 'admin') {
+            adminLink.href = 'admin.html';
+        }
+
         // Carregar dados do localStorage
         const gatos = JSON.parse(localStorage.getItem('gatos')) || [
             {
@@ -133,6 +343,8 @@
                                 </div>
                             </div>
                             ` : ''}
+
+                            <a href="contato.html?gato=${gato.nome}" class="btn-interesse">Tenho Interesse</a>
                         </div>
                     </div>
                 `;
@@ -150,9 +362,9 @@
                             <h3>Mãe - ${mae.nome}</h3>
                             <img src="${mae.foto}" alt="${mae.nome}">
                             <div class="pai-info">
-                                <p><strong>Raça:</strong> ${mae.raca}</p>
-                                <p><strong>Idade:</strong> ${mae.idade}</p>
-                                <p><strong>Ninhadas:</strong> ${mae.ninhadas}</p>
+                                <p><i class="fas fa-cat"></i> <strong>Raça:</strong> ${mae.raca}</p>
+                                <p><i class="fas fa-birthday-cake"></i> <strong>Idade:</strong> ${mae.idade}</p>
+                                <p><i class="fas fa-baby"></i> <strong>Ninhadas:</strong> ${mae.ninhadas}</p>
                             </div>
                         `;
                         paisContainer.appendChild(maeCard);
@@ -165,10 +377,10 @@
                             <h3>Pai - ${pai.nome}</h3>
                             <img src="${pai.foto}" alt="${pai.nome}">
                             <div class="pai-info">
-                                <p><strong>Raça:</strong> ${pai.raca}</p>
-                                <p><strong>Idade:</strong> ${pai.idade}</p>
+                                <p><i class="fas fa-cat"></i> <strong>Raça:</strong> ${pai.raca}</p>
+                                <p><i class="fas fa-birthday-cake"></i> <strong>Idade:</strong> ${pai.idade}</p>
                                 ${pai.premios ? `
-                                <p><strong>Premiações:</strong> ${pai.premios.length}</p>
+                                <p><i class="fas fa-trophy"></i> <strong>Premiações:</strong> ${pai.premios.length}</p>
                                 ` : ''}
                             </div>
                         `;
@@ -180,45 +392,5 @@
             }
         }
     </script>
-
-    <style>
-        .tags-section {
-            margin: 1.5rem 0;
-        }
-
-        .tags-section h3 {
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        .tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .tag {
-            font-size: 0.9rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .tag i {
-            font-size: 0.8rem;
-        }
-
-        .tag-saude {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .tag-personalidade {
-            background-color: #e3f2fd;
-            color: #1565c0;
-        }
-    </style>
 </body>
 </html> 

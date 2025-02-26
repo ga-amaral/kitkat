@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ... existing styles ... */
-
-        .matriz-grid {
+        .matrizes-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 2rem;
@@ -22,57 +20,108 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             overflow: hidden;
             transition: transform 0.2s;
+            margin-bottom: 2rem;
         }
 
         .matriz-card:hover {
             transform: translateY(-5px);
         }
 
+        .matriz-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            padding: 1.5rem;
+        }
+
         .matriz-card img {
             width: 100%;
             height: 250px;
             object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
         }
 
-        .matriz-card-content {
-            padding: 1.5rem;
-        }
-
-        .matriz-card h3 {
+        .matriz-card h2 {
             margin: 0 0 1rem 0;
             color: #333;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
-        .matriz-details {
+        .caracteristicas-matriz {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
             margin: 1rem 0;
+            padding: 0.5rem 0;
         }
 
-        .matriz-details p {
-            margin: 0.5rem 0;
+        .caracteristica-bloco {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
             color: #666;
         }
 
+        .caracteristica-bloco i {
+            color: #4CAF50;
+            width: 16px;
+            text-align: center;
+        }
+
         .matriz-premios {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             padding-top: 1rem;
             border-top: 1px solid #eee;
         }
 
         .matriz-premios h4 {
-            margin: 0 0 0.5rem 0;
+            margin: 0 0 0.8rem 0;
             color: #333;
             font-size: 1rem;
+            font-weight: bold;
         }
 
         .matriz-premios ul {
+            list-style: none;
             margin: 0;
-            padding-left: 1.2rem;
-            color: #666;
+            padding: 0;
         }
 
         .matriz-premios li {
-            margin: 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin: 0.5rem 0;
             font-size: 0.9rem;
+            color: #666;
+        }
+
+        .matriz-premios li i {
+            color: #FFD700;
+            width: 16px;
+            text-align: center;
+        }
+
+        .btn-contato {
+            display: block;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 1rem;
+            border-radius: 0 0 8px 8px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .btn-contato:hover {
+            background-color: #388E3C;
         }
     </style>
 </head>
@@ -131,28 +180,45 @@
             const matrizes = JSON.parse(localStorage.getItem('matrizes')) || [];
             
             container.innerHTML = `
-                <div class="matriz-grid">
+                <div class="matrizes-grid">
                     ${matrizes.map(matriz => `
                         <div class="matriz-card">
-                            <img src="${matriz.foto}" alt="${matriz.nome}">
-                            <div class="matriz-card-content">
-                                <h3>${matriz.nome}</h3>
-                                <div class="matriz-details">
-                                    <p><strong>Idade:</strong> ${matriz.idade}</p>
-                                    <p><strong>Raça:</strong> ${matriz.raca}</p>
-                                    <p><strong>Ninhadas:</strong> ${matriz.ninhadas}</p>
-                                    <p><strong>Características dos Filhotes:</strong></p>
-                                    <p>${matriz.caracteristicas_filhotes}</p>
+                            <div class="matriz-link">
+                                <img src="${matriz.foto}" alt="${matriz.nome}">
+                                <h2>${matriz.nome}</h2>
+                                <div class="caracteristicas-matriz">
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-birthday-cake"></i>
+                                        <span>Idade: ${matriz.idade}</span>
+                                    </div>
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-cat"></i>
+                                        <span>Raça: ${matriz.raca}</span>
+                                    </div>
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-baby"></i>
+                                        <span>Ninhadas: ${matriz.ninhadas}</span>
+                                    </div>
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-paw"></i>
+                                        <span>Características: ${matriz.caracteristicas_filhotes}</span>
+                                    </div>
                                 </div>
                                 ${matriz.premios && matriz.premios.length > 0 ? `
                                     <div class="matriz-premios">
                                         <h4>Prêmios</h4>
                                         <ul>
-                                            ${matriz.premios.map(premio => `<li>${premio}</li>`).join('')}
+                                            ${matriz.premios.map(premio => `
+                                                <li>
+                                                    <i class="fas fa-trophy"></i>
+                                                    <span>${premio}</span>
+                                                </li>
+                                            `).join('')}
                                         </ul>
                                     </div>
                                 ` : ''}
                             </div>
+                            <a href="contato.html?matriz=${matriz.nome}" class="btn-contato">Entre em Contato</a>
                         </div>
                     `).join('')}
                 </div>

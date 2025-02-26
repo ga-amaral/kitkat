@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ... existing styles ... */
-
-        .padreador-grid {
+        .padreadores-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 2rem;
@@ -22,57 +20,108 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             overflow: hidden;
             transition: transform 0.2s;
+            margin-bottom: 2rem;
         }
 
         .padreador-card:hover {
             transform: translateY(-5px);
         }
 
+        .padreador-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            padding: 1.5rem;
+        }
+
         .padreador-card img {
             width: 100%;
             height: 250px;
             object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
         }
 
-        .padreador-card-content {
-            padding: 1.5rem;
-        }
-
-        .padreador-card h3 {
+        .padreador-card h2 {
             margin: 0 0 1rem 0;
             color: #333;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
-        .padreador-details {
+        .caracteristicas-padreador {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
             margin: 1rem 0;
+            padding: 0.5rem 0;
         }
 
-        .padreador-details p {
-            margin: 0.5rem 0;
+        .caracteristica-bloco {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
             color: #666;
         }
 
+        .caracteristica-bloco i {
+            color: #4CAF50;
+            width: 16px;
+            text-align: center;
+        }
+
         .padreador-premios {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             padding-top: 1rem;
             border-top: 1px solid #eee;
         }
 
         .padreador-premios h4 {
-            margin: 0 0 0.5rem 0;
+            margin: 0 0 0.8rem 0;
             color: #333;
             font-size: 1rem;
+            font-weight: bold;
         }
 
         .padreador-premios ul {
+            list-style: none;
             margin: 0;
-            padding-left: 1.2rem;
-            color: #666;
+            padding: 0;
         }
 
         .padreador-premios li {
-            margin: 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin: 0.5rem 0;
             font-size: 0.9rem;
+            color: #666;
+        }
+
+        .padreador-premios li i {
+            color: #FFD700;
+            width: 16px;
+            text-align: center;
+        }
+
+        .btn-contato {
+            display: block;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 1rem;
+            border-radius: 0 0 8px 8px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .btn-contato:hover {
+            background-color: #388E3C;
         }
     </style>
 </head>
@@ -91,7 +140,7 @@
 
     <main>
         <h1>Nossos Padreadores</h1>
-        <div id="padreadores-container" class="padreador-grid"></div>
+        <div id="padreadores-container" class="padreadores-grid"></div>
     </main>
 
     <footer>
@@ -139,27 +188,41 @@
             const padreadores = JSON.parse(localStorage.getItem('padreadores')) || [];
             
             container.innerHTML = `
-                <div class="padreador-grid">
+                <div class="padreadores-grid">
                     ${padreadores.map(padreador => `
                         <div class="padreador-card">
-                            <img src="${padreador.foto}" alt="${padreador.nome}">
-                            <div class="padreador-card-content">
-                                <h3>${padreador.nome}</h3>
-                                <div class="padreador-details">
-                                    <p><strong>Idade:</strong> ${padreador.idade}</p>
-                                    <p><strong>Raça:</strong> ${padreador.raca}</p>
-                                    <p><strong>Características dos Filhotes:</strong></p>
-                                    <p>${padreador.caracteristicas_filhotes}</p>
+                            <div class="padreador-link">
+                                <img src="${padreador.foto}" alt="${padreador.nome}">
+                                <h2>${padreador.nome}</h2>
+                                <div class="caracteristicas-padreador">
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-birthday-cake"></i>
+                                        <span>Idade: ${padreador.idade}</span>
+                                    </div>
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-cat"></i>
+                                        <span>Raça: ${padreador.raca}</span>
+                                    </div>
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-paw"></i>
+                                        <span>Características: ${padreador.caracteristicas_filhotes}</span>
+                                    </div>
                                 </div>
                                 ${padreador.premios && padreador.premios.length > 0 ? `
                                     <div class="padreador-premios">
                                         <h4>Prêmios</h4>
                                         <ul>
-                                            ${padreador.premios.map(premio => `<li>${premio}</li>`).join('')}
+                                            ${padreador.premios.map(premio => `
+                                                <li>
+                                                    <i class="fas fa-trophy"></i>
+                                                    <span>${premio}</span>
+                                                </li>
+                                            `).join('')}
                                         </ul>
                                     </div>
                                 ` : ''}
                             </div>
+                            <a href="contato.html?padreador=${padreador.nome}" class="btn-contato">Entre em Contato</a>
                         </div>
                     `).join('')}
                 </div>

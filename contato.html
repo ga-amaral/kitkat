@@ -6,6 +6,106 @@
     <title>Gatil - Sobre & Contato</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sobre {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .sobre h2 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .sobre p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .sobre ul {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .sobre li {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin: 0.5rem 0;
+            color: #666;
+        }
+
+        .sobre li i {
+            color: #4CAF50;
+            width: 16px;
+            text-align: center;
+        }
+
+        .contato {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+        .contato h2 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .btn-enviar {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .btn-enviar:hover {
+            background-color: #388E3C;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -61,6 +161,13 @@
     </footer>
 
     <script>
+        // Verificar estado de login
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        const adminLink = document.querySelector('a[href="login.html"]');
+        if (usuarioLogado && usuarioLogado.tipo === 'admin') {
+            adminLink.href = 'admin.html';
+        }
+
         // Carregar dados do localStorage
         const gatos = JSON.parse(localStorage.getItem('gatos')) || [
             {
@@ -95,11 +202,11 @@
             <p>Somos um gatil especializado na criação e cuidado de gatos com muito amor e dedicação. Nossa missão é encontrar lares amorosos para nossos gatinhos e garantir que cada um deles tenha uma vida feliz e saudável.</p>
             <p>Todos os nossos gatos recebem:</p>
             <ul>
-                <li>Acompanhamento veterinário regular</li>
-                <li>Vacinas em dia</li>
-                <li>Vermifugação</li>
-                <li>Microchipagem</li>
-                <li>Socialização adequada</li>
+                <li><i class="fas fa-check"></i> Acompanhamento veterinário regular</li>
+                <li><i class="fas fa-syringe"></i> Vacinas em dia</li>
+                <li><i class="fas fa-shield-alt"></i> Vermifugação</li>
+                <li><i class="fas fa-microchip"></i> Microchipagem</li>
+                <li><i class="fas fa-heart"></i> Socialização adequada</li>
             </ul>
             <p>Estamos localizados em uma área tranquila e espaçosa, onde nossos gatos têm todo o conforto e espaço para brincar e se desenvolver.</p>
         `;
@@ -132,6 +239,13 @@
             if (value.length > 2) value = '(' + value.slice(0, 2) + ') ' + value.slice(2);
             if (value.length > 9) value = value.slice(0, 10) + '-' + value.slice(10);
             e.target.value = value;
+        });
+
+        // Adicionar evento de submit ao formulário
+        document.getElementById('form-contato').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Mensagem enviada com sucesso! Em breve entraremos em contato.');
+            this.reset();
         });
     </script>
 </body>
