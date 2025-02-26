@@ -45,12 +45,14 @@
         .gato-foto-container {
             width: 100%;
             max-width: 600px;
-            height: 500px;
+            height: 400px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
         }
 
         .gato-foto-grande {
@@ -236,15 +238,64 @@
             font-size: 1.2rem;
             margin: 2rem 0;
         }
+
+        @media (max-width: 768px) {
+            #detalhes-container {
+                padding: 1rem;
+            }
+
+            .gato-foto-container {
+                height: 300px;
+                padding: 0.5rem;
+            }
+
+            .detalhes-content {
+                padding: 1rem;
+            }
+
+            .caracteristicas-gato {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .tags-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .detalhes-content h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .logo-container img {
+            max-height: 100px;
+            width: auto;
+        }
     </style>
 </head>
 <body>
     <header>
+        <div class="logo-container">
+            <img src="./img/logo.png" alt="Logo do Gatil">
+        </div>
+        <button class="menu-toggle" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <nav>
             <ul>
                 <li><a href="index.html">Nossos Gatos</a></li>
                 <li><a href="matrizes.html">Matrizes</a></li>
                 <li><a href="padreadores.html">Padreadores</a></li>
+                <li><a href="vendidos.html">Vendidos</a></li>
                 <li><a href="contato.html">Sobre & Contato</a></li>
                 <li><a href="login.html"><i class="fas fa-user-lock"></i> Área Admin</a></li>
             </ul>
@@ -266,6 +317,23 @@
     </footer>
 
     <script>
+        // Menu Hambúrguer
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navMenu = document.querySelector('nav ul');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Fechar menu ao clicar em um link
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+
         // Verificar estado de login
         const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
         const adminLink = document.querySelector('a[href="login.html"]');
