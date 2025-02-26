@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gatil - Sobre & Contato</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Nossos Gatos</a></li>
+                <li><a href="matrizes.html">Matrizes</a></li>
+                <li><a href="contato.html" class="active">Sobre & Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="sobre">
+            <h1>Sobre Nosso Gatil</h1>
+            <div id="sobre-content"></div>
+        </section>
+
+        <section class="contato">
+            <h2>Entre em Contato</h2>
+            <form id="form-contato" class="form-contato">
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="whatsapp">WhatsApp:</label>
+                    <input type="tel" id="whatsapp" name="whatsapp" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="gato-interesse">Gato de Interesse:</label>
+                    <select id="gato-interesse" name="gato-interesse">
+                        <option value="">Selecione um gato</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mensagem">Mensagem:</label>
+                    <textarea id="mensagem" name="mensagem" required></textarea>
+                </div>
+
+                <button type="submit" class="btn-enviar">Enviar Mensagem</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Zaidan Gatil. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // Dados do site diretamente no JavaScript
+        const dados = {
+            "gatos": [
+                {
+                    "nome": "Luna",
+                    "idade": "6 meses",
+                    "cor": "Branco e Cinza",
+                    "foto": "https://placekitten.com/400/300"
+                },
+                {
+                    "nome": "Thor",
+                    "idade": "4 meses",
+                    "cor": "Laranja Tigrado",
+                    "foto": "https://placekitten.com/401/300"
+                },
+                {
+                    "nome": "Nina",
+                    "idade": "5 meses",
+                    "cor": "Preto",
+                    "foto": "https://placekitten.com/402/300"
+                },
+                {
+                    "nome": "Felix",
+                    "idade": "3 meses",
+                    "cor": "Tricolor",
+                    "foto": "https://placekitten.com/403/300"
+                }
+            ],
+            "sobre": "<h2>Bem-vindo ao nosso Gatil</h2><p>Somos um gatil especializado na criação e cuidado de gatos com muito amor e dedicação. Nossa missão é encontrar lares amorosos para nossos gatinhos e garantir que cada um deles tenha uma vida feliz e saudável.</p><p>Todos os nossos gatos recebem:</p><ul><li>Acompanhamento veterinário regular</li><li>Vacinas em dia</li><li>Vermifugação</li><li>Microchipagem</li><li>Socialização adequada</li></ul><p>Estamos localizados em uma área tranquila e espaçosa, onde nossos gatos têm todo o conforto e espaço para brincar e se desenvolver.</p>"
+        };
+
+        // Preencher informações sobre o gatil
+        document.getElementById('sobre-content').innerHTML = dados.sobre;
+
+        // Preencher select com os gatos disponíveis
+        const select = document.getElementById('gato-interesse');
+        dados.gatos.forEach(gato => {
+            const option = document.createElement('option');
+            option.value = gato.nome;
+            option.textContent = gato.nome;
+            select.appendChild(option);
+        });
+
+        // Verificar se há um gato selecionado na URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const gatoSelecionado = urlParams.get('gato');
+        if (gatoSelecionado) {
+            select.value = gatoSelecionado;
+        }
+
+        // Formatar número do WhatsApp
+        document.getElementById('whatsapp').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+            if (value.length > 2) value = '(' + value.slice(0, 2) + ') ' + value.slice(2);
+            if (value.length > 9) value = value.slice(0, 10) + '-' + value.slice(10);
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html> 

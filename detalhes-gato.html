@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gatil - Detalhes do Gato</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Nossos Gatos</a></li>
+                <li><a href="matrizes.html">Matrizes</a></li>
+                <li><a href="contato.html">Sobre & Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div id="detalhes-container">
+            <div id="gato-detalhes"></div>
+            <div id="pais-container">
+                <h2><i class="fas fa-paw"></i> Informações dos Pais</h2>
+                <div class="pais-grid"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Zaidan Gatil. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        const dados = {
+            "gatos": [
+                {
+                    "nome": "Luna",
+                    "idade": "6 meses",
+                    "cor": "Branco e Cinza",
+                    "foto": "./img/1.jpg",
+                    "descricao": "Luna é uma gatinha doce e brincalhona. Ela adora brincar com bolinhas e se esconder em caixas. Muito sociável, se dá bem com outros gatos e adora receber carinho.",
+                    "personalidade": ["Dócil", "Brincalhona", "Sociável"],
+                    "saude": ["Vacinada", "Vermifugada", "Microchipada", "Castrada"],
+                    "pais": {
+                        "mae": "Bella",
+                        "pai": "Zeus"
+                    }
+                },
+                {
+                    "nome": "Thor",
+                    "idade": "4 meses",
+                    "cor": "Laranja Tigrado",
+                    "foto": "./img/2.jpg",
+                    "descricao": "Thor é um filhote muito energético e corajoso. Adora explorar novos ambientes e é muito carinhoso com humanos. Será um excelente companheiro para famílias ativas.",
+                    "personalidade": ["Energético", "Corajoso", "Carinhoso"],
+                    "saude": ["Vacinado", "Vermifugado", "Microchipado"],
+                    "pais": {
+                        "mae": "Mia",
+                        "pai": "Max"
+                    }
+                },
+                {
+                    "nome": "Nina",
+                    "idade": "5 meses",
+                    "cor": "Preto",
+                    "foto": "./img/3.jpg",
+                    "descricao": "Nina é uma gatinha elegante e independente. Muito inteligente, aprende rapidamente e adora brinquedos interativos. Tem um ronronar suave e constante.",
+                    "personalidade": ["Elegante", "Independente", "Inteligente"],
+                    "saude": ["Vacinada", "Vermifugada", "Microchipada"],
+                    "pais": {
+                        "mae": "Bella",
+                        "pai": "Tom"
+                    }
+                },
+                {
+                    "nome": "Felix",
+                    "idade": "3 meses",
+                    "cor": "Tricolor",
+                    "foto": "./img/7.jpg",
+                    "descricao": "Felix é pura alegria e diversão! Este pequeno tricolor é muito afetuoso e adora brincar com outros gatos. Será perfeito para famílias que já têm outros felinos.",
+                    "personalidade": ["Afetuoso", "Brincalhão", "Sociável"],
+                    "saude": ["Vacinado", "Vermifugado", "Microchipado"],
+                    "pais": {
+                        "mae": "Mia",
+                        "pai": "Zeus"
+                    }
+                }
+            ],
+            "matrizes": [
+                {
+                    "nome": "Bella",
+                    "idade": "3 anos",
+                    "raca": "Persa",
+                    "ninhadas": "2",
+                    "caracteristicas_filhotes": "Pelagem longa, temperamento dócil, cores variadas incluindo branco, cinza e bicolor",
+                    "foto": "./img/5.jpg"
+                },
+                {
+                    "nome": "Mia",
+                    "idade": "4 anos",
+                    "raca": "Siamês",
+                    "ninhadas": "3",
+                    "caracteristicas_filhotes": "Pelagem curta, olhos azuis, pontas escuras e personalidade ativa",
+                    "foto": "./img/6.jpg"
+                }
+            ]
+        };
+
+        // Pegar o nome do gato da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const gatoNome = urlParams.get('gato');
+
+        if (gatoNome) {
+            const gato = dados.gatos.find(g => g.nome === gatoNome);
+            if (gato) {
+                // Mostrar detalhes do gato
+                const detalhesContainer = document.getElementById('gato-detalhes');
+                detalhesContainer.innerHTML = `
+                    <div class="gato-detalhes-card">
+                        <div class="gato-foto-container">
+                            <img src="${gato.foto}" alt="${gato.nome}" class="gato-foto-grande">
+                        </div>
+                        <div class="detalhes-content">
+                            <h1>${gato.nome}</h1>
+                            <div class="caracteristicas-gato">
+                                <div class="caracteristica-bloco">
+                                    <i class="fas fa-birthday-cake"></i>
+                                    <span>Idade: ${gato.idade}</span>
+                                </div>
+                                <div class="caracteristica-bloco">
+                                    <i class="fas fa-palette"></i>
+                                    <span>Cor: ${gato.cor}</span>
+                                </div>
+                            </div>
+                            <p class="descricao-gato">${gato.descricao}</p>
+                            <h3><i class="fas fa-heart"></i> Personalidade</h3>
+                            <ul class="detalhes-lista">
+                                ${gato.personalidade.map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                            <h3><i class="fas fa-medkit"></i> Saúde</h3>
+                            <ul class="detalhes-lista">
+                                ${gato.saude.map(s => `<li>${s}</li>`).join('')}
+                            </ul>
+                            <div class="acoes-container">
+                                <a href="contato.html?gato=${gato.nome}" class="btn-interesse">Tenho Interesse</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Mostrar informações dos pais
+                const paisGrid = document.querySelector('.pais-grid');
+                const mae = dados.matrizes.find(m => m.nome === gato.pais.mae);
+                
+                if (mae) {
+                    paisGrid.innerHTML += `
+                        <div class="matriz-card">
+                            <h3>Mãe</h3>
+                            <img src="${mae.foto}" alt="${mae.nome}">
+                            <h2>${mae.nome}</h2>
+                            <div class="caracteristicas-gato">
+                                <div class="caracteristica-bloco">
+                                    <i class="fas fa-cat"></i>
+                                    <span>Raça: ${mae.raca}</span>
+                                </div>
+                                <div class="caracteristica-bloco">
+                                    <i class="fas fa-baby"></i>
+                                    <span>Ninhadas: ${mae.ninhadas}</span>
+                                </div>
+                            </div>
+                            <p class="matriz-info">${mae.caracteristicas_filhotes}</p>
+                            <a href="matrizes.html" class="btn-interesse">Ver Detalhes da Matriz</a>
+                        </div>
+                    `;
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

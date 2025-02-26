@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gatil - Matrizes</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Nossos Gatos</a></li>
+                <li><a href="matrizes.html" class="active">Matrizes</a></li>
+                <li><a href="contato.html">Sobre & Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Nossas Matrizes</h1>
+        <div id="matrizes-container" class="matrizes-grid"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Zaidan Gatil. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // Dados das matrizes diretamente no JavaScript
+        const dados = {
+            "matrizes": [
+                {
+                    "nome": "Bella",
+                    "idade": "3 anos",
+                    "raca": "Persa",
+                    "ninhadas": "2",
+                    "caracteristicas_filhotes": "Pelagem longa, temperamento dócil, cores variadas incluindo branco, cinza e bicolor",
+                    "foto": "./img/5.jpg"
+                },
+                {
+                    "nome": "Mia",
+                    "idade": "4 anos",
+                    "raca": "Siamês",
+                    "ninhadas": "3",
+                    "caracteristicas_filhotes": "Pelagem curta, olhos azuis, pontas escuras e personalidade ativa",
+                    "foto": "./img/6.jpg"
+                }
+            ]
+        };
+
+        const matrizesContainer = document.getElementById('matrizes-container');
+        dados.matrizes.forEach(matriz => {
+            const matrizCard = document.createElement('div');
+            matrizCard.className = 'matriz-card';
+            matrizCard.innerHTML = `
+                <img src="${matriz.foto}" alt="${matriz.nome}">
+                <h2>${matriz.nome}</h2>
+                <div class="caracteristicas-gato">
+                    <div class="caracteristica-bloco">
+                        <i class="fas fa-birthday-cake"></i>
+                        <span>Idade: ${matriz.idade}</span>
+                    </div>
+                    <div class="caracteristica-bloco">
+                        <i class="fas fa-cat"></i>
+                        <span>Raça: ${matriz.raca}</span>
+                    </div>
+                    <div class="caracteristica-bloco">
+                        <i class="fas fa-baby"></i>
+                        <span>Ninhadas: ${matriz.ninhadas}</span>
+                    </div>
+                </div>
+                <div class="matriz-info">
+                    <h3><i class="fas fa-paw"></i> Características dos Filhotes:</h3>
+                    <p>${matriz.caracteristicas_filhotes}</p>
+                </div>
+            `;
+            matrizesContainer.appendChild(matrizCard);
+        });
+    </script>
+</body>
+</html> 
