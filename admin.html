@@ -12,9 +12,10 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem;
-            background-color: #f8f9fa;
+            background-color: #262626;
             margin-bottom: 2rem;
             border-radius: 8px;
+            color: white;
         }
 
         .admin-user-info {
@@ -25,13 +26,147 @@
 
         .admin-user-info i {
             font-size: 1.5rem;
-            color: #4CAF50;
+            color: rgb(224,190,82);
         }
 
         .admin-container {
+            padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
+            background-color: black;
+        }
+
+        .admin-section {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(224,190,82,0.1);
+            border: 1px solid rgba(224,190,82,0.2);
+        }
+
+        .admin-section h2 {
+            color: rgb(224,190,82);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .admin-section h2 i {
+            color: rgb(224,190,82);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgb(0, 0, 0);
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(224,190,82,0.2);
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: white;
+            color: #262626;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: rgb(224,190,82);
+        }
+
+        .btn-admin {
+            background-color: rgb(224,190,82);
+            color: black;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn-admin:hover {
+            background-color: rgb(201,171,74);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            color: white;
+        }
+
+        .admin-table th,
+        .admin-table td {
             padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(224,190,82,0.2);
+        }
+
+        .admin-table th {
+            background-color: #262626;
+            font-weight: bold;
+        }
+
+        .admin-table tr:hover {
+            background-color: #262626;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn-edit {
+            background-color: rgb(224,190,82);
+            color: black;
+        }
+
+        .btn-delete {
+            background-color: rgb(224,190,82);
+            color: black;
+            padding: 0.5rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-edit:hover {
+            background-color: rgb(201,171,74);
+        }
+
+        .btn-excluir {
+            background-color: rgb(224,190,82);
+            color: black;
+            padding: 0.5rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
         .admin-tabs {
@@ -51,7 +186,7 @@
         }
 
         .tab-button.active {
-            background-color: #4CAF50;
+            background-color: rgb(224,190,82);
             color: white;
         }
 
@@ -71,10 +206,12 @@
         }
 
         .card {
-            background: white;
+            background: #262626;
             padding: 1rem;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: white;
+            border: 1px solid rgba(224,190,82,0.2);
         }
 
         .card img {
@@ -104,20 +241,22 @@
         }
 
         .form-section {
-            background: white;
+            background: #262626;
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
+            color: white;
         }
 
         .success-message {
-            color: #28a745;
-            background-color: #e8f5e9;
+            color: rgb(224,190,82);
+            background-color: rgba(224,190,82,0.1);
             padding: 0.5rem;
             border-radius: 4px;
             margin-bottom: 1rem;
             display: none;
+            border: 1px solid rgba(224,190,82,0.2);
         }
 
         .status-badge {
@@ -149,11 +288,13 @@
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
+            color: black;
         }
 
         .checkbox-group input[type="checkbox"] {
             width: auto;
             margin: 0;
+            accent-color: rgb(224,190,82);
         }
 
         .tags-container {
@@ -199,13 +340,14 @@
         }
 
         .popup-content {
-            background-color: white;
+            background-color: #1a1a1a;
             max-width: 800px;
             margin: 2rem auto;
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: relative;
+            color: white;
         }
 
         .popup-header {
@@ -217,7 +359,7 @@
 
         .popup-header h2 {
             margin: 0;
-            color: #333;
+            color: rgb(224,190,82);
         }
 
         .btn-fechar {
@@ -225,11 +367,11 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: #666;
+            color: white;
         }
 
         .btn-fechar:hover {
-            color: #333;
+            color: rgb(224,190,82);
         }
 
         .popup-actions {
@@ -261,6 +403,52 @@
         .logo-container img {
             max-height: 100px;
             width: auto;
+        }
+
+        .padreador-premios {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #333;
+        }
+
+        .padreador-premios h4 {
+            margin: 0 0 0.8rem 0;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .padreador-premios ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .padreador-premios li {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .padreador-premios li i {
+            color: rgb(224,190,82);
+            width: 16px;
+            text-align: center;
+        }
+
+        .usuario-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+        }
+
+        .usuario-info i {
+            color: rgb(224,190,82);
+            font-size: 1.5rem;
         }
     </style>
 </head>
@@ -765,7 +953,10 @@
                         ${gato.saude.map(tag => `<span class="tag tag-saude"><i class="fas fa-heart"></i> ${tag}</span>`).join('')}
                         ${gato.personalidade.map(tag => `<span class="tag tag-personalidade"><i class="fas fa-smile"></i> ${tag}</span>`).join('')}
                     </div>
-                    <span class="status-badge status-${gato.status}">${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}</span>
+                    <span class="status-badge status-${gato.status}">
+                        ${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}
+                        ${gato.dataVenda ? `<br>Vendido em: ${gato.dataVenda}` : ''}
+                    </span>
                     <div class="card-actions">
                         <button class="btn-editar" onclick="editarGato('${gato.nome}')">
                             <i class="fas fa-edit"></i>
@@ -905,13 +1096,17 @@
             if (document.getElementById('tag-calmo').checked) personalidade.push('Calmo');
             if (document.getElementById('tag-independente').checked) personalidade.push('Independente');
 
+            const status = document.getElementById('gato-status').value;
+            const dataVenda = status === 'vendido' ? new Date().toLocaleDateString('pt-BR') : null;
+
             const novoGato = {
                 nome: document.getElementById('gato-nome').value,
                 idade: document.getElementById('gato-idade').value,
                 cor: document.getElementById('gato-cor').value,
                 foto: document.getElementById('gato-foto').value,
                 descricao: document.getElementById('gato-descricao').value,
-                status: document.getElementById('gato-status').value,
+                status: status,
+                dataVenda: dataVenda,
                 pais: {
                     mae: document.getElementById('gato-mae').value,
                     pai: document.getElementById('gato-pai').value
@@ -1110,13 +1305,25 @@
             if (document.getElementById('editar-tag-calmo').checked) personalidade.push('Calmo');
             if (document.getElementById('editar-tag-independente').checked) personalidade.push('Independente');
 
+            const novoStatus = document.getElementById('editar-gato-status').value;
+            const gatoAtual = gatos[gatoIndex];
+            let dataVenda = gatoAtual.dataVenda;
+
+            // Atualiza a data de venda apenas se o status mudou para vendido
+            if (novoStatus === 'vendido' && gatoAtual.status !== 'vendido') {
+                dataVenda = new Date().toLocaleDateString('pt-BR');
+            } else if (novoStatus !== 'vendido') {
+                dataVenda = null;
+            }
+
             const gatoAtualizado = {
                 nome: document.getElementById('editar-gato-nome').value,
                 idade: document.getElementById('editar-gato-idade').value,
                 cor: document.getElementById('editar-gato-cor').value,
                 foto: document.getElementById('editar-gato-foto').value,
                 descricao: document.getElementById('editar-gato-descricao').value,
-                status: document.getElementById('editar-gato-status').value,
+                status: novoStatus,
+                dataVenda: dataVenda,
                 pais: {
                     mae: document.getElementById('editar-gato-mae').value,
                     pai: document.getElementById('editar-gato-pai').value

@@ -11,6 +11,7 @@
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
+            background-color: black;
         }
 
         .titulo-secao {
@@ -18,11 +19,11 @@
             align-items: center;
             gap: 1rem;
             margin-bottom: 2rem;
-            color: #333;
+            color: white;
         }
 
         .titulo-secao i {
-            color: #4CAF50;
+            color: rgb(224,190,82);
         }
 
         .vendidos-grid {
@@ -32,11 +33,12 @@
         }
 
         .gato-vendido-card {
-            background: white;
+            background: #1a1a1a;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(224,190,82,0.1);
             overflow: hidden;
             transition: transform 0.2s;
+            border: 1px solid rgba(224,190,82,0.2);
         }
 
         .gato-vendido-card:hover {
@@ -60,7 +62,7 @@
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background: #4CAF50;
+            background: rgb(224,190,82);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;
@@ -72,12 +74,14 @@
 
         .gato-info {
             padding: 1.5rem;
+            background-color: #1a1a1a;
+            color: white;
         }
 
         .gato-nome {
             font-size: 1.2rem;
             font-weight: bold;
-            color: #333;
+            color: white;
             margin-bottom: 1rem;
         }
 
@@ -85,18 +89,19 @@
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
+            color: white;
         }
 
         .detalhe {
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            color: #666;
+            color: white;
             font-size: 0.9rem;
         }
 
         .detalhe i {
-            color: #4CAF50;
+            color: rgb(224,190,82);
             width: 16px;
             text-align: center;
         }
@@ -104,8 +109,8 @@
         .data-venda {
             margin-top: 1rem;
             padding-top: 1rem;
-            border-top: 1px solid #eee;
-            color: #666;
+            border-top: 1px solid #333;
+            color: white;
             font-size: 0.9rem;
             display: flex;
             align-items: center;
@@ -113,7 +118,7 @@
         }
 
         .data-venda i {
-            color: #4CAF50;
+            color: rgb(224,190,82);
         }
 
         @media (max-width: 768px) {
@@ -241,7 +246,7 @@
         } else {
             vendidosGrid.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; color: #666; padding: 2rem;">
-                    <i class="fas fa-info-circle" style="font-size: 2rem; color: #4CAF50; margin-bottom: 1rem;"></i>
+                    <i class="fas fa-info-circle" style="font-size: 2rem; color: rgb(224,190,82); margin-bottom: 1rem;"></i>
                     <p>Nenhum gato vendido para exibir no momento.</p>
                 </div>
             `;

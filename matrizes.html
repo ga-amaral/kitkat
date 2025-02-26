@@ -15,12 +15,13 @@
         }
 
         .matriz-card {
-            background: white;
+            background: #1a1a1a;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(224,190,82,0.1);
             overflow: hidden;
             transition: transform 0.2s;
-            margin-bottom: 2rem;
+            border: 1px solid rgba(224,190,82,0.2);
+            margin-bottom: 1rem;
         }
 
         .matriz-card:hover {
@@ -31,7 +32,7 @@
             text-decoration: none;
             color: inherit;
             display: block;
-            padding: 1.5rem;
+            padding: 1rem;
         }
 
         .matriz-card img {
@@ -39,19 +40,19 @@
             height: 350px;
             object-fit: cover;
             border-radius: 8px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .matriz-foto-container {
             position: relative;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .matriz-rotulo {
             position: absolute;
             top: 1rem;
             left: 1rem;
-            background-color: #4CAF50;
+            background-color: rgb(224,190,82);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;
@@ -61,51 +62,53 @@
 
         .matriz-card h2 {
             margin: 0;
-            color: #333;
-            font-size: 1.5rem;
+            color: white;
+            font-size: 1.2rem;
             font-weight: bold;
-            width: 100%;
-            padding: 1rem;
-            background-color: #f8f9fa;
+            padding: 0.5rem;
+            background-color: #262626;
             border-radius: 8px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(224,190,82,0.2);
         }
 
         .caracteristicas-matriz {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin: 1rem 0;
-            padding: 0.5rem 0;
+            gap: 0.3rem;
+            margin: 0.5rem 0;
+            padding: 0.3rem 0;
         }
 
         .caracteristica-bloco {
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            background-color: #f8f9fa;
+            background-color: #262626;
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.9rem;
-            color: #666;
+            color: white;
             width: fit-content;
+            border: 1px solid rgba(224,190,82,0.2);
         }
 
         .caracteristica-bloco i {
-            color: #4CAF50;
+            color: rgb(224,190,82);
             width: 16px;
             text-align: center;
         }
 
         .matriz-premios {
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             padding-top: 1rem;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #333;
+            color: white;
         }
 
         .matriz-premios h4 {
             margin: 0 0 0.8rem 0;
-            color: #333;
+            color: white;
             font-size: 1rem;
             font-weight: bold;
         }
@@ -122,11 +125,11 @@
             gap: 0.8rem;
             margin: 0.5rem 0;
             font-size: 0.9rem;
-            color: #666;
+            color: white;
         }
 
         .matriz-premios li i {
-            color: #FFD700;
+            color: rgb(224,190,82);
             width: 16px;
             text-align: center;
         }
@@ -134,7 +137,7 @@
         .btn-contato {
             display: block;
             text-align: center;
-            background-color: #4CAF50;
+            background-color: rgb(224,190,82);
             color: white;
             text-decoration: none;
             padding: 1rem;
@@ -144,7 +147,7 @@
         }
 
         .btn-contato:hover {
-            background-color: #388E3C;
+            background-color: rgb(173, 148, 65);
         }
 
         .logo-container {
@@ -156,6 +159,82 @@
         .logo-container img {
             max-height: 100px;
             width: auto;
+        }
+
+        .matrizes-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: black;
+        }
+
+        .titulo-secao {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .titulo-secao i {
+            color: rgb(224,190,82);
+        }
+
+        .matriz-info {
+            padding: 1.5rem;
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        .matriz-nome {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .caracteristicas {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            color: white;
+        }
+
+        .caracteristica {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background-color: #262626;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: white;
+            border: 1px solid rgba(224,190,82,0.2);
+        }
+
+        .caracteristica i {
+            color: rgb(224,190,82);
+            width: 16px;
+            text-align: center;
+        }
+
+        .ninhadas {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #333;
+            color: white;
+        }
+
+        .ninhada-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .ninhada-item i {
+            color: rgb(224,190,82);
         }
     </style>
 </head>
@@ -248,23 +327,25 @@
                                     <img src="${matriz.foto}" alt="${matriz.nome}">
                                     <span class="matriz-rotulo">Matriz</span>
                                 </div>
-                                <h2>${matriz.nome}</h2>
-                                <div class="caracteristicas-matriz">
-                                    <div class="caracteristica-bloco">
-                                        <i class="fas fa-birthday-cake"></i>
-                                        <span>Idade: ${matriz.idade}</span>
-                                    </div>
-                                    <div class="caracteristica-bloco">
-                                        <i class="fas fa-cat"></i>
-                                        <span>Raça: ${matriz.raca}</span>
-                                    </div>
-                                    <div class="caracteristica-bloco">
-                                        <i class="fas fa-baby"></i>
-                                        <span>Ninhadas: ${matriz.ninhadas}</span>
-                                    </div>
-                                    <div class="caracteristica-bloco">
-                                        <i class="fas fa-paw"></i>
-                                        <span>Características dos filhotes: ${matriz.caracteristicas_filhotes}</span>
+                                <div class="matriz-info">
+                                    <h2 class="matriz-nome">${matriz.nome}</h2>
+                                    <div class="caracteristicas">
+                                        <div class="caracteristica">
+                                            <i class="fas fa-birthday-cake"></i>
+                                            <span>Idade: ${matriz.idade}</span>
+                                        </div>
+                                        <div class="caracteristica">
+                                            <i class="fas fa-cat"></i>
+                                            <span>Raça: ${matriz.raca}</span>
+                                        </div>
+                                        <div class="caracteristica">
+                                            <i class="fas fa-baby"></i>
+                                            <span>Ninhadas: ${matriz.ninhadas}</span>
+                                        </div>
+                                        <div class="caracteristica">
+                                            <i class="fas fa-paw"></i>
+                                            <span>Características dos filhotes: ${matriz.caracteristicas_filhotes}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 ${matriz.premios && matriz.premios.length > 0 ? `
