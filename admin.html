@@ -29,52 +29,81 @@
         }
 
         .admin-container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 1rem;
         }
 
-        .usuarios-grid {
-            display: grid;
+        .admin-tabs {
+            display: flex;
             gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab-button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .tab-button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
             margin-top: 2rem;
         }
 
-        .usuario-card {
+        .card {
             background: white;
             padding: 1rem;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .usuario-info {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
         }
 
-        .usuario-acoes {
+        .card-actions {
             display: flex;
             gap: 0.5rem;
+            margin-top: 1rem;
         }
 
-        .btn-excluir {
-            background-color: #dc3545;
-            color: white;
+        .btn-editar {
+            background-color: #ffc107;
+            color: #000;
             border: none;
             padding: 0.5rem 1rem;
             border-radius: 4px;
             cursor: pointer;
         }
 
-        .btn-excluir:hover {
-            background-color: #c82333;
+        .btn-editar:hover {
+            background-color: #e0a800;
         }
 
-        .novo-usuario-form {
+        .form-section {
             background: white;
             padding: 2rem;
             border-radius: 8px;
@@ -89,6 +118,23 @@
             border-radius: 4px;
             margin-bottom: 1rem;
             display: none;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .status-disponivel {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-vendido {
+            background-color: #dc3545;
+            color: white;
         }
     </style>
 </head>
@@ -119,41 +165,186 @@
                 </button>
             </div>
 
-            <div class="novo-usuario-form">
-                <h2><i class="fas fa-user-plus"></i> Novo Usuário</h2>
-                <div id="success-message" class="success-message">
-                    Usuário cadastrado com sucesso!
-                </div>
-                <form id="form-novo-usuario" class="form-contato">
-                    <div class="form-group">
-                        <label for="novo-nome">Nome:</label>
-                        <input type="text" id="novo-nome" name="novo-nome" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="novo-username">Usuário:</label>
-                        <input type="text" id="novo-username" name="novo-username" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="novo-password">Senha:</label>
-                        <input type="password" id="novo-password" name="novo-password" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="novo-tipo">Tipo:</label>
-                        <select id="novo-tipo" name="novo-tipo" required>
-                            <option value="admin">Administrador</option>
-                            <option value="usuario">Usuário</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="btn-enviar">Cadastrar Usuário</button>
-                </form>
+            <div class="admin-tabs">
+                <button class="tab-button active" data-tab="gatos">
+                    <i class="fas fa-cat"></i> Gatos
+                </button>
+                <button class="tab-button" data-tab="matrizes">
+                    <i class="fas fa-venus"></i> Matrizes
+                </button>
+                <button class="tab-button" data-tab="padreadores">
+                    <i class="fas fa-mars"></i> Padreadores
+                </button>
+                <button class="tab-button" data-tab="usuarios">
+                    <i class="fas fa-users"></i> Usuários
+                </button>
             </div>
 
-            <h2><i class="fas fa-users"></i> Usuários Cadastrados</h2>
-            <div id="usuarios-grid" class="usuarios-grid"></div>
+            <!-- Aba de Gatos -->
+            <div id="gatos" class="tab-content active">
+                <div class="form-section">
+                    <h2><i class="fas fa-plus-circle"></i> Novo Gato</h2>
+                    <div id="gato-success" class="success-message">
+                        Gato cadastrado com sucesso!
+                    </div>
+                    <form id="form-novo-gato" class="form-contato">
+                        <div class="form-group">
+                            <label for="gato-nome">Nome:</label>
+                            <input type="text" id="gato-nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gato-idade">Idade:</label>
+                            <input type="text" id="gato-idade" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gato-cor">Cor:</label>
+                            <input type="text" id="gato-cor" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gato-foto">URL da Foto:</label>
+                            <input type="text" id="gato-foto" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gato-descricao">Descrição:</label>
+                            <textarea id="gato-descricao" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="gato-status">Status:</label>
+                            <select id="gato-status" required>
+                                <option value="disponivel">Disponível</option>
+                                <option value="vendido">Vendido</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gato-mae">Matriz:</label>
+                            <select id="gato-mae" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gato-pai">Padreador:</label>
+                            <select id="gato-pai" required></select>
+                        </div>
+                        <button type="submit" class="btn-enviar">Cadastrar Gato</button>
+                    </form>
+                </div>
+                <h2><i class="fas fa-list"></i> Gatos Cadastrados</h2>
+                <div id="gatos-grid" class="grid-container"></div>
+            </div>
+
+            <!-- Aba de Matrizes -->
+            <div id="matrizes" class="tab-content">
+                <div class="form-section">
+                    <h2><i class="fas fa-plus-circle"></i> Nova Matriz</h2>
+                    <div id="matriz-success" class="success-message">
+                        Matriz cadastrada com sucesso!
+                    </div>
+                    <form id="form-nova-matriz" class="form-contato">
+                        <div class="form-group">
+                            <label for="matriz-nome">Nome:</label>
+                            <input type="text" id="matriz-nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="matriz-idade">Idade:</label>
+                            <input type="text" id="matriz-idade" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="matriz-raca">Raça:</label>
+                            <input type="text" id="matriz-raca" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="matriz-ninhadas">Ninhadas:</label>
+                            <input type="number" id="matriz-ninhadas" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="matriz-caracteristicas">Características dos Filhotes:</label>
+                            <textarea id="matriz-caracteristicas" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="matriz-foto">URL da Foto:</label>
+                            <input type="text" id="matriz-foto" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="matriz-premios">Prêmios (um por linha):</label>
+                            <textarea id="matriz-premios" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-enviar">Cadastrar Matriz</button>
+                    </form>
+                </div>
+                <h2><i class="fas fa-list"></i> Matrizes Cadastradas</h2>
+                <div id="matrizes-grid" class="grid-container"></div>
+            </div>
+
+            <!-- Aba de Padreadores -->
+            <div id="padreadores" class="tab-content">
+                <div class="form-section">
+                    <h2><i class="fas fa-plus-circle"></i> Novo Padreador</h2>
+                    <div id="padreador-success" class="success-message">
+                        Padreador cadastrado com sucesso!
+                    </div>
+                    <form id="form-novo-padreador" class="form-contato">
+                        <div class="form-group">
+                            <label for="padreador-nome">Nome:</label>
+                            <input type="text" id="padreador-nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="padreador-idade">Idade:</label>
+                            <input type="text" id="padreador-idade" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="padreador-raca">Raça:</label>
+                            <input type="text" id="padreador-raca" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="padreador-caracteristicas">Características dos Filhotes:</label>
+                            <textarea id="padreador-caracteristicas" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="padreador-foto">URL da Foto:</label>
+                            <input type="text" id="padreador-foto" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="padreador-premios">Prêmios (um por linha):</label>
+                            <textarea id="padreador-premios" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-enviar">Cadastrar Padreador</button>
+                    </form>
+                </div>
+                <h2><i class="fas fa-list"></i> Padreadores Cadastrados</h2>
+                <div id="padreadores-grid" class="grid-container"></div>
+            </div>
+
+            <!-- Aba de Usuários -->
+            <div id="usuarios" class="tab-content">
+                <div class="form-section">
+                    <h2><i class="fas fa-user-plus"></i> Novo Usuário</h2>
+                    <div id="usuario-success" class="success-message">
+                        Usuário cadastrado com sucesso!
+                    </div>
+                    <form id="form-novo-usuario" class="form-contato">
+                        <div class="form-group">
+                            <label for="novo-nome">Nome:</label>
+                            <input type="text" id="novo-nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="novo-username">Usuário:</label>
+                            <input type="text" id="novo-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="novo-password">Senha:</label>
+                            <input type="password" id="novo-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="novo-tipo">Tipo:</label>
+                            <select id="novo-tipo" required>
+                                <option value="admin">Administrador</option>
+                                <option value="usuario">Usuário</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-enviar">Cadastrar Usuário</button>
+                    </form>
+                </div>
+                <h2><i class="fas fa-users"></i> Usuários Cadastrados</h2>
+                <div id="usuarios-grid" class="grid-container"></div>
+            </div>
         </div>
     </main>
 
@@ -178,7 +369,28 @@
             window.location.href = 'login.html';
         });
 
-        // Carregar usuários do localStorage
+        // Gerenciamento de abas
+        const tabs = document.querySelectorAll('.tab-button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+                
+                // Atualizar botões
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Atualizar conteúdo
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Carregar dados do localStorage
+        let gatos = JSON.parse(localStorage.getItem('gatos')) || [];
+        let matrizes = JSON.parse(localStorage.getItem('matrizes')) || [];
+        let padreadores = JSON.parse(localStorage.getItem('padreadores')) || [];
         let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [
             {
                 username: 'admin',
@@ -188,14 +400,88 @@
             }
         ];
 
-        // Função para atualizar a lista de usuários
+        // Funções de atualização das listas
+        function atualizarListaGatos() {
+            const gatosGrid = document.getElementById('gatos-grid');
+            gatosGrid.innerHTML = '';
+
+            gatos.forEach(gato => {
+                const gatoCard = document.createElement('div');
+                gatoCard.className = 'card';
+                gatoCard.innerHTML = `
+                    <img src="${gato.foto}" alt="${gato.nome}">
+                    <h3>${gato.nome}</h3>
+                    <p>${gato.idade} - ${gato.cor}</p>
+                    <span class="status-badge status-${gato.status}">${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}</span>
+                    <div class="card-actions">
+                        <button class="btn-editar" onclick="editarGato('${gato.nome}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-excluir" onclick="excluirGato('${gato.nome}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                gatosGrid.appendChild(gatoCard);
+            });
+        }
+
+        function atualizarListaMatrizes() {
+            const matrizesGrid = document.getElementById('matrizes-grid');
+            matrizesGrid.innerHTML = '';
+
+            matrizes.forEach(matriz => {
+                const matrizCard = document.createElement('div');
+                matrizCard.className = 'card';
+                matrizCard.innerHTML = `
+                    <img src="${matriz.foto}" alt="${matriz.nome}">
+                    <h3>${matriz.nome}</h3>
+                    <p>${matriz.idade} - ${matriz.raca}</p>
+                    <p>Ninhadas: ${matriz.ninhadas}</p>
+                    <div class="card-actions">
+                        <button class="btn-editar" onclick="editarMatriz('${matriz.nome}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-excluir" onclick="excluirMatriz('${matriz.nome}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                matrizesGrid.appendChild(matrizCard);
+            });
+        }
+
+        function atualizarListaPadreadores() {
+            const padreadoresGrid = document.getElementById('padreadores-grid');
+            padreadoresGrid.innerHTML = '';
+
+            padreadores.forEach(padreador => {
+                const padreadorCard = document.createElement('div');
+                padreadorCard.className = 'card';
+                padreadorCard.innerHTML = `
+                    <img src="${padreador.foto}" alt="${padreador.nome}">
+                    <h3>${padreador.nome}</h3>
+                    <p>${padreador.idade} - ${padreador.raca}</p>
+                    <div class="card-actions">
+                        <button class="btn-editar" onclick="editarPadreador('${padreador.nome}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-excluir" onclick="excluirPadreador('${padreador.nome}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                padreadoresGrid.appendChild(padreadorCard);
+            });
+        }
+
         function atualizarListaUsuarios() {
             const usuariosGrid = document.getElementById('usuarios-grid');
             usuariosGrid.innerHTML = '';
 
             usuarios.forEach(usuario => {
                 const usuarioCard = document.createElement('div');
-                usuarioCard.className = 'usuario-card';
+                usuarioCard.className = 'card';
                 usuarioCard.innerHTML = `
                     <div class="usuario-info">
                         <i class="fas fa-user"></i>
@@ -205,7 +491,7 @@
                         </div>
                     </div>
                     ${usuario.username !== 'admin' ? `
-                        <div class="usuario-acoes">
+                        <div class="card-actions">
                             <button class="btn-excluir" onclick="excluirUsuario('${usuario.username}')">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -216,7 +502,31 @@
             });
         }
 
-        // Função para excluir usuário
+        // Funções de exclusão
+        window.excluirGato = function(nome) {
+            if (confirm('Tem certeza que deseja excluir este gato?')) {
+                gatos = gatos.filter(g => g.nome !== nome);
+                localStorage.setItem('gatos', JSON.stringify(gatos));
+                atualizarListaGatos();
+            }
+        };
+
+        window.excluirMatriz = function(nome) {
+            if (confirm('Tem certeza que deseja excluir esta matriz?')) {
+                matrizes = matrizes.filter(m => m.nome !== nome);
+                localStorage.setItem('matrizes', JSON.stringify(matrizes));
+                atualizarListaMatrizes();
+            }
+        };
+
+        window.excluirPadreador = function(nome) {
+            if (confirm('Tem certeza que deseja excluir este padreador?')) {
+                padreadores = padreadores.filter(p => p.nome !== nome);
+                localStorage.setItem('padreadores', JSON.stringify(padreadores));
+                atualizarListaPadreadores();
+            }
+        };
+
         window.excluirUsuario = function(username) {
             if (confirm('Tem certeza que deseja excluir este usuário?')) {
                 usuarios = usuarios.filter(u => u.username !== username);
@@ -225,7 +535,86 @@
             }
         };
 
-        // Cadastrar novo usuário
+        // Formulários de cadastro
+        document.getElementById('form-novo-gato').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novoGato = {
+                nome: document.getElementById('gato-nome').value,
+                idade: document.getElementById('gato-idade').value,
+                cor: document.getElementById('gato-cor').value,
+                foto: document.getElementById('gato-foto').value,
+                descricao: document.getElementById('gato-descricao').value,
+                status: document.getElementById('gato-status').value,
+                pais: {
+                    mae: document.getElementById('gato-mae').value,
+                    pai: document.getElementById('gato-pai').value
+                },
+                personalidade: [],
+                saude: ["Vacinado", "Vermifugado", "Microchipado"]
+            };
+
+            gatos.push(novoGato);
+            localStorage.setItem('gatos', JSON.stringify(gatos));
+            
+            e.target.reset();
+            document.getElementById('gato-success').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('gato-success').style.display = 'none';
+            }, 3000);
+            
+            atualizarListaGatos();
+        });
+
+        document.getElementById('form-nova-matriz').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novaMatriz = {
+                nome: document.getElementById('matriz-nome').value,
+                idade: document.getElementById('matriz-idade').value,
+                raca: document.getElementById('matriz-raca').value,
+                ninhadas: document.getElementById('matriz-ninhadas').value,
+                caracteristicas_filhotes: document.getElementById('matriz-caracteristicas').value,
+                foto: document.getElementById('matriz-foto').value,
+                premios: document.getElementById('matriz-premios').value.split('\n').filter(p => p.trim())
+            };
+
+            matrizes.push(novaMatriz);
+            localStorage.setItem('matrizes', JSON.stringify(matrizes));
+            
+            e.target.reset();
+            document.getElementById('matriz-success').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('matriz-success').style.display = 'none';
+            }, 3000);
+            
+            atualizarListaMatrizes();
+        });
+
+        document.getElementById('form-novo-padreador').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novoPadreador = {
+                nome: document.getElementById('padreador-nome').value,
+                idade: document.getElementById('padreador-idade').value,
+                raca: document.getElementById('padreador-raca').value,
+                caracteristicas_filhotes: document.getElementById('padreador-caracteristicas').value,
+                foto: document.getElementById('padreador-foto').value,
+                premios: document.getElementById('padreador-premios').value.split('\n').filter(p => p.trim())
+            };
+
+            padreadores.push(novoPadreador);
+            localStorage.setItem('padreadores', JSON.stringify(padreadores));
+            
+            e.target.reset();
+            document.getElementById('padreador-success').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('padreador-success').style.display = 'none';
+            }, 3000);
+            
+            atualizarListaPadreadores();
+        });
+
         document.getElementById('form-novo-usuario').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -236,7 +625,6 @@
                 tipo: document.getElementById('novo-tipo').value
             };
 
-            // Verificar se o usuário já existe
             if (usuarios.some(u => u.username === novoUsuario.username)) {
                 alert('Este nome de usuário já está em uso');
                 return;
@@ -245,22 +633,38 @@
             usuarios.push(novoUsuario);
             localStorage.setItem('usuarios', JSON.stringify(usuarios));
             
-            // Limpar formulário
             e.target.reset();
-            
-            // Mostrar mensagem de sucesso
-            const successMessage = document.getElementById('success-message');
-            successMessage.style.display = 'block';
+            document.getElementById('usuario-success').style.display = 'block';
             setTimeout(() => {
-                successMessage.style.display = 'none';
+                document.getElementById('usuario-success').style.display = 'none';
             }, 3000);
-
-            // Atualizar lista
+            
             atualizarListaUsuarios();
         });
 
-        // Carregar lista inicial
+        // Preencher selects de matrizes e padreadores no formulário de gatos
+        function preencherSelectsPais() {
+            const selectMae = document.getElementById('gato-mae');
+            const selectPai = document.getElementById('gato-pai');
+            
+            selectMae.innerHTML = '<option value="">Selecione uma matriz</option>';
+            selectPai.innerHTML = '<option value="">Selecione um padreador</option>';
+            
+            matrizes.forEach(matriz => {
+                selectMae.innerHTML += `<option value="${matriz.nome}">${matriz.nome} (${matriz.raca})</option>`;
+            });
+            
+            padreadores.forEach(padreador => {
+                selectPai.innerHTML += `<option value="${padreador.nome}">${padreador.nome} (${padreador.raca})</option>`;
+            });
+        }
+
+        // Carregar listas iniciais
+        atualizarListaGatos();
+        atualizarListaMatrizes();
+        atualizarListaPadreadores();
         atualizarListaUsuarios();
+        preencherSelectsPais();
     </script>
 </body>
 </html> 
