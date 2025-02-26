@@ -185,6 +185,72 @@
             background-color: #e3f2fd;
             color: #1565c0;
         }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .popup-content {
+            background-color: white;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .popup-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .btn-fechar {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .btn-fechar:hover {
+            color: #333;
+        }
+
+        .popup-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-cancelar {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #5a6268;
+        }
     </style>
 </head>
 <body>
@@ -433,6 +499,97 @@
             </div>
         </div>
     </main>
+
+    <!-- Popup de Edição -->
+    <div id="popup-editar" class="popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2><i class="fas fa-edit"></i> Editar Gato</h2>
+                <button class="btn-fechar" onclick="fecharPopupEditar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="form-editar-gato" class="form-contato">
+                <input type="hidden" id="editar-gato-id">
+                <div class="form-group">
+                    <label for="editar-gato-nome">Nome:</label>
+                    <input type="text" id="editar-gato-nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-gato-idade">Idade:</label>
+                    <input type="text" id="editar-gato-idade" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-gato-cor">Cor:</label>
+                    <input type="text" id="editar-gato-cor" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-gato-foto">URL da Foto:</label>
+                    <input type="text" id="editar-gato-foto" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-gato-descricao">Descrição:</label>
+                    <textarea id="editar-gato-descricao" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editar-gato-status">Status:</label>
+                    <select id="editar-gato-status" required>
+                        <option value="disponivel">Disponível</option>
+                        <option value="vendido">Vendido</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editar-gato-mae">Matriz:</label>
+                    <select id="editar-gato-mae" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="editar-gato-pai">Padreador:</label>
+                    <select id="editar-gato-pai" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Tags de Saúde:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="editar-tag-vacinado"> Vacinado
+                        </label>
+                        <label>
+                            <input type="checkbox" id="editar-tag-vermifugado"> Vermifugado
+                        </label>
+                        <label>
+                            <input type="checkbox" id="editar-tag-microchipado"> Microchipado
+                        </label>
+                        <label>
+                            <input type="checkbox" id="editar-tag-castrado"> Castrado
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Personalidade:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="editar-tag-docil"> Dócil
+                        </label>
+                        <label>
+                            <input type="checkbox" id="editar-tag-brincalhao"> Brincalhão
+                        </label>
+                        <label>
+                            <input type="checkbox" id="editar-tag-sociavel"> Sociável
+                        </label>
+                        <label>
+                            <input type="checkbox" id="editar-tag-calmo"> Calmo
+                        </label>
+                        <label>
+                            <input type="checkbox" id="editar-tag-independente"> Independente
+                        </label>
+                    </div>
+                </div>
+                <div class="popup-actions">
+                    <button type="button" class="btn-cancelar" onclick="fecharPopupEditar()">Cancelar</button>
+                    <button type="submit" class="btn-enviar">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <footer>
         <p>&copy; 2025 Zaidan Gatil. Todos os direitos reservados.</p>
@@ -768,6 +925,113 @@
         atualizarListaPadreadores();
         atualizarListaUsuarios();
         preencherSelectsPais();
+
+        // Funções para o popup de edição
+        window.editarGato = function(nome) {
+            const gato = gatos.find(g => g.nome === nome);
+            if (!gato) return;
+
+            // Preencher o formulário com os dados do gato
+            document.getElementById('editar-gato-id').value = nome;
+            document.getElementById('editar-gato-nome').value = gato.nome;
+            document.getElementById('editar-gato-idade').value = gato.idade;
+            document.getElementById('editar-gato-cor').value = gato.cor;
+            document.getElementById('editar-gato-foto').value = gato.foto;
+            document.getElementById('editar-gato-descricao').value = gato.descricao || '';
+            document.getElementById('editar-gato-status').value = gato.status || 'disponivel';
+            document.getElementById('editar-gato-mae').value = gato.pais?.mae || '';
+            document.getElementById('editar-gato-pai').value = gato.pais?.pai || '';
+
+            // Marcar checkboxes de saúde
+            document.getElementById('editar-tag-vacinado').checked = gato.saude?.includes('Vacinado');
+            document.getElementById('editar-tag-vermifugado').checked = gato.saude?.includes('Vermifugado');
+            document.getElementById('editar-tag-microchipado').checked = gato.saude?.includes('Microchipado');
+            document.getElementById('editar-tag-castrado').checked = gato.saude?.includes('Castrado');
+
+            // Marcar checkboxes de personalidade
+            document.getElementById('editar-tag-docil').checked = gato.personalidade?.includes('Dócil');
+            document.getElementById('editar-tag-brincalhao').checked = gato.personalidade?.includes('Brincalhão');
+            document.getElementById('editar-tag-sociavel').checked = gato.personalidade?.includes('Sociável');
+            document.getElementById('editar-tag-calmo').checked = gato.personalidade?.includes('Calmo');
+            document.getElementById('editar-tag-independente').checked = gato.personalidade?.includes('Independente');
+
+            // Preencher selects de matrizes e padreadores
+            const selectMae = document.getElementById('editar-gato-mae');
+            const selectPai = document.getElementById('editar-gato-pai');
+            
+            selectMae.innerHTML = '<option value="">Selecione uma matriz</option>';
+            selectPai.innerHTML = '<option value="">Selecione um padreador</option>';
+            
+            matrizes.forEach(matriz => {
+                selectMae.innerHTML += `<option value="${matriz.nome}">${matriz.nome} (${matriz.raca})</option>`;
+            });
+            
+            padreadores.forEach(padreador => {
+                selectPai.innerHTML += `<option value="${padreador.nome}">${padreador.nome} (${padreador.raca})</option>`;
+            });
+
+            // Selecionar os pais atuais
+            if (gato.pais?.mae) selectMae.value = gato.pais.mae;
+            if (gato.pais?.pai) selectPai.value = gato.pais.pai;
+
+            // Mostrar o popup
+            document.getElementById('popup-editar').style.display = 'block';
+        };
+
+        window.fecharPopupEditar = function() {
+            document.getElementById('popup-editar').style.display = 'none';
+        };
+
+        // Evento de submit do formulário de edição
+        document.getElementById('form-editar-gato').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nomeAntigo = document.getElementById('editar-gato-id').value;
+            const gatoIndex = gatos.findIndex(g => g.nome === nomeAntigo);
+            
+            if (gatoIndex === -1) return;
+
+            const saude = [];
+            if (document.getElementById('editar-tag-vacinado').checked) saude.push('Vacinado');
+            if (document.getElementById('editar-tag-vermifugado').checked) saude.push('Vermifugado');
+            if (document.getElementById('editar-tag-microchipado').checked) saude.push('Microchipado');
+            if (document.getElementById('editar-tag-castrado').checked) saude.push('Castrado');
+
+            const personalidade = [];
+            if (document.getElementById('editar-tag-docil').checked) personalidade.push('Dócil');
+            if (document.getElementById('editar-tag-brincalhao').checked) personalidade.push('Brincalhão');
+            if (document.getElementById('editar-tag-sociavel').checked) personalidade.push('Sociável');
+            if (document.getElementById('editar-tag-calmo').checked) personalidade.push('Calmo');
+            if (document.getElementById('editar-tag-independente').checked) personalidade.push('Independente');
+
+            const gatoAtualizado = {
+                nome: document.getElementById('editar-gato-nome').value,
+                idade: document.getElementById('editar-gato-idade').value,
+                cor: document.getElementById('editar-gato-cor').value,
+                foto: document.getElementById('editar-gato-foto').value,
+                descricao: document.getElementById('editar-gato-descricao').value,
+                status: document.getElementById('editar-gato-status').value,
+                pais: {
+                    mae: document.getElementById('editar-gato-mae').value,
+                    pai: document.getElementById('editar-gato-pai').value
+                },
+                saude: saude,
+                personalidade: personalidade
+            };
+
+            gatos[gatoIndex] = gatoAtualizado;
+            localStorage.setItem('gatos', JSON.stringify(gatos));
+            
+            fecharPopupEditar();
+            atualizarListaGatos();
+        });
+
+        // Fechar popup ao clicar fora
+        document.getElementById('popup-editar').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharPopupEditar();
+            }
+        });
     </script>
 </body>
 </html>
