@@ -136,6 +136,55 @@
             background-color: #dc3545;
             color: white;
         }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .tag {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tag i {
+            font-size: 0.7rem;
+        }
+
+        .tag-saude {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .tag-personalidade {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
     </style>
 </head>
 <body>
@@ -222,6 +271,43 @@
                         <div class="form-group">
                             <label for="gato-pai">Padreador:</label>
                             <select id="gato-pai" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tags de Saúde:</label>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="tag-vacinado" checked> Vacinado
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="tag-vermifugado" checked> Vermifugado
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="tag-microchipado" checked> Microchipado
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="tag-castrado"> Castrado
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Personalidade:</label>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="tag-docil"> Dócil
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="tag-brincalhao"> Brincalhão
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="tag-sociavel"> Sociável
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="tag-calmo"> Calmo
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="tag-independente"> Independente
+                                </label>
+                            </div>
                         </div>
                         <button type="submit" class="btn-enviar">Cadastrar Gato</button>
                     </form>
@@ -412,6 +498,10 @@
                     <img src="${gato.foto}" alt="${gato.nome}">
                     <h3>${gato.nome}</h3>
                     <p>${gato.idade} - ${gato.cor}</p>
+                    <div class="tags-container">
+                        ${gato.saude.map(tag => `<span class="tag tag-saude"><i class="fas fa-heart"></i> ${tag}</span>`).join('')}
+                        ${gato.personalidade.map(tag => `<span class="tag tag-personalidade"><i class="fas fa-smile"></i> ${tag}</span>`).join('')}
+                    </div>
                     <span class="status-badge status-${gato.status}">${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}</span>
                     <div class="card-actions">
                         <button class="btn-editar" onclick="editarGato('${gato.nome}')">
@@ -539,6 +629,19 @@
         document.getElementById('form-novo-gato').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const saude = [];
+            if (document.getElementById('tag-vacinado').checked) saude.push('Vacinado');
+            if (document.getElementById('tag-vermifugado').checked) saude.push('Vermifugado');
+            if (document.getElementById('tag-microchipado').checked) saude.push('Microchipado');
+            if (document.getElementById('tag-castrado').checked) saude.push('Castrado');
+
+            const personalidade = [];
+            if (document.getElementById('tag-docil').checked) personalidade.push('Dócil');
+            if (document.getElementById('tag-brincalhao').checked) personalidade.push('Brincalhão');
+            if (document.getElementById('tag-sociavel').checked) personalidade.push('Sociável');
+            if (document.getElementById('tag-calmo').checked) personalidade.push('Calmo');
+            if (document.getElementById('tag-independente').checked) personalidade.push('Independente');
+
             const novoGato = {
                 nome: document.getElementById('gato-nome').value,
                 idade: document.getElementById('gato-idade').value,
@@ -550,8 +653,8 @@
                     mae: document.getElementById('gato-mae').value,
                     pai: document.getElementById('gato-pai').value
                 },
-                personalidade: [],
-                saude: ["Vacinado", "Vermifugado", "Microchipado"]
+                saude: saude,
+                personalidade: personalidade
             };
 
             gatos.push(novoGato);
@@ -667,4 +770,4 @@
         preencherSelectsPais();
     </script>
 </body>
-</html> 
+</html>

@@ -99,17 +99,39 @@
                                 ` : ''}
                             </div>
                             <p class="descricao-gato">${gato.descricao || 'Descrição não disponível'}</p>
-                            ${gato.personalidade ? `
-                            <h3><i class="fas fa-heart"></i> Personalidade</h3>
-                            <ul class="detalhes-lista">
-                                ${gato.personalidade.map(p => `<li>${p}</li>`).join('')}
-                            </ul>
-                            ` : ''}
-                            ${gato.saude ? `
-                            <h3><i class="fas fa-medkit"></i> Saúde</h3>
-                            <ul class="detalhes-lista">
-                                ${gato.saude.map(s => `<li>${s}</li>`).join('')}
-                            </ul>
+                            
+                            <div class="tags-section">
+                                <h3><i class="fas fa-heart"></i> Saúde</h3>
+                                <div class="tags-container">
+                                    ${gato.saude ? gato.saude.map(tag => `
+                                    <span class="tag tag-saude">
+                                        <i class="fas fa-heart"></i> ${tag}
+                                    </span>
+                                    `).join('') : `
+                                    <span class="tag tag-saude">
+                                        <i class="fas fa-check"></i> Vacinado
+                                    </span>
+                                    <span class="tag tag-saude">
+                                        <i class="fas fa-heart"></i> Vermifugado
+                                    </span>
+                                    <span class="tag tag-saude">
+                                        <i class="fas fa-microchip"></i> Microchipado
+                                    </span>
+                                    `}
+                                </div>
+                            </div>
+
+                            ${gato.personalidade && gato.personalidade.length > 0 ? `
+                            <div class="tags-section">
+                                <h3><i class="fas fa-smile"></i> Personalidade</h3>
+                                <div class="tags-container">
+                                    ${gato.personalidade.map(tag => `
+                                    <span class="tag tag-personalidade">
+                                        <i class="fas fa-smile"></i> ${tag}
+                                    </span>
+                                    `).join('')}
+                                </div>
+                            </div>
                             ` : ''}
                         </div>
                     </div>
@@ -158,5 +180,45 @@
             }
         }
     </script>
+
+    <style>
+        .tags-section {
+            margin: 1.5rem 0;
+        }
+
+        .tags-section h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            font-size: 0.9rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tag i {
+            font-size: 0.8rem;
+        }
+
+        .tag-saude {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .tag-personalidade {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+    </style>
 </body>
 </html> 
