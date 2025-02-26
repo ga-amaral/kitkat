@@ -11,6 +11,29 @@
             padding: 2rem;
         }
 
+        .btn-voltar {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #f8f9fa;
+            color: #666;
+            text-decoration: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-voltar:hover {
+            background-color: #e9ecef;
+            transform: translateX(-5px);
+        }
+
+        .btn-voltar i {
+            font-size: 0.9rem;
+        }
+
         .gato-detalhes-card {
             background: white;
             border-radius: 10px;
@@ -293,6 +316,10 @@
                 // Mostrar detalhes do gato
                 const detalhesContainer = document.getElementById('gato-detalhes');
                 detalhesContainer.innerHTML = `
+                    <a href="javascript:history.back()" class="btn-voltar">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Voltar</span>
+                    </a>
                     <div class="gato-detalhes-card">
                         <div class="gato-foto-container">
                             <img src="${gato.foto}" alt="${gato.nome}" class="gato-foto-grande">
