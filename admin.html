@@ -311,20 +311,21 @@
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
+            background-color: #1a1a1a;
+            border: 1px solid rgba(224,190,82,0.2);
         }
 
         .tag i {
             font-size: 0.7rem;
+            color: rgb(224,190,82);
         }
 
         .tag-saude {
-            background-color: #e8f5e9;
-            color: #2e7d32;
+            color: rgb(224,190,82);
         }
 
         .tag-personalidade {
-            background-color: #e3f2fd;
-            color: #1565c0;
+            color: rgb(224,190,82);
         }
 
         .popup {
@@ -1392,12 +1393,13 @@
             e.preventDefault();
             
             const nomeAntigo = document.getElementById('editar-matriz-id').value;
+            const novoNome = document.getElementById('editar-matriz-nome').value;
             const matrizIndex = matrizes.findIndex(m => m.nome === nomeAntigo);
             
             if (matrizIndex === -1) return;
 
             const matrizAtualizada = {
-                nome: document.getElementById('editar-matriz-nome').value,
+                nome: novoNome,
                 idade: document.getElementById('editar-matriz-idade').value,
                 raca: document.getElementById('editar-matriz-raca').value,
                 ninhadas: document.getElementById('editar-matriz-ninhadas').value,
@@ -1405,6 +1407,16 @@
                 foto: document.getElementById('editar-matriz-foto').value,
                 premios: document.getElementById('editar-matriz-premios').value.split('\n').filter(p => p.trim())
             };
+
+            // Atualizar o nome da matriz em todos os gatos descendentes
+            if (nomeAntigo !== novoNome) {
+                gatos.forEach(gato => {
+                    if (gato.pais && gato.pais.mae === nomeAntigo) {
+                        gato.pais.mae = novoNome;
+                    }
+                });
+                localStorage.setItem('gatos', JSON.stringify(gatos));
+            }
 
             matrizes[matrizIndex] = matrizAtualizada;
             localStorage.setItem('matrizes', JSON.stringify(matrizes));
@@ -1419,18 +1431,29 @@
             e.preventDefault();
             
             const nomeAntigo = document.getElementById('editar-padreador-id').value;
+            const novoNome = document.getElementById('editar-padreador-nome').value;
             const padreadorIndex = padreadores.findIndex(p => p.nome === nomeAntigo);
             
             if (padreadorIndex === -1) return;
 
             const padreadorAtualizado = {
-                nome: document.getElementById('editar-padreador-nome').value,
+                nome: novoNome,
                 idade: document.getElementById('editar-padreador-idade').value,
                 raca: document.getElementById('editar-padreador-raca').value,
                 caracteristicas_filhotes: document.getElementById('editar-padreador-caracteristicas').value,
                 foto: document.getElementById('editar-padreador-foto').value,
                 premios: document.getElementById('editar-padreador-premios').value.split('\n').filter(p => p.trim())
             };
+
+            // Atualizar o nome do padreador em todos os gatos descendentes
+            if (nomeAntigo !== novoNome) {
+                gatos.forEach(gato => {
+                    if (gato.pais && gato.pais.pai === nomeAntigo) {
+                        gato.pais.pai = novoNome;
+                    }
+                });
+                localStorage.setItem('gatos', JSON.stringify(gatos));
+            }
 
             padreadores[padreadorIndex] = padreadorAtualizado;
             localStorage.setItem('padreadores', JSON.stringify(padreadores));
