@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gatil - Nossos Gatos</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="menu.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .gato-card {
@@ -132,7 +133,7 @@
         </button>
         <nav>
             <ul>
-                <li><a href="index.html" class="active">Nossos Gatos</a></li>
+                <li><a href="index.html">Nossos Gatos</a></li>
                 <li><a href="matrizes.html">Matrizes</a></li>
                 <li><a href="padreadores.html">Padreadores</a></li>
                 <li><a href="vendidos.html">Vendidos</a></li>
@@ -140,6 +141,7 @@
                 <li><a href="login.html"><i class="fas fa-user-lock"></i> Área Admin</a></li>
             </ul>
         </nav>
+        <div class="menu-overlay"></div>
     </header>
 
     <main>
@@ -151,24 +153,8 @@
         <p>&copy; 2025 Zaidan Gatil. Todos os direitos reservados.</p>
     </footer>
 
+    <script src="menu.js"></script>
     <script>
-        // Menu Hambúrguer
-        const menuToggle = document.querySelector('.menu-toggle');
-        const navMenu = document.querySelector('nav ul');
-
-        menuToggle.addEventListener('click', () => {
-            menuToggle.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-
-        // Fechar menu ao clicar em um link
-        document.querySelectorAll('nav a').forEach(link => {
-            link.addEventListener('click', () => {
-                menuToggle.classList.remove('active');
-                navMenu.classList.remove('active');
-            });
-        });
-
         // Verificar estado de login
         const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
         const adminLink = document.querySelector('a[href="login.html"]');

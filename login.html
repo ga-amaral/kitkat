@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gatil - Login</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="menu.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .login-container {
@@ -49,15 +50,25 @@
 </head>
 <body>
     <header>
+        <div class="logo-container">
+            <img src="./img/logo.png" alt="Logo do Gatil">
+        </div>
+        <button class="menu-toggle" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <nav>
             <ul>
                 <li><a href="index.html">Nossos Gatos</a></li>
                 <li><a href="matrizes.html">Matrizes</a></li>
                 <li><a href="padreadores.html">Padreadores</a></li>
+                <li><a href="vendidos.html">Vendidos</a></li>
                 <li><a href="contato.html">Sobre & Contato</a></li>
-                <li><a href="login.html" class="active"><i class="fas fa-user-lock"></i> Área Admin</a></li>
+                <li><a href="login.html"><i class="fas fa-user-lock"></i> Área Admin</a></li>
             </ul>
         </nav>
+        <div class="menu-overlay"></div>
     </header>
 
     <main>
@@ -89,6 +100,7 @@
         <p>&copy; 2025 Zaidan Gatil. Todos os direitos reservados.</p>
     </footer>
 
+    <script src="menu.js"></script>
     <script>
         // Verificar se já existe um usuário logado
         const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
