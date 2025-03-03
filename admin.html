@@ -452,9 +452,71 @@
             color: rgb(224,190,82);
             font-size: 1.5rem;
         }
+
+        body {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Criar um overlay de carregamento */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .loading-spinner {
+            color: rgb(224,190,82);
+            font-size: 2rem;
+        }
+
+        .linhagem-info {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(224,190,82,0.2);
+        }
+
+        .linhagem-info h4 {
+            color: rgb(224,190,82);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .linhagem-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: white;
+        }
+
+        .mensagem-vazio {
+            width: 100%;
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+            font-size: 1.2rem;
+            grid-column: 1 / -1;
+        }
     </style>
 </head>
 <body>
+    <!-- Adicionar overlay de carregamento -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
+    </div>
+
     <header>
         <div class="logo-container">
             <img src="./img/logo.png" alt="Logo do Gatil">
@@ -520,8 +582,8 @@
                             <input type="text" id="gato-nome" required>
                         </div>
                         <div class="form-group">
-                            <label for="gato-idade">Idade:</label>
-                            <input type="text" id="gato-idade" required>
+                            <label for="gato-data-nascimento">Data de Nascimento:</label>
+                            <input type="date" id="gato-data-nascimento" required>
                         </div>
                         <div class="form-group">
                             <label for="gato-cor">Cor:</label>
@@ -607,8 +669,8 @@
                             <input type="text" id="matriz-nome" required>
                         </div>
                         <div class="form-group">
-                            <label for="matriz-idade">Idade:</label>
-                            <input type="text" id="matriz-idade" required>
+                            <label for="matriz-data-nascimento">Data de Nascimento:</label>
+                            <input type="date" id="matriz-data-nascimento" required>
                         </div>
                         <div class="form-group">
                             <label for="matriz-raca">Raça:</label>
@@ -627,8 +689,8 @@
                             <input type="text" id="matriz-foto" required>
                         </div>
                         <div class="form-group">
-                            <label for="matriz-premios">Prêmios (um por linha):</label>
-                            <textarea id="matriz-premios" required></textarea>
+                            <label for="matriz-linhagem">Linhagem:</label>
+                            <textarea id="matriz-linhagem" required placeholder="Descreva a linhagem do animal..."></textarea>
                         </div>
                         <button type="submit" class="btn-enviar">Cadastrar Matriz</button>
                     </form>
@@ -650,8 +712,8 @@
                             <input type="text" id="padreador-nome" required>
                         </div>
                         <div class="form-group">
-                            <label for="padreador-idade">Idade:</label>
-                            <input type="text" id="padreador-idade" required>
+                            <label for="padreador-data-nascimento">Data de Nascimento:</label>
+                            <input type="date" id="padreador-data-nascimento" required>
                         </div>
                         <div class="form-group">
                             <label for="padreador-raca">Raça:</label>
@@ -666,8 +728,8 @@
                             <input type="text" id="padreador-foto" required>
                         </div>
                         <div class="form-group">
-                            <label for="padreador-premios">Prêmios (um por linha):</label>
-                            <textarea id="padreador-premios" required></textarea>
+                            <label for="padreador-linhagem">Linhagem:</label>
+                            <textarea id="padreador-linhagem" required placeholder="Descreva a linhagem do animal..."></textarea>
                         </div>
                         <button type="submit" class="btn-enviar">Cadastrar Padreador</button>
                     </form>
@@ -728,8 +790,8 @@
                     <input type="text" id="editar-gato-nome" required>
                 </div>
                 <div class="form-group">
-                    <label for="editar-gato-idade">Idade:</label>
-                    <input type="text" id="editar-gato-idade" required>
+                    <label for="editar-gato-data-nascimento">Data de Nascimento:</label>
+                    <input type="date" id="editar-gato-data-nascimento" required>
                 </div>
                 <div class="form-group">
                     <label for="editar-gato-cor">Cor:</label>
@@ -819,8 +881,8 @@
                     <input type="text" id="editar-matriz-nome" required>
                 </div>
                 <div class="form-group">
-                    <label for="editar-matriz-idade">Idade:</label>
-                    <input type="text" id="editar-matriz-idade" required>
+                    <label for="editar-matriz-data-nascimento">Data de Nascimento:</label>
+                    <input type="date" id="editar-matriz-data-nascimento" required>
                 </div>
                 <div class="form-group">
                     <label for="editar-matriz-raca">Raça:</label>
@@ -839,8 +901,8 @@
                     <input type="text" id="editar-matriz-foto" required>
                 </div>
                 <div class="form-group">
-                    <label for="editar-matriz-premios">Prêmios (um por linha):</label>
-                    <textarea id="editar-matriz-premios" required></textarea>
+                    <label for="editar-matriz-linhagem">Linhagem:</label>
+                    <textarea id="editar-matriz-linhagem" required placeholder="Descreva a linhagem do animal..."></textarea>
                 </div>
                 <div class="popup-actions">
                     <button type="button" class="btn-cancelar" onclick="fecharPopupEditarMatriz()">Cancelar</button>
@@ -866,8 +928,8 @@
                     <input type="text" id="editar-padreador-nome" required>
                 </div>
                 <div class="form-group">
-                    <label for="editar-padreador-idade">Idade:</label>
-                    <input type="text" id="editar-padreador-idade" required>
+                    <label for="editar-padreador-data-nascimento">Data de Nascimento:</label>
+                    <input type="date" id="editar-padreador-data-nascimento" required>
                 </div>
                 <div class="form-group">
                     <label for="editar-padreador-raca">Raça:</label>
@@ -882,8 +944,8 @@
                     <input type="text" id="editar-padreador-foto" required>
                 </div>
                 <div class="form-group">
-                    <label for="editar-padreador-premios">Prêmios (um por linha):</label>
-                    <textarea id="editar-padreador-premios" required></textarea>
+                    <label for="editar-padreador-linhagem">Linhagem:</label>
+                    <textarea id="editar-padreador-linhagem" required placeholder="Descreva a linhagem do animal..."></textarea>
                 </div>
                 <div class="popup-actions">
                     <button type="button" class="btn-cancelar" onclick="fecharPopupEditarPadreador()">Cancelar</button>
@@ -899,20 +961,104 @@
 
     <script src="menu.js"></script>
     <script>
-        // Verificar se o usuário está logado
-        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-        if (!usuarioLogado || usuarioLogado.tipo !== 'admin') {
-            window.location.href = 'login.html';
+        // Função para mostrar/esconder o overlay de carregamento
+        function toggleLoading(show) {
+            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
         }
 
-        // Atualizar informações do usuário
-        document.getElementById('usuario-nome').textContent = usuarioLogado.nome;
-        document.getElementById('usuario-tipo').textContent = usuarioLogado.tipo === 'admin' ? 'Administrador' : 'Usuário';
+        // Função para verificar a sessão
+        async function verificarSessao() {
+            try {
+                const response = await fetch('verificar_sessao.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    cache: 'no-store'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor');
+                }
 
-        // Logout
-        document.getElementById('btn-logout').addEventListener('click', function() {
-            localStorage.removeItem('usuarioLogado');
-            window.location.href = 'login.html';
+                const data = await response.json();
+
+                if (!data.logado) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                
+                // Atualiza o nome do usuário no header
+                document.getElementById('usuario-nome').textContent = data.nome || 'Administrador';
+                document.getElementById('usuario-tipo').textContent = data.tipo === 'admin' ? 'Administrador' : 'Usuário';
+                
+                return true;
+
+            } catch (error) {
+                console.error('Erro ao verificar sessão:', error);
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+        // Inicialização da página
+        async function inicializarPagina() {
+            try {
+                toggleLoading(true);
+                const sessaoValida = await verificarSessao();
+                
+                if (!sessaoValida) {
+                    return;
+                }
+
+                // Carrega os dados apenas se a sessão for válida
+                await Promise.all([
+                    carregarUsuarios(),
+                    atualizarListaGatos(),
+                    atualizarListaMatrizes(),
+                    atualizarListaPadreadores()
+                ]);
+
+            } catch (error) {
+                console.error('Erro ao inicializar página:', error);
+                window.location.href = 'login.html';
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Adicionar evento para inicializar a página quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', inicializarPagina);
+
+        // Modificar função de logout
+        document.getElementById('btn-logout').addEventListener('click', async function(e) {
+            e.preventDefault();
+            toggleLoading(true);
+            
+            try {
+                const response = await fetch('logout.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    cache: 'no-store'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao fazer logout');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Limpar os storages
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                window.location.href = 'login.html';
+            }
         });
 
         // Gerenciamento de abas
@@ -933,102 +1079,87 @@
             });
         });
 
-        // Carregar dados do localStorage
-        let gatos = JSON.parse(localStorage.getItem('gatos')) || [];
-        let matrizes = JSON.parse(localStorage.getItem('matrizes')) || [];
-        let padreadores = JSON.parse(localStorage.getItem('padreadores')) || [];
-        let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [
-            {
-                username: 'admin',
-                password: 'amaral123',
-                nome: 'Administrador',
-                tipo: 'admin'
+        // Modifica o evento de submit do formulário de novo usuário
+        document.getElementById('form-novo-usuario').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            toggleLoading(true);
+            
+            const novoUsuario = {
+                nome: document.getElementById('novo-nome').value,
+                username: document.getElementById('novo-username').value,
+                password: document.getElementById('novo-password').value,
+                tipo: document.getElementById('novo-tipo').value
+            };
+
+            try {
+                const response = await fetch('cadastrar_usuario.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(novoUsuario)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Limpa o formulário
+                    e.target.reset();
+                    
+                    // Mostra mensagem de sucesso
+                    document.getElementById('usuario-success').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('usuario-success').style.display = 'none';
+                    }, 3000);
+                    
+                    // Recarrega a lista de usuários
+                    await carregarUsuarios();
+                } else {
+                    alert(data.message || 'Erro ao cadastrar usuário');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao cadastrar usuário');
+            } finally {
+                toggleLoading(false);
             }
-        ];
+        });
 
-        // Funções de atualização das listas
-        function atualizarListaGatos() {
-            const gatosGrid = document.getElementById('gatos-grid');
-            gatosGrid.innerHTML = '';
+        // Função para carregar usuários do banco de dados
+        async function carregarUsuarios() {
+            try {
+                const response = await fetch('buscar_usuarios.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    }
+                });
 
-            gatos.forEach(gato => {
-                const gatoCard = document.createElement('div');
-                gatoCard.className = 'card';
-                gatoCard.innerHTML = `
-                    <img src="${gato.foto}" alt="${gato.nome}">
-                    <h3>${gato.nome}</h3>
-                    <p>${gato.idade} - ${gato.cor}</p>
-                    <div class="tags-container">
-                        ${gato.saude.map(tag => `<span class="tag tag-saude"><i class="fas fa-heart"></i> ${tag}</span>`).join('')}
-                        ${gato.personalidade.map(tag => `<span class="tag tag-personalidade"><i class="fas fa-smile"></i> ${tag}</span>`).join('')}
-                    </div>
-                    <span class="status-badge status-${gato.status}">
-                        ${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}
-                        ${gato.dataVenda ? `<br>Vendido em: ${gato.dataVenda}` : ''}
-                    </span>
-                    <div class="card-actions">
-                        <button class="btn-editar" onclick="editarGato('${gato.nome}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-excluir" onclick="excluirGato('${gato.nome}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                gatosGrid.appendChild(gatoCard);
-            });
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar usuários');
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    atualizarListaUsuarios(data.usuarios);
+                } else {
+                    throw new Error(data.message || 'Erro ao buscar usuários');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuários:', error);
+                if (error.message.includes('não autorizado')) {
+                    window.location.href = 'login.html';
+                }
+            }
         }
 
-        function atualizarListaMatrizes() {
-            const matrizesGrid = document.getElementById('matrizes-grid');
-            matrizesGrid.innerHTML = '';
-
-            matrizes.forEach(matriz => {
-                const matrizCard = document.createElement('div');
-                matrizCard.className = 'card';
-                matrizCard.innerHTML = `
-                    <img src="${matriz.foto}" alt="${matriz.nome}">
-                    <h3>${matriz.nome}</h3>
-                    <p>${matriz.idade} - ${matriz.raca}</p>
-                    <p>Ninhadas: ${matriz.ninhadas}</p>
-                    <div class="card-actions">
-                        <button class="btn-editar" onclick="editarMatriz('${matriz.nome}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-excluir" onclick="excluirMatriz('${matriz.nome}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                matrizesGrid.appendChild(matrizCard);
-            });
-        }
-
-        function atualizarListaPadreadores() {
-            const padreadoresGrid = document.getElementById('padreadores-grid');
-            padreadoresGrid.innerHTML = '';
-
-            padreadores.forEach(padreador => {
-                const padreadorCard = document.createElement('div');
-                padreadorCard.className = 'card';
-                padreadorCard.innerHTML = `
-                    <img src="${padreador.foto}" alt="${padreador.nome}">
-                    <h3>${padreador.nome}</h3>
-                    <p>${padreador.idade} - ${padreador.raca}</p>
-                    <div class="card-actions">
-                        <button class="btn-editar" onclick="editarPadreador('${padreador.nome}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-excluir" onclick="excluirPadreador('${padreador.nome}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                padreadoresGrid.appendChild(padreadorCard);
-            });
-        }
-
-        function atualizarListaUsuarios() {
+        // Função para atualizar a lista de usuários
+        function atualizarListaUsuarios(usuarios) {
             const usuariosGrid = document.getElementById('usuarios-grid');
             usuariosGrid.innerHTML = '';
 
@@ -1039,13 +1170,13 @@
                     <div class="usuario-info">
                         <i class="fas fa-user"></i>
                         <div>
-                            <h3>${usuario.nome}</h3>
-                            <small>${usuario.username} - ${usuario.tipo === 'admin' ? 'Administrador' : 'Usuário'}</small>
+                            <h3>${usuario.name}</h3>
+                            <small>${usuario.user} - ${usuario.type === 'admin' ? 'Administrador' : 'Usuário'}</small>
                         </div>
                     </div>
-                    ${usuario.username !== 'admin' ? `
+                    ${usuario.user !== 'adminamaral' ? `
                         <div class="card-actions">
-                            <button class="btn-excluir" onclick="excluirUsuario('${usuario.username}')">
+                            <button class="btn-excluir" onclick="excluirUsuario(${usuario.id})">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1053,6 +1184,230 @@
                 `;
                 usuariosGrid.appendChild(usuarioCard);
             });
+        }
+
+        // Função para excluir usuário
+        async function excluirUsuario(id) {
+            if (!confirm('Tem certeza que deseja excluir este usuário?')) {
+                return;
+            }
+
+            toggleLoading(true);
+
+            try {
+                const response = await fetch('excluir_usuario.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    await carregarUsuarios();
+                } else {
+                    alert(data.message || 'Erro ao excluir usuário');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao excluir usuário');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Funções de atualização das listas
+        async function atualizarListaGatos() {
+            try {
+                const response = await fetch('buscar_gatos.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar gatos');
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    const gatosGrid = document.getElementById('gatos-grid');
+                    gatosGrid.innerHTML = '';
+
+                    if (!data.gatos || data.gatos.length === 0) {
+                        const mensagem = document.createElement('div');
+                        mensagem.className = 'mensagem-vazio';
+                        mensagem.innerHTML = '<p>Nenhum gato cadastrado</p>';
+                        gatosGrid.appendChild(mensagem);
+                        return;
+                    }
+
+                    data.gatos.forEach(gato => {
+                        const idade = calcularIdade(gato.data_nascimento);
+                        const gatoCard = document.createElement('div');
+                        gatoCard.className = 'card';
+                        gatoCard.innerHTML = `
+                            <img src="${gato.foto}" alt="${gato.nome}">
+                            <h3>${gato.nome}</h3>
+                            <p>${idade} - ${gato.cor}</p>
+                            <div class="tags-container">
+                                ${gato.saude.map(tag => `<span class="tag tag-saude"><i class="fas fa-heart"></i> ${tag}</span>`).join('')}
+                                ${gato.personalidade.map(tag => `<span class="tag tag-personalidade"><i class="fas fa-smile"></i> ${tag}</span>`).join('')}
+                            </div>
+                            <span class="status-badge status-${gato.status}">
+                                ${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}
+                                ${gato.data_venda ? `<br>Vendido em: ${formatarData(gato.data_venda)}` : ''}
+                            </span>
+                            <div class="card-actions">
+                                <button class="btn-editar" onclick="editarGato(${gato.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-excluir" onclick="excluirGato(${gato.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                        gatosGrid.appendChild(gatoCard);
+                    });
+                } else {
+                    throw new Error(data.message || 'Erro ao buscar gatos');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar gatos:', error);
+                alert('Erro ao carregar gatos: ' + error.message);
+            }
+        }
+
+        async function atualizarListaMatrizes() {
+            try {
+                const response = await fetch('buscar_matrizes.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar matrizes');
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    const matrizesGrid = document.getElementById('matrizes-grid');
+                    matrizesGrid.innerHTML = '';
+
+                    if (!data.matrizes || data.matrizes.length === 0) {
+                        const mensagem = document.createElement('div');
+                        mensagem.className = 'mensagem-vazio';
+                        mensagem.innerHTML = '<p>Nenhuma matriz cadastrada</p>';
+                        matrizesGrid.appendChild(mensagem);
+                        return;
+                    }
+
+                    data.matrizes.forEach(matriz => {
+                        const idade = calcularIdade(matriz.data_nascimento);
+                        const matrizCard = document.createElement('div');
+                        matrizCard.className = 'card';
+                        matrizCard.innerHTML = `
+                            <img src="${matriz.foto}" alt="${matriz.nome}">
+                            <h3>${matriz.nome}</h3>
+                            <p>Data de Nascimento: ${formatarData(matriz.data_nascimento)}</p>
+                            <p>Raça: ${matriz.raca}</p>
+                            <p>Ninhadas: ${matriz.ninhadas}</p>
+                            <p>Total de Filhotes: ${matriz.total_filhotes}</p>
+                            <div class="linhagem-info">
+                                <h4>Linhagem:</h4>
+                                <p>${matriz.linhagem || 'Não informada'}</p>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn-editar" onclick="editarMatriz(${matriz.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-excluir" onclick="excluirMatriz(${matriz.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                        matrizesGrid.appendChild(matrizCard);
+                    });
+                } else {
+                    throw new Error(data.message || 'Erro ao buscar matrizes');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar matrizes:', error);
+                alert('Erro ao carregar matrizes: ' + error.message);
+            }
+        }
+
+        async function atualizarListaPadreadores() {
+            try {
+                const response = await fetch('buscar_padreadores.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar padreadores');
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    const padreadoresGrid = document.getElementById('padreadores-grid');
+                    padreadoresGrid.innerHTML = '';
+
+                    if (!data.padreadores || data.padreadores.length === 0) {
+                        const mensagem = document.createElement('div');
+                        mensagem.className = 'mensagem-vazio';
+                        mensagem.innerHTML = '<p>Nenhum padreador cadastrado</p>';
+                        padreadoresGrid.appendChild(mensagem);
+                        return;
+                    }
+
+                    data.padreadores.forEach(padreador => {
+                        const idade = calcularIdade(padreador.data_nascimento);
+                        const padreadorCard = document.createElement('div');
+                        padreadorCard.className = 'card';
+                        padreadorCard.innerHTML = `
+                            <img src="${padreador.foto}" alt="${padreador.nome}">
+                            <h3>${padreador.nome}</h3>
+                            <p>Data de Nascimento: ${formatarData(padreador.data_nascimento)}</p>
+                            <p>Raça: ${padreador.raca}</p>
+                            <p>Total de Filhotes: ${padreador.total_filhotes}</p>
+                            <div class="linhagem-info">
+                                <h4>Linhagem:</h4>
+                                <p>${padreador.linhagem || 'Não informada'}</p>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn-editar" onclick="editarPadreador(${padreador.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-excluir" onclick="excluirPadreador(${padreador.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                        padreadoresGrid.appendChild(padreadorCard);
+                    });
+                } else {
+                    throw new Error(data.message || 'Erro ao buscar padreadores');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar padreadores:', error);
+                alert('Erro ao carregar padreadores: ' + error.message);
+            }
         }
 
         // Funções de exclusão
@@ -1080,162 +1435,6 @@
             }
         };
 
-        window.excluirUsuario = function(username) {
-            if (confirm('Tem certeza que deseja excluir este usuário?')) {
-                usuarios = usuarios.filter(u => u.username !== username);
-                localStorage.setItem('usuarios', JSON.stringify(usuarios));
-                atualizarListaUsuarios();
-            }
-        };
-
-        // Formulários de cadastro
-        document.getElementById('form-novo-gato').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const saude = [];
-            if (document.getElementById('tag-vacinado').checked) saude.push('Vacinado');
-            if (document.getElementById('tag-vermifugado').checked) saude.push('Vermifugado');
-            if (document.getElementById('tag-microchipado').checked) saude.push('Microchipado');
-            if (document.getElementById('tag-castrado').checked) saude.push('Castrado');
-
-            const personalidade = [];
-            if (document.getElementById('tag-docil').checked) personalidade.push('Dócil');
-            if (document.getElementById('tag-brincalhao').checked) personalidade.push('Brincalhão');
-            if (document.getElementById('tag-sociavel').checked) personalidade.push('Sociável');
-            if (document.getElementById('tag-calmo').checked) personalidade.push('Calmo');
-            if (document.getElementById('tag-independente').checked) personalidade.push('Independente');
-
-            const status = document.getElementById('gato-status').value;
-            const dataVenda = status === 'vendido' ? new Date().toLocaleDateString('pt-BR') : null;
-
-            const novoGato = {
-                nome: document.getElementById('gato-nome').value,
-                idade: document.getElementById('gato-idade').value,
-                cor: document.getElementById('gato-cor').value,
-                foto: document.getElementById('gato-foto').value,
-                descricao: document.getElementById('gato-descricao').value,
-                status: status,
-                dataVenda: dataVenda,
-                pais: {
-                    mae: document.getElementById('gato-mae').value,
-                    pai: document.getElementById('gato-pai').value
-                },
-                saude: saude,
-                personalidade: personalidade
-            };
-
-            gatos.push(novoGato);
-            localStorage.setItem('gatos', JSON.stringify(gatos));
-            
-            e.target.reset();
-            document.getElementById('gato-success').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('gato-success').style.display = 'none';
-            }, 3000);
-            
-            atualizarListaGatos();
-        });
-
-        document.getElementById('form-nova-matriz').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const novaMatriz = {
-                nome: document.getElementById('matriz-nome').value,
-                idade: document.getElementById('matriz-idade').value,
-                raca: document.getElementById('matriz-raca').value,
-                ninhadas: document.getElementById('matriz-ninhadas').value,
-                caracteristicas_filhotes: document.getElementById('matriz-caracteristicas').value,
-                foto: document.getElementById('matriz-foto').value,
-                premios: document.getElementById('matriz-premios').value.split('\n').filter(p => p.trim())
-            };
-
-            matrizes.push(novaMatriz);
-            localStorage.setItem('matrizes', JSON.stringify(matrizes));
-            
-            e.target.reset();
-            document.getElementById('matriz-success').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('matriz-success').style.display = 'none';
-            }, 3000);
-            
-            atualizarListaMatrizes();
-        });
-
-        document.getElementById('form-novo-padreador').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const novoPadreador = {
-                nome: document.getElementById('padreador-nome').value,
-                idade: document.getElementById('padreador-idade').value,
-                raca: document.getElementById('padreador-raca').value,
-                caracteristicas_filhotes: document.getElementById('padreador-caracteristicas').value,
-                foto: document.getElementById('padreador-foto').value,
-                premios: document.getElementById('padreador-premios').value.split('\n').filter(p => p.trim())
-            };
-
-            padreadores.push(novoPadreador);
-            localStorage.setItem('padreadores', JSON.stringify(padreadores));
-            
-            e.target.reset();
-            document.getElementById('padreador-success').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('padreador-success').style.display = 'none';
-            }, 3000);
-            
-            atualizarListaPadreadores();
-        });
-
-        document.getElementById('form-novo-usuario').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const novoUsuario = {
-                nome: document.getElementById('novo-nome').value,
-                username: document.getElementById('novo-username').value,
-                password: document.getElementById('novo-password').value,
-                tipo: document.getElementById('novo-tipo').value
-            };
-
-            if (usuarios.some(u => u.username === novoUsuario.username)) {
-                alert('Este nome de usuário já está em uso');
-                return;
-            }
-
-            usuarios.push(novoUsuario);
-            localStorage.setItem('usuarios', JSON.stringify(usuarios));
-            
-            e.target.reset();
-            document.getElementById('usuario-success').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('usuario-success').style.display = 'none';
-            }, 3000);
-            
-            atualizarListaUsuarios();
-        });
-
-        // Preencher selects de matrizes e padreadores no formulário de gatos
-        function preencherSelectsPais() {
-            const selectMae = document.getElementById('gato-mae');
-            const selectPai = document.getElementById('gato-pai');
-            
-            selectMae.innerHTML = '<option value="">Selecione uma matriz</option>';
-            selectPai.innerHTML = '<option value="">Selecione um padreador</option>';
-            
-            matrizes.forEach(matriz => {
-                selectMae.innerHTML += `<option value="${matriz.nome}">${matriz.nome} (${matriz.raca})</option>`;
-            });
-            
-            padreadores.forEach(padreador => {
-                selectPai.innerHTML += `<option value="${padreador.nome}">${padreador.nome} (${padreador.raca})</option>`;
-            });
-        }
-
-        // Carregar listas iniciais
-        atualizarListaGatos();
-        atualizarListaMatrizes();
-        atualizarListaPadreadores();
-        atualizarListaUsuarios();
-        preencherSelectsPais();
-
         // Funções para o popup de edição
         window.editarGato = function(nome) {
             const gato = gatos.find(g => g.nome === nome);
@@ -1244,7 +1443,7 @@
             // Preencher o formulário com os dados do gato
             document.getElementById('editar-gato-id').value = nome;
             document.getElementById('editar-gato-nome').value = gato.nome;
-            document.getElementById('editar-gato-idade').value = gato.idade;
+            document.getElementById('editar-gato-data-nascimento').value = gato.dataNascimento;
             document.getElementById('editar-gato-cor').value = gato.cor;
             document.getElementById('editar-gato-foto').value = gato.foto;
             document.getElementById('editar-gato-descricao').value = gato.descricao || '';
@@ -1327,7 +1526,7 @@
 
             const gatoAtualizado = {
                 nome: document.getElementById('editar-gato-nome').value,
-                idade: document.getElementById('editar-gato-idade').value,
+                dataNascimento: document.getElementById('editar-gato-data-nascimento').value,
                 cor: document.getElementById('editar-gato-cor').value,
                 foto: document.getElementById('editar-gato-foto').value,
                 descricao: document.getElementById('editar-gato-descricao').value,
@@ -1356,24 +1555,129 @@
         });
 
         // Funções para o popup de edição de matriz
-        window.editarMatriz = function(nome) {
-            const matriz = matrizes.find(m => m.nome === nome);
-            if (!matriz) return;
+        window.editarMatriz = function(id) {
+            toggleLoading(true);
+            
+            fetch(`buscar_matriz.php?id=${id}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar dados da matriz');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const matriz = data.matriz;
+                    
+                    document.getElementById('editar-matriz-id').value = matriz.id;
+                    document.getElementById('editar-matriz-nome').value = matriz.nome;
+                    document.getElementById('editar-matriz-data-nascimento').value = matriz.data_nascimento;
+                    document.getElementById('editar-matriz-raca').value = matriz.raca;
+                    document.getElementById('editar-matriz-ninhadas').value = matriz.ninhadas;
+                    document.getElementById('editar-matriz-caracteristicas').value = matriz.caracteristicas_filhotes;
+                    document.getElementById('editar-matriz-foto').value = matriz.foto;
+                    document.getElementById('editar-matriz-linhagem').value = matriz.linhagem;
 
-            document.getElementById('editar-matriz-id').value = nome;
-            document.getElementById('editar-matriz-nome').value = matriz.nome;
-            document.getElementById('editar-matriz-idade').value = matriz.idade;
-            document.getElementById('editar-matriz-raca').value = matriz.raca;
-            document.getElementById('editar-matriz-ninhadas').value = matriz.ninhadas;
-            document.getElementById('editar-matriz-caracteristicas').value = matriz.caracteristicas_filhotes;
-            document.getElementById('editar-matriz-foto').value = matriz.foto;
-            document.getElementById('editar-matriz-premios').value = matriz.premios.join('\n');
-
-            document.getElementById('popup-editar-matriz').style.display = 'block';
+                    document.getElementById('popup-editar-matriz').style.display = 'block';
+                } else {
+                    alert(data.message || 'Erro ao buscar dados da matriz');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao buscar dados da matriz');
+            })
+            .finally(() => {
+                toggleLoading(false);
+            });
         };
 
-        window.fecharPopupEditarMatriz = function() {
-            document.getElementById('popup-editar-matriz').style.display = 'none';
+        // Evento de submit do formulário de edição de matriz
+        document.getElementById('form-editar-matriz').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            toggleLoading(true);
+            
+            const matrizAtualizada = {
+                id: document.getElementById('editar-matriz-id').value,
+                nome: document.getElementById('editar-matriz-nome').value,
+                data_nascimento: document.getElementById('editar-matriz-data-nascimento').value,
+                raca: document.getElementById('editar-matriz-raca').value,
+                ninhadas: document.getElementById('editar-matriz-ninhadas').value,
+                caracteristicas: document.getElementById('editar-matriz-caracteristicas').value,
+                foto: document.getElementById('editar-matriz-foto').value,
+                linhagem: document.getElementById('editar-matriz-linhagem').value
+            };
+
+            try {
+                const response = await fetch('editar_matriz.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(matrizAtualizada)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Fecha o popup
+                    fecharPopupEditarMatriz();
+                    
+                    // Recarrega a lista de matrizes
+                    await atualizarListaMatrizes();
+                    
+                    alert('Matriz atualizada com sucesso!');
+                } else {
+                    alert(data.message || 'Erro ao atualizar matriz');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar matriz');
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        // Função para excluir matriz
+        window.excluirMatriz = function(id) {
+            if (!confirm('Tem certeza que deseja excluir esta matriz?')) {
+                return;
+            }
+
+            toggleLoading(true);
+
+            fetch('excluir_matriz.php', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ id: id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    atualizarListaMatrizes();
+                } else {
+                    alert(data.message || 'Erro ao excluir matriz');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao excluir matriz');
+            })
+            .finally(() => {
+                toggleLoading(false);
+            });
         };
 
         // Funções para o popup de edição de padreador
@@ -1383,11 +1687,11 @@
 
             document.getElementById('editar-padreador-id').value = nome;
             document.getElementById('editar-padreador-nome').value = padreador.nome;
-            document.getElementById('editar-padreador-idade').value = padreador.idade;
+            document.getElementById('editar-padreador-data-nascimento').value = padreador.dataNascimento;
             document.getElementById('editar-padreador-raca').value = padreador.raca;
-            document.getElementById('editar-padreador-caracteristicas').value = padreador.caracteristicas_filhotes;
+            document.getElementById('editar-padreador-caracteristicas').value = padreador.caracteristicasFilhotes;
             document.getElementById('editar-padreador-foto').value = padreador.foto;
-            document.getElementById('editar-padreador-premios').value = padreador.premios.join('\n');
+            document.getElementById('editar-padreador-linhagem').value = padreador.linhagem;
 
             document.getElementById('popup-editar-padreador').style.display = 'block';
         };
@@ -1395,44 +1699,6 @@
         window.fecharPopupEditarPadreador = function() {
             document.getElementById('popup-editar-padreador').style.display = 'none';
         };
-
-        // Evento de submit do formulário de edição de matriz
-        document.getElementById('form-editar-matriz').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const nomeAntigo = document.getElementById('editar-matriz-id').value;
-            const novoNome = document.getElementById('editar-matriz-nome').value;
-            const matrizIndex = matrizes.findIndex(m => m.nome === nomeAntigo);
-            
-            if (matrizIndex === -1) return;
-
-            const matrizAtualizada = {
-                nome: novoNome,
-                idade: document.getElementById('editar-matriz-idade').value,
-                raca: document.getElementById('editar-matriz-raca').value,
-                ninhadas: document.getElementById('editar-matriz-ninhadas').value,
-                caracteristicas_filhotes: document.getElementById('editar-matriz-caracteristicas').value,
-                foto: document.getElementById('editar-matriz-foto').value,
-                premios: document.getElementById('editar-matriz-premios').value.split('\n').filter(p => p.trim())
-            };
-
-            // Atualizar o nome da matriz em todos os gatos descendentes
-            if (nomeAntigo !== novoNome) {
-                gatos.forEach(gato => {
-                    if (gato.pais && gato.pais.mae === nomeAntigo) {
-                        gato.pais.mae = novoNome;
-                    }
-                });
-                localStorage.setItem('gatos', JSON.stringify(gatos));
-            }
-
-            matrizes[matrizIndex] = matrizAtualizada;
-            localStorage.setItem('matrizes', JSON.stringify(matrizes));
-            
-            fecharPopupEditarMatriz();
-            atualizarListaMatrizes();
-            preencherSelectsPais();
-        });
 
         // Evento de submit do formulário de edição de padreador
         document.getElementById('form-editar-padreador').addEventListener('submit', function(e) {
@@ -1446,10 +1712,11 @@
 
             const padreadorAtualizado = {
                 nome: novoNome,
-                idade: document.getElementById('editar-padreador-idade').value,
+                dataNascimento: document.getElementById('editar-padreador-data-nascimento').value,
                 raca: document.getElementById('editar-padreador-raca').value,
-                caracteristicas_filhotes: document.getElementById('editar-padreador-caracteristicas').value,
+                caracteristicasFilhotes: document.getElementById('editar-padreador-caracteristicas').value,
                 foto: document.getElementById('editar-padreador-foto').value,
+                linhagem: document.getElementById('editar-padreador-linhagem').value,
                 premios: document.getElementById('editar-padreador-premios').value.split('\n').filter(p => p.trim())
             };
 
@@ -1483,6 +1750,86 @@
                 fecharPopupEditarPadreador();
             }
         });
+
+        // Adicionar funções auxiliares para formatação de data e cálculo de idade
+        function calcularIdade(dataNascimento) {
+            const hoje = new Date();
+            const nascimento = new Date(dataNascimento);
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const mes = hoje.getMonth() - nascimento.getMonth();
+            
+            if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
+            }
+            
+            if (idade < 1) {
+                const meses = idade * 12 + mes;
+                return `${meses} meses`;
+            }
+            
+            return `${idade} anos`;
+        }
+
+        function formatarData(data) {
+            if (!data) return '';
+            const d = new Date(data);
+            return d.toLocaleDateString('pt-BR');
+        }
+
+        // Evento de submit do formulário de nova matriz
+        document.getElementById('form-nova-matriz').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            toggleLoading(true);
+            
+            const novaMatriz = {
+                nome: document.getElementById('matriz-nome').value,
+                data_nascimento: document.getElementById('matriz-data-nascimento').value,
+                raca: document.getElementById('matriz-raca').value,
+                ninhadas: document.getElementById('matriz-ninhadas').value,
+                caracteristicas: document.getElementById('matriz-caracteristicas').value,
+                foto: document.getElementById('matriz-foto').value,
+                linhagem: document.getElementById('matriz-linhagem').value
+            };
+
+            try {
+                const response = await fetch('cadastrar_matriz.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(novaMatriz)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Limpa o formulário
+                    e.target.reset();
+                    
+                    // Mostra mensagem de sucesso
+                    document.getElementById('matriz-success').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('matriz-success').style.display = 'none';
+                    }, 3000);
+                    
+                    // Recarrega a lista de matrizes
+                    await atualizarListaMatrizes();
+                } else {
+                    alert(data.message || 'Erro ao cadastrar matriz');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao cadastrar matriz');
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        window.fecharPopupEditarMatriz = function() {
+            document.getElementById('popup-editar-matriz').style.display = 'none';
+        };
     </script>
 </body>
 </html>

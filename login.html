@@ -41,10 +41,54 @@
             color: black;
         }
 
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
         .form-group label {
             color: black;
             display: block;
             margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn-enviar {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: rgb(224,190,82);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-enviar:hover {
+            background-color: rgb(204,170,62);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .loading i {
+            color: rgb(224,190,82);
+            animation: spin 1s infinite linear;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -77,13 +121,11 @@
                 <i class="fas fa-user-lock"></i>
                 <h1>Área Administrativa</h1>
             </div>
-            <div id="error-message" class="error-message">
-                Usuário ou senha incorretos
-            </div>
+            <div id="error-message" class="error-message"></div>
             <form id="login-form" class="form-contato">
                 <div class="form-group">
-                    <label for="username">Usuário:</label>
-                    <input type="text" id="username" name="username" required>
+                    <label for="user">Usuário:</label>
+                    <input type="text" id="user" name="user" required>
                 </div>
 
                 <div class="form-group">
@@ -92,6 +134,9 @@
                 </div>
 
                 <button type="submit" class="btn-enviar">Entrar</button>
+                <div id="loading" class="loading">
+                    <i class="fas fa-spinner fa-2x"></i>
+                </div>
             </form>
         </div>
     </main>
@@ -102,46 +147,95 @@
 
     <script src="menu.js"></script>
     <script>
-        // Verificar se já existe um usuário logado
-        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-        if (usuarioLogado && usuarioLogado.tipo === 'admin') {
-            window.location.href = 'admin.html';
-        }
-
-        // Dados de usuário (em produção, isso deveria estar no servidor)
-        const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [
-            {
-                username: 'admin',
-                password: 'amaral123',
-                nome: 'Administrador',
-                tipo: 'admin'
-            }
-        ];
-
-        document.getElementById('login-form').addEventListener('submit', function(e) {
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
+            const user = document.getElementById('user').value;
             const password = document.getElementById('password').value;
             const errorMessage = document.getElementById('error-message');
+            const loading = document.getElementById('loading');
+            const submitButton = document.querySelector('.btn-enviar');
             
-            const usuario = usuarios.find(u => u.username === username && u.password === password);
+            // Limpa mensagem de erro anterior
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
             
-            if (usuario) {
-                // Em produção, isso seria feito com um token JWT ou similar
-                localStorage.setItem('usuarioLogado', JSON.stringify({
-                    username: usuario.username,
-                    nome: usuario.nome,
-                    tipo: usuario.tipo
-                }));
-                window.location.href = 'admin.html';
-            } else {
+            // Mostra loading e desabilita botão
+            loading.style.display = 'block';
+            submitButton.disabled = true;
+
+            try {
+                // Criar objeto FormData para enviar os dados
+                const formData = new FormData();
+                formData.append('user', user);
+                formData.append('password', password);
+
+                console.log('Enviando requisição de login...');
+
+                // Enviar requisição para o servidor
+                const response = await fetch('login_process.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                console.log('Status da resposta:', response.status);
+                console.log('Headers da resposta:', Object.fromEntries(response.headers));
+
+                // Tenta ler o texto da resposta primeiro
+                const responseText = await response.text();
+                console.log('Texto da resposta:', responseText);
+
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('Dados parseados:', data);
+                } catch (e) {
+                    console.error('Erro ao fazer parse da resposta:', e);
+                    throw new Error('Resposta inválida do servidor');
+                }
+
+                if (data.success) {
+                    console.log('Login bem sucedido:', data);
+                    
+                    // Salvar dados do usuário na sessão do navegador
+                    sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
+                    
+                    // Redirecionar baseado no tipo de usuário
+                    if (data.usuario && data.usuario.type === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    console.log('Erro no login:', data.message);
+                    errorMessage.textContent = data.message || 'Erro ao realizar login';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                errorMessage.textContent = 'Erro ao realizar login. Tente novamente.';
                 errorMessage.style.display = 'block';
-                setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                }, 3000);
+            } finally {
+                loading.style.display = 'none';
+                submitButton.disabled = false;
             }
         });
+
+        // Verificar se já existe um usuário logado
+        try {
+            const usuarioLogado = JSON.parse(sessionStorage.getItem('usuario'));
+            if (usuarioLogado && usuarioLogado.type) {
+                if (usuarioLogado.type === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao verificar usuário logado:', e);
+            sessionStorage.removeItem('usuario');
+        }
     </script>
 </body>
 </html> 
