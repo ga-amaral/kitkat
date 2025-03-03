@@ -15,10 +15,24 @@ error_reporting(0);
 
 // Headers necessários
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: https://gatilzaidan.com.br');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
+// Permitir acesso tanto do domínio de produção quanto de localhost para desenvolvimento
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Accept, Authorization');
 header('Access-Control-Allow-Credentials: true');
+
+// Headers para prevenir cache
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+header('Expires: 0');
+
+// Responde à requisição OPTIONS do CORS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    echo json_encode(['success' => true]);
+    exit;
+}
 
 // Modo debug
 $debug = isset($_GET['debug']) && $_GET['debug'] === 'true';
@@ -29,6 +43,8 @@ function debugLog($message) {
     if ($debug) {
         $debug_messages[] = $message;
     }
+    // Sempre registra no log do servidor
+    error_log($message);
 }
 
 $response = [];
@@ -37,7 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['user'];
     $password = $_POST['password'];
     
+    debugLog("Tentativa de login para usuário: $username");
+    
     try {
+        // Limpa qualquer sessão anterior
+        session_regenerate_id(true);
+        $_SESSION = array();
+        
         // Gera o hash MD5 da senha fornecida
         $password_hash = md5($password);
         
@@ -48,6 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($user) {
             // Login bem-sucedido
+            debugLog("Login bem-sucedido para: $username (ID: {$user['id']})");
+            
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['user'];
             $_SESSION['user_type'] = $user['type'];
@@ -70,12 +94,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ]
             ];
         } else {
+            debugLog("Falha no login para: $username - Credenciais inválidas");
             $response = [
                 'success' => false,
                 'message' => 'Usuário ou senha inválidos'
             ];
         }
     } catch (PDOException $e) {
+        debugLog("Erro no login para $username: " . $e->getMessage());
         error_log("Erro no login: " . $e->getMessage());
         $response = [
             'success' => false,
@@ -83,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ];
     }
 } else {
+    debugLog("Método não permitido: " . $_SERVER['REQUEST_METHOD']);
     $response = [
         'success' => false,
         'message' => 'Método não permitido'

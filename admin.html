@@ -961,590 +961,246 @@
 
     <script src="menu.js"></script>
     <script>
-        // Função para mostrar/esconder o overlay de carregamento
-        function toggleLoading(show) {
-            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
-        }
+        // Variáveis globais para armazenar dados
+        let matrizes = [];
+        let padreadores = [];
+        let gatos = [];
+        let sessaoVerificada = false;
 
-        // Função para verificar a sessão
+        // Função para verificar a sessão apenas uma vez
         async function verificarSessao() {
+            if (sessaoVerificada) return true;
+            
             try {
                 const response = await fetch('verificar_sessao.php', {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
-                        'Accept': 'application/json'
-                    },
-                    cache: 'no-store'
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                    }
                 });
                 
-                if (!response.ok) {
-                    throw new Error('Erro na resposta do servidor');
-                }
-
                 const data = await response.json();
-
-                if (!data.logado) {
+                
+                if (data.logado) {
+                    document.getElementById('usuario-nome').textContent = data.nome || 'Administrador';
+                    document.getElementById('usuario-tipo').textContent = data.tipo || 'Administrador';
+                    sessaoVerificada = true;
+                    return true;
+                } else {
                     window.location.href = 'login.html';
                     return false;
                 }
-                
-                // Atualiza o nome do usuário no header
-                document.getElementById('usuario-nome').textContent = data.nome || 'Administrador';
-                document.getElementById('usuario-tipo').textContent = data.tipo === 'admin' ? 'Administrador' : 'Usuário';
-                
-                return true;
-
             } catch (error) {
                 console.error('Erro ao verificar sessão:', error);
-                window.location.href = 'login.html';
                 return false;
             }
         }
 
-        // Inicialização da página
-        async function inicializarPagina() {
-            try {
-                toggleLoading(true);
-                const sessaoValida = await verificarSessao();
-                
-                if (!sessaoValida) {
-                    return;
-                }
+        // Função para debounce (limitar a frequência de chamadas)
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
 
-                // Carrega os dados apenas se a sessão for válida
+        // Versões com debounce das funções de atualização
+        const atualizarListaGatosDebounced = debounce(atualizarListaGatos, 300);
+        const atualizarListaMatrizesDebounced = debounce(atualizarListaMatrizes, 300);
+        const atualizarListaPadreadoresDebounced = debounce(atualizarListaPadreadores, 300);
+
+        // Função para preencher os selects de matrizes e padreadores
+        function preencherSelectsPais() {
+            // Selects do formulário de cadastro
+            const selectMae = document.getElementById('gato-mae');
+            const selectPai = document.getElementById('gato-pai');
+            
+            // Selects do formulário de edição
+            const selectMaeEdit = document.getElementById('editar-gato-mae');
+            const selectPaiEdit = document.getElementById('editar-gato-pai');
+            
+            // Limpa os selects
+            selectMae.innerHTML = '<option value="">Selecione uma matriz</option>';
+            selectPai.innerHTML = '<option value="">Selecione um padreador</option>';
+            
+            if (selectMaeEdit && selectPaiEdit) {
+                selectMaeEdit.innerHTML = '<option value="">Selecione uma matriz</option>';
+                selectPaiEdit.innerHTML = '<option value="">Selecione um padreador</option>';
+            }
+            
+            // Preenche o select de matrizes
+            matrizes.forEach(matriz => {
+                const option = `<option value="${matriz.id}">${matriz.nome} (${matriz.raca})</option>`;
+                selectMae.innerHTML += option;
+                if (selectMaeEdit) selectMaeEdit.innerHTML += option;
+            });
+            
+            // Preenche o select de padreadores
+            padreadores.forEach(padreador => {
+                const option = `<option value="${padreador.id}">${padreador.nome} (${padreador.raca})</option>`;
+                selectPai.innerHTML += option;
+                if (selectPaiEdit) selectPaiEdit.innerHTML += option;
+            });
+        }
+
+        // Função para configurar as abas
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab-button');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+                    
+                    // Atualizar botões
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Atualizar conteúdo
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+
+        // Função para mostrar/esconder o indicador de carregamento
+        function toggleLoading(show) {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = show ? 'flex' : 'none';
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Esconde o overlay de carregamento
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('hidden');
+            }
+            
+            // Verifica a sessão antes de carregar os dados
+            const sessaoValida = await verificarSessao();
+            if (!sessaoValida) return;
+            
+            toggleLoading(true);
+            try {
+                // Carrega os dados iniciais em paralelo
                 await Promise.all([
-                    carregarUsuarios(),
                     atualizarListaGatos(),
                     atualizarListaMatrizes(),
                     atualizarListaPadreadores()
                 ]);
-
-            } catch (error) {
-                console.error('Erro ao inicializar página:', error);
-                window.location.href = 'login.html';
-            } finally {
-                toggleLoading(false);
-            }
-        }
-
-        // Adicionar evento para inicializar a página quando o DOM estiver carregado
-        document.addEventListener('DOMContentLoaded', inicializarPagina);
-
-        // Modificar função de logout
-        document.getElementById('btn-logout').addEventListener('click', async function(e) {
-            e.preventDefault();
-            toggleLoading(true);
-            
-            try {
-                const response = await fetch('logout.php', {
-                    method: 'POST',
-                    credentials: 'include',
-                    cache: 'no-store'
+                
+                // Preenche os selects de matrizes e padreadores
+                preencherSelectsPais();
+                
+                // Configura as abas
+                setupTabs();
+                
+                // Configura o botão de logout
+                document.getElementById('btn-logout').addEventListener('click', async function() {
+                    try {
+                        // Primeiro, limpa o sessionStorage para evitar redirecionamento automático
+                        sessionStorage.removeItem('usuario');
+                        
+                        const response = await fetch('logout.php', {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Cache-Control': 'no-cache, no-store, must-revalidate'
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            // Definir sessaoVerificada como false para evitar verificações automáticas
+                            sessaoVerificada = false;
+                            
+                            // Redirecionar para a página de login
+                            window.location.replace('login.html');
+                        }
+                    } catch (error) {
+                        console.error('Erro ao fazer logout:', error);
+                    }
                 });
-                
-                if (!response.ok) {
-                    throw new Error('Erro ao fazer logout');
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Limpar os storages
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    window.location.href = 'login.html';
-                }
             } catch (error) {
-                console.error('Erro ao fazer logout:', error);
-                window.location.href = 'login.html';
-            }
-        });
-
-        // Gerenciamento de abas
-        const tabs = document.querySelectorAll('.tab-button');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.dataset.tab;
-                
-                // Atualizar botões
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Atualizar conteúdo
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-
-        // Modifica o evento de submit do formulário de novo usuário
-        document.getElementById('form-novo-usuario').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            toggleLoading(true);
-            
-            const novoUsuario = {
-                nome: document.getElementById('novo-nome').value,
-                username: document.getElementById('novo-username').value,
-                password: document.getElementById('novo-password').value,
-                tipo: document.getElementById('novo-tipo').value
-            };
-
-            try {
-                const response = await fetch('cadastrar_usuario.php', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(novoUsuario)
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Limpa o formulário
-                    e.target.reset();
-                    
-                    // Mostra mensagem de sucesso
-                    document.getElementById('usuario-success').style.display = 'block';
-                    setTimeout(() => {
-                        document.getElementById('usuario-success').style.display = 'none';
-                    }, 3000);
-                    
-                    // Recarrega a lista de usuários
-                    await carregarUsuarios();
-                } else {
-                    alert(data.message || 'Erro ao cadastrar usuário');
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao cadastrar usuário');
+                console.error('Erro ao inicializar:', error);
+                alert('Erro ao carregar dados iniciais: ' + error.message);
             } finally {
                 toggleLoading(false);
             }
         });
-
-        // Função para carregar usuários do banco de dados
-        async function carregarUsuarios() {
-            try {
-                const response = await fetch('buscar_usuarios.php', {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao buscar usuários');
-                }
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    atualizarListaUsuarios(data.usuarios);
-                } else {
-                    throw new Error(data.message || 'Erro ao buscar usuários');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar usuários:', error);
-                if (error.message.includes('não autorizado')) {
-                    window.location.href = 'login.html';
-                }
-            }
-        }
-
-        // Função para atualizar a lista de usuários
-        function atualizarListaUsuarios(usuarios) {
-            const usuariosGrid = document.getElementById('usuarios-grid');
-            usuariosGrid.innerHTML = '';
-
-            usuarios.forEach(usuario => {
-                const usuarioCard = document.createElement('div');
-                usuarioCard.className = 'card';
-                usuarioCard.innerHTML = `
-                    <div class="usuario-info">
-                        <i class="fas fa-user"></i>
-                        <div>
-                            <h3>${usuario.name}</h3>
-                            <small>${usuario.user} - ${usuario.type === 'admin' ? 'Administrador' : 'Usuário'}</small>
-                        </div>
-                    </div>
-                    ${usuario.user !== 'adminamaral' ? `
-                        <div class="card-actions">
-                            <button class="btn-excluir" onclick="excluirUsuario(${usuario.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    ` : ''}
-                `;
-                usuariosGrid.appendChild(usuarioCard);
-            });
-        }
-
-        // Função para excluir usuário
-        async function excluirUsuario(id) {
-            if (!confirm('Tem certeza que deseja excluir este usuário?')) {
-                return;
-            }
-
-            toggleLoading(true);
-
-            try {
-                const response = await fetch('excluir_usuario.php', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ id: id })
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    await carregarUsuarios();
-                } else {
-                    alert(data.message || 'Erro ao excluir usuário');
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao excluir usuário');
-            } finally {
-                toggleLoading(false);
-            }
-        }
-
-        // Funções de atualização das listas
-        async function atualizarListaGatos() {
-            try {
-                const response = await fetch('buscar_gatos.php', {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao buscar gatos');
-                }
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    const gatosGrid = document.getElementById('gatos-grid');
-                    gatosGrid.innerHTML = '';
-
-                    if (!data.gatos || data.gatos.length === 0) {
-                        const mensagem = document.createElement('div');
-                        mensagem.className = 'mensagem-vazio';
-                        mensagem.innerHTML = '<p>Nenhum gato cadastrado</p>';
-                        gatosGrid.appendChild(mensagem);
-                        return;
-                    }
-
-                    data.gatos.forEach(gato => {
-                        const idade = calcularIdade(gato.data_nascimento);
-                        const gatoCard = document.createElement('div');
-                        gatoCard.className = 'card';
-                        gatoCard.innerHTML = `
-                            <img src="${gato.foto}" alt="${gato.nome}">
-                            <h3>${gato.nome}</h3>
-                            <p>${idade} - ${gato.cor}</p>
-                            <div class="tags-container">
-                                ${gato.saude.map(tag => `<span class="tag tag-saude"><i class="fas fa-heart"></i> ${tag}</span>`).join('')}
-                                ${gato.personalidade.map(tag => `<span class="tag tag-personalidade"><i class="fas fa-smile"></i> ${tag}</span>`).join('')}
-                            </div>
-                            <span class="status-badge status-${gato.status}">
-                                ${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}
-                                ${gato.data_venda ? `<br>Vendido em: ${formatarData(gato.data_venda)}` : ''}
-                            </span>
-                            <div class="card-actions">
-                                <button class="btn-editar" onclick="editarGato(${gato.id})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-excluir" onclick="excluirGato(${gato.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `;
-                        gatosGrid.appendChild(gatoCard);
-                    });
-                } else {
-                    throw new Error(data.message || 'Erro ao buscar gatos');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar gatos:', error);
-                alert('Erro ao carregar gatos: ' + error.message);
-            }
-        }
-
-        async function atualizarListaMatrizes() {
-            try {
-                const response = await fetch('buscar_matrizes.php', {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao buscar matrizes');
-                }
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    const matrizesGrid = document.getElementById('matrizes-grid');
-                    matrizesGrid.innerHTML = '';
-
-                    if (!data.matrizes || data.matrizes.length === 0) {
-                        const mensagem = document.createElement('div');
-                        mensagem.className = 'mensagem-vazio';
-                        mensagem.innerHTML = '<p>Nenhuma matriz cadastrada</p>';
-                        matrizesGrid.appendChild(mensagem);
-                        return;
-                    }
-
-                    data.matrizes.forEach(matriz => {
-                        const idade = calcularIdade(matriz.data_nascimento);
-                        const matrizCard = document.createElement('div');
-                        matrizCard.className = 'card';
-                        matrizCard.innerHTML = `
-                            <img src="${matriz.foto}" alt="${matriz.nome}">
-                            <h3>${matriz.nome}</h3>
-                            <p>Data de Nascimento: ${formatarData(matriz.data_nascimento)}</p>
-                            <p>Raça: ${matriz.raca}</p>
-                            <p>Ninhadas: ${matriz.ninhadas}</p>
-                            <p>Total de Filhotes: ${matriz.total_filhotes}</p>
-                            <div class="linhagem-info">
-                                <h4>Linhagem:</h4>
-                                <p>${matriz.linhagem || 'Não informada'}</p>
-                            </div>
-                            <div class="card-actions">
-                                <button class="btn-editar" onclick="editarMatriz(${matriz.id})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-excluir" onclick="excluirMatriz(${matriz.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `;
-                        matrizesGrid.appendChild(matrizCard);
-                    });
-                } else {
-                    throw new Error(data.message || 'Erro ao buscar matrizes');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar matrizes:', error);
-                alert('Erro ao carregar matrizes: ' + error.message);
-            }
-        }
-
-        async function atualizarListaPadreadores() {
-            try {
-                const response = await fetch('buscar_padreadores.php', {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao buscar padreadores');
-                }
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    const padreadoresGrid = document.getElementById('padreadores-grid');
-                    padreadoresGrid.innerHTML = '';
-
-                    if (!data.padreadores || data.padreadores.length === 0) {
-                        const mensagem = document.createElement('div');
-                        mensagem.className = 'mensagem-vazio';
-                        mensagem.innerHTML = '<p>Nenhum padreador cadastrado</p>';
-                        padreadoresGrid.appendChild(mensagem);
-                        return;
-                    }
-
-                    data.padreadores.forEach(padreador => {
-                        const idade = calcularIdade(padreador.data_nascimento);
-                        const padreadorCard = document.createElement('div');
-                        padreadorCard.className = 'card';
-                        padreadorCard.innerHTML = `
-                            <img src="${padreador.foto}" alt="${padreador.nome}">
-                            <h3>${padreador.nome}</h3>
-                            <p>Data de Nascimento: ${formatarData(padreador.data_nascimento)}</p>
-                            <p>Raça: ${padreador.raca}</p>
-                            <p>Total de Filhotes: ${padreador.total_filhotes}</p>
-                            <div class="linhagem-info">
-                                <h4>Linhagem:</h4>
-                                <p>${padreador.linhagem || 'Não informada'}</p>
-                            </div>
-                            <div class="card-actions">
-                                <button class="btn-editar" onclick="editarPadreador(${padreador.id})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-excluir" onclick="excluirPadreador(${padreador.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `;
-                        padreadoresGrid.appendChild(padreadorCard);
-                    });
-                } else {
-                    throw new Error(data.message || 'Erro ao buscar padreadores');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar padreadores:', error);
-                alert('Erro ao carregar padreadores: ' + error.message);
-            }
-        }
-
-        // Funções de exclusão
-        window.excluirGato = function(nome) {
-            if (confirm('Tem certeza que deseja excluir este gato?')) {
-                gatos = gatos.filter(g => g.nome !== nome);
-                localStorage.setItem('gatos', JSON.stringify(gatos));
-                atualizarListaGatos();
-            }
-        };
-
-        window.excluirMatriz = function(nome) {
-            if (confirm('Tem certeza que deseja excluir esta matriz?')) {
-                matrizes = matrizes.filter(m => m.nome !== nome);
-                localStorage.setItem('matrizes', JSON.stringify(matrizes));
-                atualizarListaMatrizes();
-            }
-        };
-
-        window.excluirPadreador = function(nome) {
-            if (confirm('Tem certeza que deseja excluir este padreador?')) {
-                padreadores = padreadores.filter(p => p.nome !== nome);
-                localStorage.setItem('padreadores', JSON.stringify(padreadores));
-                atualizarListaPadreadores();
-            }
-        };
-
-        // Funções para o popup de edição
-        window.editarGato = function(nome) {
-            const gato = gatos.find(g => g.nome === nome);
-            if (!gato) return;
-
-            // Preencher o formulário com os dados do gato
-            document.getElementById('editar-gato-id').value = nome;
-            document.getElementById('editar-gato-nome').value = gato.nome;
-            document.getElementById('editar-gato-data-nascimento').value = gato.dataNascimento;
-            document.getElementById('editar-gato-cor').value = gato.cor;
-            document.getElementById('editar-gato-foto').value = gato.foto;
-            document.getElementById('editar-gato-descricao').value = gato.descricao || '';
-            document.getElementById('editar-gato-status').value = gato.status || 'disponivel';
-            document.getElementById('editar-gato-mae').value = gato.pais?.mae || '';
-            document.getElementById('editar-gato-pai').value = gato.pais?.pai || '';
-
-            // Marcar checkboxes de saúde
-            document.getElementById('editar-tag-vacinado').checked = gato.saude?.includes('Vacinado');
-            document.getElementById('editar-tag-vermifugado').checked = gato.saude?.includes('Vermifugado');
-            document.getElementById('editar-tag-microchipado').checked = gato.saude?.includes('Microchipado');
-            document.getElementById('editar-tag-castrado').checked = gato.saude?.includes('Castrado');
-
-            // Marcar checkboxes de personalidade
-            document.getElementById('editar-tag-docil').checked = gato.personalidade?.includes('Dócil');
-            document.getElementById('editar-tag-brincalhao').checked = gato.personalidade?.includes('Brincalhão');
-            document.getElementById('editar-tag-sociavel').checked = gato.personalidade?.includes('Sociável');
-            document.getElementById('editar-tag-calmo').checked = gato.personalidade?.includes('Calmo');
-            document.getElementById('editar-tag-independente').checked = gato.personalidade?.includes('Independente');
-
-            // Preencher selects de matrizes e padreadores
-            const selectMae = document.getElementById('editar-gato-mae');
-            const selectPai = document.getElementById('editar-gato-pai');
-            
-            selectMae.innerHTML = '<option value="">Selecione uma matriz</option>';
-            selectPai.innerHTML = '<option value="">Selecione um padreador</option>';
-            
-            matrizes.forEach(matriz => {
-                selectMae.innerHTML += `<option value="${matriz.nome}">${matriz.nome} (${matriz.raca})</option>`;
-            });
-            
-            padreadores.forEach(padreador => {
-                selectPai.innerHTML += `<option value="${padreador.nome}">${padreador.nome} (${padreador.raca})</option>`;
-            });
-
-            // Selecionar os pais atuais
-            if (gato.pais?.mae) selectMae.value = gato.pais.mae;
-            if (gato.pais?.pai) selectPai.value = gato.pais.pai;
-
-            // Mostrar o popup
-            document.getElementById('popup-editar').style.display = 'block';
-        };
 
         window.fecharPopupEditar = function() {
             document.getElementById('popup-editar').style.display = 'none';
         };
 
         // Evento de submit do formulário de edição
-        document.getElementById('form-editar-gato').addEventListener('submit', function(e) {
+        document.getElementById('form-editar-gato').addEventListener('submit', async function(e) {
             e.preventDefault();
+            toggleLoading(true);
             
-            const nomeAntigo = document.getElementById('editar-gato-id').value;
-            const gatoIndex = gatos.findIndex(g => g.nome === nomeAntigo);
+            // Obter tags de saúde
+            const tagsSaude = [];
+            if (document.getElementById('editar-tag-vacinado').checked) tagsSaude.push('Vacinado');
+            if (document.getElementById('editar-tag-vermifugado').checked) tagsSaude.push('Vermifugado');
+            if (document.getElementById('editar-tag-microchipado').checked) tagsSaude.push('Microchipado');
+            if (document.getElementById('editar-tag-castrado').checked) tagsSaude.push('Castrado');
             
-            if (gatoIndex === -1) return;
-
-            const saude = [];
-            if (document.getElementById('editar-tag-vacinado').checked) saude.push('Vacinado');
-            if (document.getElementById('editar-tag-vermifugado').checked) saude.push('Vermifugado');
-            if (document.getElementById('editar-tag-microchipado').checked) saude.push('Microchipado');
-            if (document.getElementById('editar-tag-castrado').checked) saude.push('Castrado');
-
-            const personalidade = [];
-            if (document.getElementById('editar-tag-docil').checked) personalidade.push('Dócil');
-            if (document.getElementById('editar-tag-brincalhao').checked) personalidade.push('Brincalhão');
-            if (document.getElementById('editar-tag-sociavel').checked) personalidade.push('Sociável');
-            if (document.getElementById('editar-tag-calmo').checked) personalidade.push('Calmo');
-            if (document.getElementById('editar-tag-independente').checked) personalidade.push('Independente');
-
-            const novoStatus = document.getElementById('editar-gato-status').value;
-            const gatoAtual = gatos[gatoIndex];
-            let dataVenda = gatoAtual.dataVenda;
-
-            // Atualiza a data de venda apenas se o status mudou para vendido
-            if (novoStatus === 'vendido' && gatoAtual.status !== 'vendido') {
-                dataVenda = new Date().toLocaleDateString('pt-BR');
-            } else if (novoStatus !== 'vendido') {
-                dataVenda = null;
-            }
-
+            // Obter tags de personalidade
+            const tagsPersonalidade = [];
+            if (document.getElementById('editar-tag-docil').checked) tagsPersonalidade.push('Dócil');
+            if (document.getElementById('editar-tag-brincalhao').checked) tagsPersonalidade.push('Brincalhão');
+            if (document.getElementById('editar-tag-sociavel').checked) tagsPersonalidade.push('Sociável');
+            if (document.getElementById('editar-tag-calmo').checked) tagsPersonalidade.push('Calmo');
+            if (document.getElementById('editar-tag-independente').checked) tagsPersonalidade.push('Independente');
+            
             const gatoAtualizado = {
+                id: document.getElementById('editar-gato-id').value,
                 nome: document.getElementById('editar-gato-nome').value,
-                dataNascimento: document.getElementById('editar-gato-data-nascimento').value,
+                data_nascimento: document.getElementById('editar-gato-data-nascimento').value,
                 cor: document.getElementById('editar-gato-cor').value,
                 foto: document.getElementById('editar-gato-foto').value,
                 descricao: document.getElementById('editar-gato-descricao').value,
-                status: novoStatus,
-                dataVenda: dataVenda,
-                pais: {
-                    mae: document.getElementById('editar-gato-mae').value,
-                    pai: document.getElementById('editar-gato-pai').value
-                },
-                saude: saude,
-                personalidade: personalidade
+                status: document.getElementById('editar-gato-status').value,
+                matriz_id: document.getElementById('editar-gato-mae').value,
+                padreador_id: document.getElementById('editar-gato-pai').value,
+                tags_saude: tagsSaude,
+                tags_personalidade: tagsPersonalidade
             };
 
-            gatos[gatoIndex] = gatoAtualizado;
-            localStorage.setItem('gatos', JSON.stringify(gatos));
-            
-            fecharPopupEditar();
-            atualizarListaGatos();
+            try {
+                const response = await fetch('editar_gato.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(gatoAtualizado)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    fecharPopupEditar();
+                    await atualizarListaGatosDebounced();
+                } else {
+                    alert(data.message || 'Erro ao atualizar gato');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar gato');
+            } finally {
+                toggleLoading(false);
+            }
         });
 
         // Fechar popup ao clicar fora
@@ -1554,7 +1210,66 @@
             }
         });
 
-        // Funções para o popup de edição de matriz
+        // Função para fechar o popup de edição de matriz
+        window.fecharPopupEditarMatriz = function() {
+            document.getElementById('popup-editar-matriz').style.display = 'none';
+        };
+
+        // Função para editar gato
+        window.editarGato = function(id) {
+            toggleLoading(true);
+            
+            fetch(`buscar_gato.php?id=${id}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const gato = data.gato;
+                    
+                    document.getElementById('editar-gato-id').value = gato.id;
+                    document.getElementById('editar-gato-nome').value = gato.nome;
+                    document.getElementById('editar-gato-data-nascimento').value = gato.data_nascimento;
+                    document.getElementById('editar-gato-cor').value = gato.cor;
+                    document.getElementById('editar-gato-foto').value = gato.foto;
+                    document.getElementById('editar-gato-descricao').value = gato.descricao || '';
+                    document.getElementById('editar-gato-status').value = gato.status || 'disponivel';
+                    document.getElementById('editar-gato-mae').value = gato.matriz_id || '';
+                    document.getElementById('editar-gato-pai').value = gato.padreador_id || '';
+
+                    // Marcar checkboxes de saúde
+                    document.getElementById('editar-tag-vacinado').checked = gato.tags_saude?.includes('Vacinado');
+                    document.getElementById('editar-tag-vermifugado').checked = gato.tags_saude?.includes('Vermifugado');
+                    document.getElementById('editar-tag-microchipado').checked = gato.tags_saude?.includes('Microchipado');
+                    document.getElementById('editar-tag-castrado').checked = gato.tags_saude?.includes('Castrado');
+
+                    // Marcar checkboxes de personalidade
+                    document.getElementById('editar-tag-docil').checked = gato.tags_personalidade?.includes('Dócil');
+                    document.getElementById('editar-tag-brincalhao').checked = gato.tags_personalidade?.includes('Brincalhão');
+                    document.getElementById('editar-tag-sociavel').checked = gato.tags_personalidade?.includes('Sociável');
+                    document.getElementById('editar-tag-calmo').checked = gato.tags_personalidade?.includes('Calmo');
+                    document.getElementById('editar-tag-independente').checked = gato.tags_personalidade?.includes('Independente');
+
+                    // Mostrar o popup
+                    document.getElementById('popup-editar').style.display = 'block';
+                } else {
+                    alert(data.message || 'Erro ao buscar dados do gato');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao buscar dados do gato');
+            })
+            .finally(() => {
+                toggleLoading(false);
+            });
+        };
+
+        // Função para editar matriz
         window.editarMatriz = function(id) {
             toggleLoading(true);
             
@@ -1632,7 +1347,7 @@
                     fecharPopupEditarMatriz();
                     
                     // Recarrega a lista de matrizes
-                    await atualizarListaMatrizes();
+                    await atualizarListaMatrizesDebounced();
                     
                     alert('Matriz atualizada com sucesso!');
                 } else {
@@ -1646,54 +1361,42 @@
             }
         });
 
-        // Função para excluir matriz
-        window.excluirMatriz = function(id) {
-            if (!confirm('Tem certeza que deseja excluir esta matriz?')) {
-                return;
-            }
-
+        // Funções para o popup de edição de padreador
+        window.editarPadreador = function(id) {
             toggleLoading(true);
-
-            fetch('excluir_matriz.php', {
-                method: 'POST',
+            
+            fetch(`buscar_padreador.php?id=${id}`, {
+                method: 'GET',
                 credentials: 'include',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Accept': 'application/json'
-                },
-                body: JSON.stringify({ id: id })
+                }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    atualizarListaMatrizes();
+                    const padreador = data.padreador;
+                    
+                    document.getElementById('editar-padreador-id').value = padreador.id;
+                    document.getElementById('editar-padreador-nome').value = padreador.nome;
+                    document.getElementById('editar-padreador-data-nascimento').value = padreador.data_nascimento;
+                    document.getElementById('editar-padreador-raca').value = padreador.raca;
+                    document.getElementById('editar-padreador-caracteristicas').value = padreador.caracteristicas_filhotes;
+                    document.getElementById('editar-padreador-foto').value = padreador.foto;
+                    document.getElementById('editar-padreador-linhagem').value = padreador.linhagem;
+                    
+                    document.getElementById('popup-editar-padreador').style.display = 'block';
                 } else {
-                    alert(data.message || 'Erro ao excluir matriz');
+                    alert(data.message || 'Erro ao buscar dados do padreador');
                 }
             })
             .catch(error => {
                 console.error('Erro:', error);
-                alert('Erro ao excluir matriz');
+                alert('Erro ao buscar dados do padreador');
             })
             .finally(() => {
                 toggleLoading(false);
             });
-        };
-
-        // Funções para o popup de edição de padreador
-        window.editarPadreador = function(nome) {
-            const padreador = padreadores.find(p => p.nome === nome);
-            if (!padreador) return;
-
-            document.getElementById('editar-padreador-id').value = nome;
-            document.getElementById('editar-padreador-nome').value = padreador.nome;
-            document.getElementById('editar-padreador-data-nascimento').value = padreador.dataNascimento;
-            document.getElementById('editar-padreador-raca').value = padreador.raca;
-            document.getElementById('editar-padreador-caracteristicas').value = padreador.caracteristicasFilhotes;
-            document.getElementById('editar-padreador-foto').value = padreador.foto;
-            document.getElementById('editar-padreador-linhagem').value = padreador.linhagem;
-
-            document.getElementById('popup-editar-padreador').style.display = 'block';
         };
 
         window.fecharPopupEditarPadreador = function() {
@@ -1701,41 +1404,45 @@
         };
 
         // Evento de submit do formulário de edição de padreador
-        document.getElementById('form-editar-padreador').addEventListener('submit', function(e) {
+        document.getElementById('form-editar-padreador').addEventListener('submit', async function(e) {
             e.preventDefault();
+            toggleLoading(true);
             
-            const nomeAntigo = document.getElementById('editar-padreador-id').value;
-            const novoNome = document.getElementById('editar-padreador-nome').value;
-            const padreadorIndex = padreadores.findIndex(p => p.nome === nomeAntigo);
-            
-            if (padreadorIndex === -1) return;
-
             const padreadorAtualizado = {
-                nome: novoNome,
-                dataNascimento: document.getElementById('editar-padreador-data-nascimento').value,
+                id: document.getElementById('editar-padreador-id').value,
+                nome: document.getElementById('editar-padreador-nome').value,
+                data_nascimento: document.getElementById('editar-padreador-data-nascimento').value,
                 raca: document.getElementById('editar-padreador-raca').value,
-                caracteristicasFilhotes: document.getElementById('editar-padreador-caracteristicas').value,
+                caracteristicas: document.getElementById('editar-padreador-caracteristicas').value,
                 foto: document.getElementById('editar-padreador-foto').value,
-                linhagem: document.getElementById('editar-padreador-linhagem').value,
-                premios: document.getElementById('editar-padreador-premios').value.split('\n').filter(p => p.trim())
+                linhagem: document.getElementById('editar-padreador-linhagem').value
             };
 
-            // Atualizar o nome do padreador em todos os gatos descendentes
-            if (nomeAntigo !== novoNome) {
-                gatos.forEach(gato => {
-                    if (gato.pais && gato.pais.pai === nomeAntigo) {
-                        gato.pais.pai = novoNome;
-                    }
+            try {
+                const response = await fetch('editar_padreador.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(padreadorAtualizado)
                 });
-                localStorage.setItem('gatos', JSON.stringify(gatos));
-            }
 
-            padreadores[padreadorIndex] = padreadorAtualizado;
-            localStorage.setItem('padreadores', JSON.stringify(padreadores));
-            
-            fecharPopupEditarPadreador();
-            atualizarListaPadreadores();
-            preencherSelectsPais();
+                const data = await response.json();
+                
+                if (data.success) {
+                    fecharPopupEditarPadreador();
+                    await atualizarListaPadreadoresDebounced();
+                } else {
+                    alert(data.message || 'Erro ao atualizar padreador');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar padreador');
+            } finally {
+                toggleLoading(false);
+            }
         });
 
         // Fechar popups ao clicar fora
@@ -1815,7 +1522,7 @@
                     }, 3000);
                     
                     // Recarrega a lista de matrizes
-                    await atualizarListaMatrizes();
+                    await atualizarListaMatrizesDebounced();
                 } else {
                     alert(data.message || 'Erro ao cadastrar matriz');
                 }
@@ -1827,8 +1534,437 @@
             }
         });
 
-        window.fecharPopupEditarMatriz = function() {
-            document.getElementById('popup-editar-matriz').style.display = 'none';
+        // Evento de submit do formulário de novo padreador
+        document.getElementById('form-novo-padreador').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            toggleLoading(true);
+            
+            const novoPadreador = {
+                nome: document.getElementById('padreador-nome').value,
+                data_nascimento: document.getElementById('padreador-data-nascimento').value,
+                raca: document.getElementById('padreador-raca').value,
+                caracteristicas: document.getElementById('padreador-caracteristicas').value,
+                foto: document.getElementById('padreador-foto').value,
+                linhagem: document.getElementById('padreador-linhagem').value
+            };
+
+            try {
+                const response = await fetch('cadastrar_padreador.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(novoPadreador)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Limpa o formulário
+                    e.target.reset();
+                    
+                    // Mostra mensagem de sucesso
+                    document.getElementById('padreador-success').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('padreador-success').style.display = 'none';
+                    }, 3000);
+                    
+                    // Recarrega a lista de padreadores
+                    await atualizarListaPadreadoresDebounced();
+                } else {
+                    alert(data.message || 'Erro ao cadastrar padreador');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao cadastrar padreador');
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        // Evento de submit do formulário de novo gato
+        document.getElementById('form-novo-gato').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            toggleLoading(true);
+            
+            // Coleta as tags de saúde marcadas
+            const tagsSaude = [];
+            if (document.getElementById('tag-vacinado').checked) tagsSaude.push('Vacinado');
+            if (document.getElementById('tag-vermifugado').checked) tagsSaude.push('Vermifugado');
+            if (document.getElementById('tag-microchipado').checked) tagsSaude.push('Microchipado');
+            if (document.getElementById('tag-castrado').checked) tagsSaude.push('Castrado');
+            
+            // Coleta as tags de personalidade marcadas
+            const tagsPersonalidade = [];
+            if (document.getElementById('tag-docil').checked) tagsPersonalidade.push('Dócil');
+            if (document.getElementById('tag-brincalhao').checked) tagsPersonalidade.push('Brincalhão');
+            if (document.getElementById('tag-sociavel').checked) tagsPersonalidade.push('Sociável');
+            if (document.getElementById('tag-calmo').checked) tagsPersonalidade.push('Calmo');
+            if (document.getElementById('tag-independente').checked) tagsPersonalidade.push('Independente');
+            
+            const novoGato = {
+                nome: document.getElementById('gato-nome').value,
+                data_nascimento: document.getElementById('gato-data-nascimento').value,
+                cor: document.getElementById('gato-cor').value,
+                foto: document.getElementById('gato-foto').value,
+                descricao: document.getElementById('gato-descricao').value,
+                status: document.getElementById('gato-status').value,
+                matriz_id: document.getElementById('gato-mae').value,
+                padreador_id: document.getElementById('gato-pai').value,
+                tags_saude: tagsSaude,
+                tags_personalidade: tagsPersonalidade
+            };
+
+            try {
+                const response = await fetch('cadastrar_gato.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(novoGato)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Limpa o formulário
+                    e.target.reset();
+                    
+                    // Mostra mensagem de sucesso
+                    document.getElementById('gato-success').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('gato-success').style.display = 'none';
+                    }, 3000);
+                    
+                    // Recarrega a lista de gatos
+                    await atualizarListaGatos();
+                } else {
+                    alert(data.message || 'Erro ao cadastrar gato');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao cadastrar gato');
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        // Função para atualizar a lista de gatos
+        async function atualizarListaGatos() {
+            try {
+                const response = await fetch('buscar_gatos.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const novosGatos = data.gatos || [];
+                    
+                    // Verifica se os dados são diferentes antes de atualizar o DOM
+                    if (JSON.stringify(gatos) === JSON.stringify(novosGatos) && gatos.length > 0) {
+                        return; // Não atualiza se os dados são iguais
+                    }
+                    
+                    gatos = novosGatos;
+                    
+                    // Atualiza a grid de gatos
+                    const gatosGrid = document.getElementById('gatos-grid');
+                    
+                    // Cria um fragmento para melhorar a performance
+                    const fragment = document.createDocumentFragment();
+                    
+                    if (gatos.length === 0) {
+                        const mensagem = document.createElement('div');
+                        mensagem.className = 'mensagem-vazio';
+                        mensagem.textContent = 'Nenhum gato cadastrado';
+                        fragment.appendChild(mensagem);
+                    } else {
+                        gatos.forEach(gato => {
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                            
+                            const statusClass = gato.status === 'disponivel' ? 'status-disponivel' : 'status-vendido';
+                            const statusText = gato.status === 'disponivel' ? 'Disponível' : 'Vendido';
+                            
+                            card.innerHTML = `
+                                <img src="${gato.foto}" alt="${gato.nome}">
+                                <h3>${gato.nome}</h3>
+                                <p><strong>Cor:</strong> ${gato.cor}</p>
+                                <p><strong>Idade:</strong> ${calcularIdade(gato.data_nascimento)}</p>
+                                <p><span class="status-badge ${statusClass}">${statusText}</span></p>
+                                <div class="tags-container">
+                                    ${gato.tags_saude?.map(tag => `<span class="tag tag-saude"><i class="fas fa-heart"></i> ${tag}</span>`).join('') || ''}
+                                    ${gato.tags_personalidade?.map(tag => `<span class="tag tag-personalidade"><i class="fas fa-smile"></i> ${tag}</span>`).join('') || ''}
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn-editar" onclick="editarGato(${gato.id})">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn-excluir" onclick="excluirGato(${gato.id})">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </div>
+                            `;
+                            
+                            fragment.appendChild(card);
+                        });
+                    }
+                    
+                    // Limpa e adiciona o fragmento de uma vez só
+                    gatosGrid.innerHTML = '';
+                    gatosGrid.appendChild(fragment);
+                } else {
+                    console.error('Erro ao buscar gatos:', data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar gatos:', error);
+            }
+        }
+        
+        // Função para atualizar a lista de matrizes
+        async function atualizarListaMatrizes() {
+            try {
+                const response = await fetch('buscar_matrizes.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const novasMatrizes = data.matrizes || [];
+                    
+                    // Verifica se os dados são diferentes antes de atualizar o DOM
+                    if (JSON.stringify(matrizes) === JSON.stringify(novasMatrizes) && matrizes.length > 0) {
+                        return; // Não atualiza se os dados são iguais
+                    }
+                    
+                    matrizes = novasMatrizes;
+                    
+                    // Atualiza a grid de matrizes
+                    const matrizesGrid = document.getElementById('matrizes-grid');
+                    
+                    // Cria um fragmento para melhorar a performance
+                    const fragment = document.createDocumentFragment();
+                    
+                    if (matrizes.length === 0) {
+                        const mensagem = document.createElement('div');
+                        mensagem.className = 'mensagem-vazio';
+                        mensagem.textContent = 'Nenhuma matriz cadastrada';
+                        fragment.appendChild(mensagem);
+                    } else {
+                        matrizes.forEach(matriz => {
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                            
+                            card.innerHTML = `
+                                <img src="${matriz.foto}" alt="${matriz.nome}">
+                                <h3>${matriz.nome}</h3>
+                                <p><strong>Raça:</strong> ${matriz.raca}</p>
+                                <p><strong>Idade:</strong> ${calcularIdade(matriz.data_nascimento)}</p>
+                                <p><strong>Ninhadas:</strong> ${matriz.ninhadas}</p>
+                                <div class="linhagem-info">
+                                    <h4>Linhagem</h4>
+                                    <p>${matriz.linhagem || 'Não informada'}</p>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn-editar" onclick="editarMatriz(${matriz.id})">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn-excluir" onclick="excluirMatriz(${matriz.id})">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </div>
+                            `;
+                            
+                            fragment.appendChild(card);
+                        });
+                    }
+                    
+                    // Limpa e adiciona o fragmento de uma vez só
+                    matrizesGrid.innerHTML = '';
+                    matrizesGrid.appendChild(fragment);
+                } else {
+                    console.error('Erro ao buscar matrizes:', data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar matrizes:', error);
+            }
+        }
+        
+        // Função para atualizar a lista de padreadores
+        async function atualizarListaPadreadores() {
+            try {
+                const response = await fetch('buscar_padreadores.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const novosPadreadores = data.padreadores || [];
+                    
+                    // Verifica se os dados são diferentes antes de atualizar o DOM
+                    if (JSON.stringify(padreadores) === JSON.stringify(novosPadreadores) && padreadores.length > 0) {
+                        return; // Não atualiza se os dados são iguais
+                    }
+                    
+                    padreadores = novosPadreadores;
+                    
+                    // Atualiza a grid de padreadores
+                    const padreadoresGrid = document.getElementById('padreadores-grid');
+                    
+                    // Cria um fragmento para melhorar a performance
+                    const fragment = document.createDocumentFragment();
+                    
+                    if (padreadores.length === 0) {
+                        const mensagem = document.createElement('div');
+                        mensagem.className = 'mensagem-vazio';
+                        mensagem.textContent = 'Nenhum padreador cadastrado';
+                        fragment.appendChild(mensagem);
+                    } else {
+                        padreadores.forEach(padreador => {
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                            
+                            card.innerHTML = `
+                                <img src="${padreador.foto}" alt="${padreador.nome}">
+                                <h3>${padreador.nome}</h3>
+                                <p><strong>Raça:</strong> ${padreador.raca}</p>
+                                <p><strong>Idade:</strong> ${calcularIdade(padreador.data_nascimento)}</p>
+                                <div class="linhagem-info">
+                                    <h4>Linhagem</h4>
+                                    <p>${padreador.linhagem || 'Não informada'}</p>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn-editar" onclick="editarPadreador(${padreador.id})">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn-excluir" onclick="excluirPadreador(${padreador.id})">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </div>
+                            `;
+                            
+                            fragment.appendChild(card);
+                        });
+                    }
+                    
+                    // Limpa e adiciona o fragmento de uma vez só
+                    padreadoresGrid.innerHTML = '';
+                    padreadoresGrid.appendChild(fragment);
+                } else {
+                    console.error('Erro ao buscar padreadores:', data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar padreadores:', error);
+            }
+        }
+        
+        // Função para excluir gato
+        window.excluirGato = function(id) {
+            if (confirm('Tem certeza que deseja excluir este gato?')) {
+                toggleLoading(true);
+                
+                fetch(`excluir_gato.php?id=${id}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        atualizarListaGatos();
+                    } else {
+                        alert(data.message || 'Erro ao excluir gato');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir gato');
+                })
+                .finally(() => {
+                    toggleLoading(false);
+                });
+            }
+        };
+        
+        // Função para excluir matriz
+        window.excluirMatriz = function(id) {
+            if (confirm('Tem certeza que deseja excluir esta matriz?')) {
+                toggleLoading(true);
+                
+                fetch(`excluir_matriz.php?id=${id}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        atualizarListaMatrizes();
+                    } else {
+                        alert(data.message || 'Erro ao excluir matriz');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir matriz');
+                })
+                .finally(() => {
+                    toggleLoading(false);
+                });
+            }
+        };
+        
+        // Função para excluir padreador
+        window.excluirPadreador = function(id) {
+            if (confirm('Tem certeza que deseja excluir este padreador?')) {
+                toggleLoading(true);
+                
+                fetch(`excluir_padreador.php?id=${id}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        atualizarListaPadreadores();
+                    } else {
+                        alert(data.message || 'Erro ao excluir padreador');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir padreador');
+                })
+                .finally(() => {
+                    toggleLoading(false);
+                });
+            }
         };
     </script>
 </body>

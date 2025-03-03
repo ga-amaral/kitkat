@@ -10,7 +10,7 @@ header('Access-Control-Allow-Headers: Content-Type, Accept');
 header('Access-Control-Allow-Credentials: true');
 
 // Log para debug
-error_log("Iniciando exclusão de matriz");
+error_log("Iniciando exclusão de padreador");
 
 // Responde à requisição OPTIONS do CORS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -48,65 +48,65 @@ error_log("Dados recebidos: " . print_r($dados, true));
 
 // Verifica se o ID foi enviado
 if (!isset($dados['id'])) {
-    error_log("ID da matriz não fornecido");
+    error_log("ID do padreador não fornecido");
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'message' => 'ID da matriz não fornecido'
+        'message' => 'ID do padreador não fornecido'
     ]);
     exit;
 }
 
 try {
-    // Verifica se a matriz existe
-    $stmt = $conn->prepare("SELECT id FROM matrizes WHERE id = ?");
+    // Verifica se o padreador existe
+    $stmt = $conn->prepare("SELECT id FROM padreadores WHERE id = ?");
     $stmt->execute([$dados['id']]);
     
     if ($stmt->rowCount() === 0) {
-        error_log("Matriz não encontrada: " . $dados['id']);
+        error_log("Padreador não encontrado: " . $dados['id']);
         http_response_code(404);
         echo json_encode([
             'success' => false,
-            'message' => 'Matriz não encontrada'
+            'message' => 'Padreador não encontrado'
         ]);
         exit;
     }
     
-    // Verifica se existem gatos associados a esta matriz
-    $stmt = $conn->prepare("SELECT id FROM gatos WHERE matriz_id = ?");
+    // Verifica se existem gatos associados a este padreador
+    $stmt = $conn->prepare("SELECT id FROM gatos WHERE padreador_id = ?");
     $stmt->execute([$dados['id']]);
     
     if ($stmt->rowCount() > 0) {
-        error_log("Matriz possui gatos associados: " . $dados['id']);
+        error_log("Padreador possui gatos associados: " . $dados['id']);
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => 'Não é possível excluir esta matriz pois existem gatos associados a ela'
+            'message' => 'Não é possível excluir este padreador pois existem gatos associados a ele'
         ]);
         exit;
     }
     
-    // Exclui os prêmios associados à matriz
-    $stmt = $conn->prepare("DELETE FROM matrizes_premios WHERE matriz_id = ?");
+    // Exclui os prêmios associados ao padreador
+    $stmt = $conn->prepare("DELETE FROM padreadores_premios WHERE padreador_id = ?");
     $stmt->execute([$dados['id']]);
     
-    // Exclui a matriz
-    $stmt = $conn->prepare("DELETE FROM matrizes WHERE id = ?");
+    // Exclui o padreador
+    $stmt = $conn->prepare("DELETE FROM padreadores WHERE id = ?");
     $stmt->execute([$dados['id']]);
     
-    error_log("Matriz excluída com sucesso. ID: " . $dados['id']);
+    error_log("Padreador excluído com sucesso. ID: " . $dados['id']);
     
     echo json_encode([
         'success' => true,
-        'message' => 'Matriz excluída com sucesso'
+        'message' => 'Padreador excluído com sucesso'
     ]);
     
 } catch (PDOException $e) {
-    error_log("Erro ao excluir matriz: " . $e->getMessage());
+    error_log("Erro ao excluir padreador: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Erro ao excluir matriz: ' . $e->getMessage()
+        'message' => 'Erro ao excluir padreador: ' . $e->getMessage()
     ]);
 }
 ?> 

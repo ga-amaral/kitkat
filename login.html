@@ -226,11 +226,33 @@
         try {
             const usuarioLogado = JSON.parse(sessionStorage.getItem('usuario'));
             if (usuarioLogado && usuarioLogado.type) {
-                if (usuarioLogado.type === 'admin') {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'index.html';
-                }
+                // Verificar se a sessão do PHP também está ativa antes de redirecionar
+                fetch('verificar_sessao.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.logado) {
+                        // Só redireciona se a sessão PHP também estiver ativa
+                        if (usuarioLogado.type === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    } else {
+                        // Se a sessão PHP não estiver ativa, limpa o sessionStorage
+                        sessionStorage.removeItem('usuario');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao verificar sessão:', error);
+                    sessionStorage.removeItem('usuario');
+                });
             }
         } catch (e) {
             console.error('Erro ao verificar usuário logado:', e);
