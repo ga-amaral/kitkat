@@ -1,21 +1,23 @@
 <?php
-// Iniciar sessão
-session_start();
-
 // Incluir arquivo de configuração
 require_once 'config.php';
 
-// Definir cabeçalhos para JSON
+// Definir cabeçalhos para JSON e CORS
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Headers: Content-Type');
 
-// Verificar se o usuário está logado
-if (!usuarioLogado()) {
+// Verificar se o ID do padreador foi fornecido
+if (!isset($_GET['padreador_id']) || !is_numeric($_GET['padreador_id'])) {
     echo json_encode([
         'success' => false,
-        'message' => 'Acesso negado. Usuário não está logado.'
+        'message' => 'ID do padreador não fornecido ou inválido'
     ]);
     exit;
 }
+
+$padreador_id = (int)$_GET['padreador_id'];
 
 try {
     // Conectar ao banco de dados
@@ -32,7 +34,7 @@ try {
         exit;
     }
     
-    // Consultar todos os gatos com informações das matrizes e padreadores
+    // Consultar gatos do padreador específico
     $query = "
         SELECT g.*, 
                m.nome as matriz_nome, 
@@ -40,10 +42,12 @@ try {
         FROM `gatos` g
         LEFT JOIN `matrizes` m ON g.matriz_id = m.id
         LEFT JOIN `padreadores` p ON g.padreador_id = p.id
+        WHERE g.padreador_id = ?
         ORDER BY g.nome
     ";
     
-    $stmt = $pdo->query($query);
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$padreador_id]);
     $gatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Processar os dados para converter as tags de JSON para arrays
@@ -61,7 +65,7 @@ try {
         }
     }
     
-    // Retornar lista de gatos
+    // Retornar lista de gatos do padreador
     echo json_encode([
         'success' => true,
         'gatos' => $gatos
@@ -71,7 +75,7 @@ try {
     // Erro de conexão com o banco de dados
     echo json_encode([
         'success' => false,
-        'message' => 'Erro ao buscar gatos: ' . $e->getMessage()
+        'message' => 'Erro ao buscar gatos do padreador: ' . $e->getMessage()
     ]);
 }
 ?> 

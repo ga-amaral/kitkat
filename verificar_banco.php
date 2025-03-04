@@ -1,100 +1,100 @@
 <?php
+// Incluir arquivo de configuração
 require_once 'config.php';
 
-// Habilitar exibição de erros para debug
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Função para verificar se uma tabela existe
-function tabelaExiste($conn, $tabela) {
+function tabelaExiste($pdo, $tabela) {
     try {
-        $stmt = $conn->prepare("SHOW TABLES LIKE ?");
-        $stmt->execute([$tabela]);
-        return $stmt->rowCount() > 0;
-    } catch (PDOException $e) {
-        echo "Erro ao verificar tabela {$tabela}: " . $e->getMessage() . "<br>";
+        $result = $pdo->query("SELECT 1 FROM `$tabela` LIMIT 1");
+        return true;
+    } catch (Exception $e) {
         return false;
     }
 }
 
 // Função para contar registros em uma tabela
-function contarRegistros($conn, $tabela) {
+function contarRegistros($pdo, $tabela) {
     try {
-        $stmt = $conn->prepare("SELECT COUNT(*) FROM {$tabela}");
-        $stmt->execute();
+        $stmt = $pdo->query("SELECT COUNT(*) FROM `$tabela`");
         return $stmt->fetchColumn();
-    } catch (PDOException $e) {
-        echo "Erro ao contar registros da tabela {$tabela}: " . $e->getMessage() . "<br>";
+    } catch (Exception $e) {
         return 0;
     }
 }
 
-// Verificar conexão com o banco
-echo "<h1>Status do Banco de Dados</h1>";
-
+// Conexão com o banco de dados
 try {
-    $conn->query("SELECT 1");
-    echo "<p style='color: green;'>✓ Conexão com o banco de dados estabelecida com sucesso!</p>";
-} catch (PDOException $e) {
-    echo "<p style='color: red;'>✗ Erro na conexão com o banco de dados: " . $e->getMessage() . "</p>";
-    exit;
-}
-
-// Verificar tabelas
-$tabelas = [
-    'matrizes',
-    'matrizes_premios',
-    'padreadores',
-    'padreadores_premios',
-    'gatos',
-    'gatos_tags_saude',
-    'gatos_tags_personalidade'
-];
-
-echo "<h2>Status das Tabelas</h2>";
-echo "<table border='1' cellpadding='5' cellspacing='0'>";
-echo "<tr><th>Tabela</th><th>Status</th><th>Registros</th></tr>";
-
-foreach ($tabelas as $tabela) {
-    $existe = tabelaExiste($conn, $tabela);
-    $registros = $existe ? contarRegistros($conn, $tabela) : 0;
+    global $config;
     
-    echo "<tr>";
-    echo "<td>{$tabela}</td>";
-    echo "<td style='color: " . ($existe ? "green" : "red") . ";'>" . ($existe ? "✓ Existe" : "✗ Não existe") . "</td>";
-    echo "<td>{$registros}</td>";
-    echo "</tr>";
+    $host = $config['db']['host'];
+    $dbname = $config['db']['dbname'];
+    $username = $config['db']['username'];
+    $password = $config['db']['password'];
+    
+    echo "<h2>Verificando conexão com o banco de dados...</h2>";
+    
+    // Tentar conectar ao servidor MySQL
+    $pdo = new PDO("mysql:host=$host", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    echo "<p>✅ Conexão com o servidor MySQL estabelecida com sucesso.</p>";
+    
+    // Verificar se o banco de dados existe
+    $stmt = $pdo->query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$dbname'");
+    $dbExists = (bool) $stmt->fetchColumn();
+    
+    if ($dbExists) {
+        echo "<p>✅ Banco de dados '$dbname' existe.</p>";
+        
+        // Conectar ao banco de dados específico
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // Verificar tabelas
+        echo "<h3>Verificando tabelas:</h3>";
+        
+        // Tabela de usuários
+        if (tabelaExiste($pdo, 'usuarios')) {
+            $count = contarRegistros($pdo, 'usuarios');
+            echo "<p>✅ Tabela 'usuarios' existe. Registros: $count</p>";
+        } else {
+            echo "<p>❌ Tabela 'usuarios' não existe.</p>";
+        }
+        
+        // Tabela de matrizes
+        if (tabelaExiste($pdo, 'matrizes')) {
+            $count = contarRegistros($pdo, 'matrizes');
+            echo "<p>✅ Tabela 'matrizes' existe. Registros: $count</p>";
+        } else {
+            echo "<p>❌ Tabela 'matrizes' não existe.</p>";
+        }
+        
+        // Tabela de padreadores
+        if (tabelaExiste($pdo, 'padreadores')) {
+            $count = contarRegistros($pdo, 'padreadores');
+            echo "<p>✅ Tabela 'padreadores' existe. Registros: $count</p>";
+        } else {
+            echo "<p>❌ Tabela 'padreadores' não existe.</p>";
+        }
+        
+        // Tabela de gatos
+        if (tabelaExiste($pdo, 'gatos')) {
+            $count = contarRegistros($pdo, 'gatos');
+            echo "<p>✅ Tabela 'gatos' existe. Registros: $count</p>";
+        } else {
+            echo "<p>❌ Tabela 'gatos' não existe.</p>";
+        }
+        
+    } else {
+        echo "<p>❌ Banco de dados '$dbname' não existe.</p>";
+        echo "<p>Execute o script 'executar_sql.php' para criar o banco de dados e as tabelas.</p>";
+    }
+    
+} catch (PDOException $e) {
+    echo "<h2>❌ Erro ao conectar ao banco de dados:</h2>";
+    echo "<p>" . $e->getMessage() . "</p>";
+    
+    if (strpos($e->getMessage(), "Access denied") !== false) {
+        echo "<p>Verifique se as credenciais de acesso ao banco de dados estão corretas.</p>";
+    }
 }
-
-echo "</table>";
-
-// Verificar configurações do PHP
-echo "<h2>Configurações do PHP</h2>";
-echo "<table border='1' cellpadding='5' cellspacing='0'>";
-echo "<tr><th>Configuração</th><th>Valor</th></tr>";
-echo "<tr><td>Versão do PHP</td><td>" . phpversion() . "</td></tr>";
-echo "<tr><td>display_errors</td><td>" . ini_get('display_errors') . "</td></tr>";
-echo "<tr><td>error_reporting</td><td>" . ini_get('error_reporting') . "</td></tr>";
-echo "<tr><td>max_execution_time</td><td>" . ini_get('max_execution_time') . "</td></tr>";
-echo "<tr><td>memory_limit</td><td>" . ini_get('memory_limit') . "</td></tr>";
-echo "<tr><td>post_max_size</td><td>" . ini_get('post_max_size') . "</td></tr>";
-echo "<tr><td>upload_max_filesize</td><td>" . ini_get('upload_max_filesize') . "</td></tr>";
-echo "</table>";
-
-// Verificar extensões do PHP
-echo "<h2>Extensões do PHP</h2>";
-$extensoes = ['pdo', 'pdo_mysql', 'json', 'session', 'mbstring'];
-echo "<table border='1' cellpadding='5' cellspacing='0'>";
-echo "<tr><th>Extensão</th><th>Status</th></tr>";
-
-foreach ($extensoes as $extensao) {
-    $carregada = extension_loaded($extensao);
-    echo "<tr>";
-    echo "<td>{$extensao}</td>";
-    echo "<td style='color: " . ($carregada ? "green" : "red") . ";'>" . ($carregada ? "✓ Carregada" : "✗ Não carregada") . "</td>";
-    echo "</tr>";
-}
-
-echo "</table>";
 ?> 

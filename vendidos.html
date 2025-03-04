@@ -107,19 +107,37 @@
             text-align: center;
         }
 
-        .data-venda {
+        .btn-detalhes {
+            display: block;
+            text-align: center;
+            background-color: rgb(224,190,82);
+            color: black;
+            text-decoration: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-weight: bold;
             margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #333;
-            color: white;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            transition: background-color 0.2s;
         }
-
-        .data-venda i {
-            color: rgb(224,190,82);
+        
+        .btn-detalhes:hover {
+            background-color: rgb(201,171,74);
+        }
+        
+        .loading, .erro, .info {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+            font-size: 1.2rem;
+            grid-column: 1/-1;
+        }
+        
+        .erro {
+            color: #F44336;
+        }
+        
+        .info {
+            color: #2196F3;
         }
 
         @media (max-width: 768px) {
@@ -183,23 +201,6 @@
 
     <script src="menu.js"></script>
     <script>
-        // Menu Hambúrguer
-        const menuToggle = document.querySelector('.menu-toggle');
-        const navMenu = document.querySelector('nav ul');
-
-        menuToggle.addEventListener('click', () => {
-            menuToggle.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-
-        // Fechar menu ao clicar em um link
-        document.querySelectorAll('nav a').forEach(link => {
-            link.addEventListener('click', () => {
-                menuToggle.classList.remove('active');
-                navMenu.classList.remove('active');
-            });
-        });
-
         // Verificar estado de login
         const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
         const adminLink = document.querySelector('a[href="login.html"]');
@@ -207,53 +208,106 @@
             adminLink.href = 'admin.html';
         }
 
-        // Carregar gatos vendidos do localStorage
-        const gatos = JSON.parse(localStorage.getItem('gatos')) || [];
-        const gatosVendidos = gatos.filter(gato => gato.status === 'vendido');
-
-        // Exibir gatos vendidos
-        const vendidosGrid = document.getElementById('vendidos-grid');
-        
-        if (gatosVendidos.length > 0) {
-            gatosVendidos.forEach(gato => {
-                const card = document.createElement('div');
-                card.className = 'gato-vendido-card';
-                card.innerHTML = `
-                    <div class="gato-foto-container">
-                        <img src="${gato.foto}" alt="${gato.nome}" class="gato-foto">
-                        <span class="selo-vendido">
-                            <i class="fas fa-check-circle"></i>
-                            Vendido
-                        </span>
-                    </div>
-                    <div class="gato-info">
-                        <h2 class="gato-nome">${gato.nome}</h2>
-                        <div class="gato-detalhes">
-                            <div class="detalhe">
-                                <i class="fas fa-palette"></i>
-                                <span>${gato.cor}</span>
-                            </div>
-                            <div class="detalhe">
-                                <i class="fas fa-birthday-cake"></i>
-                                <span>${gato.idade}</span>
-                            </div>
-                        </div>
-                        <div class="data-venda">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Vendido em: ${gato.dataVenda || 'Data não registrada'}</span>
-                        </div>
-                    </div>
-                `;
-                vendidosGrid.appendChild(card);
-            });
-        } else {
-            vendidosGrid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; color: #666; padding: 2rem;">
-                    <i class="fas fa-info-circle" style="font-size: 2rem; color: rgb(224,190,82); margin-bottom: 1rem;"></i>
-                    <p>Nenhum gato vendido para exibir no momento.</p>
-                </div>
-            `;
+        // Função para formatar a data de nascimento em idade
+        function calcularIdade(dataNascimento) {
+            const hoje = new Date();
+            const nascimento = new Date(dataNascimento);
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const m = hoje.getMonth() - nascimento.getMonth();
+            
+            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
+            }
+            
+            if (idade === 0) {
+                // Calcular meses
+                let meses = hoje.getMonth() - nascimento.getMonth();
+                if (meses < 0) {
+                    meses += 12;
+                }
+                if (hoje.getDate() < nascimento.getDate()) {
+                    meses--;
+                }
+                return meses === 1 ? '1 mês' : meses + ' meses';
+            }
+            
+            return idade === 1 ? '1 ano' : idade + ' anos';
         }
+
+        // Função para buscar gatos vendidos do banco de dados
+        async function carregarGatosVendidos() {
+            console.log('Iniciando carregamento de gatos vendidos');
+            const vendidosGrid = document.getElementById('vendidos-grid');
+            
+            if (!vendidosGrid) {
+                console.error('Elemento vendidos-grid não encontrado');
+                return;
+            }
+            
+            vendidosGrid.innerHTML = '<p class="loading">Carregando gatos vendidos...</p>';
+            
+            try {
+                console.log('Fazendo requisição para buscar_gatos_vendidos.php');
+                const response = await fetch('buscar_gatos_vendidos.php');
+                const data = await response.json();
+                console.log('Dados recebidos:', data);
+                
+                if (!data.success) {
+                    console.error('Erro nos dados recebidos:', data.message);
+                    vendidosGrid.innerHTML = `<p class="erro">Erro ao carregar gatos vendidos: ${data.message}</p>`;
+                    return;
+                }
+                
+                if (data.gatos.length === 0) {
+                    console.log('Nenhum gato vendido encontrado');
+                    vendidosGrid.innerHTML = '<p class="info">Não há gatos vendidos cadastrados.</p>';
+                    return;
+                }
+                
+                console.log(`Encontrados ${data.gatos.length} gatos vendidos`);
+                vendidosGrid.innerHTML = '';
+                
+                data.gatos.forEach(gato => {
+                    const idade = calcularIdade(gato.data_nascimento);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'gato-vendido-card';
+                    card.innerHTML = `
+                        <div class="gato-foto-container">
+                            <img src="${gato.foto}" alt="${gato.nome}" class="gato-foto">
+                            <span class="selo-vendido">
+                                <i class="fas fa-check-circle"></i>
+                                Vendido
+                            </span>
+                        </div>
+                        <div class="gato-info">
+                            <h2 class="gato-nome">${gato.nome}</h2>
+                            <div class="gato-detalhes">
+                                <div class="detalhe">
+                                    <i class="fas fa-palette"></i>
+                                    <span>${gato.cor}</span>
+                                </div>
+                                <div class="detalhe">
+                                    <i class="fas fa-birthday-cake"></i>
+                                    <span>${idade}</span>
+                                </div>
+                            </div>
+                            <a href="detalhes-gato.html?id=${gato.id}" class="btn-detalhes">
+                                <i class="fas fa-search"></i> Ver Detalhes
+                            </a>
+                        </div>
+                    `;
+                    vendidosGrid.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                vendidosGrid.innerHTML = `<p class="erro">Erro ao carregar gatos vendidos: ${error.message}</p>`;
+            }
+        }
+
+        // Carregar gatos vendidos ao iniciar a página
+        document.addEventListener('DOMContentLoaded', carregarGatosVendidos);
     </script>
 </body>
 </html> 

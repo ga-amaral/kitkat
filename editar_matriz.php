@@ -1,104 +1,45 @@
 <?php
-session_start();
+// Incluir arquivo de configuração
 require_once 'config.php';
+require_once 'proteger_admin.php';
 
-// Headers necessários
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: https://gatilzaidan.com.br');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Accept');
-header('Access-Control-Allow-Credentials: true');
-
-// Log para debug
-error_log("Iniciando edição de matriz");
-
-// Responde à requisição OPTIONS do CORS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    echo json_encode(['success' => true]);
+// Verificar se a requisição é POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Método não permitido']);
     exit;
 }
 
-// Verifica se o usuário está logado e é admin
-if (!isset($_SESSION['user_id'])) {
-    error_log("Usuário não está logado");
-    http_response_code(403);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Usuário não está logado'
-    ]);
-    exit;
-}
+// Obter dados do corpo da requisição
+$dados = json_decode(file_get_contents('php://input'), true);
 
-if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
-    error_log("Usuário não é administrador");
-    http_response_code(403);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Acesso permitido apenas para administradores'
-    ]);
-    exit;
-}
-
-// Recebe e decodifica os dados JSON
-$json = file_get_contents('php://input');
-$dados = json_decode($json, true);
-
-error_log("Dados recebidos: " . print_r($dados, true));
-
-// Verifica se todos os campos necessários foram enviados
+// Verificar se os dados necessários foram fornecidos
 if (!isset($dados['id']) || !isset($dados['nome']) || !isset($dados['data_nascimento']) || 
     !isset($dados['raca']) || !isset($dados['ninhadas']) || !isset($dados['caracteristicas']) || 
     !isset($dados['foto']) || !isset($dados['linhagem'])) {
-    
-    error_log("Dados incompletos");
-    http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Todos os campos são obrigatórios'
-    ]);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Dados incompletos']);
     exit;
 }
 
 try {
-    // Verifica se a matriz existe
-    $stmt = $conn->prepare("SELECT id FROM matrizes WHERE id = ?");
+    // Conectar ao banco de dados usando a função do config.php
+    $pdo = conectarBD();
+    
+    // Verificar se a matriz existe
+    $stmt = $pdo->prepare("SELECT id FROM matrizes WHERE id = ?");
     $stmt->execute([$dados['id']]);
-    
     if ($stmt->rowCount() === 0) {
-        error_log("Matriz não encontrada: " . $dados['id']);
-        http_response_code(404);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Matriz não encontrada'
-        ]);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Matriz não encontrada']);
         exit;
     }
     
-    // Verifica se já existe outra matriz com o mesmo nome
-    $stmt = $conn->prepare("SELECT id FROM matrizes WHERE nome = ? AND id != ?");
-    $stmt->execute([$dados['nome'], $dados['id']]);
-    
-    if ($stmt->rowCount() > 0) {
-        error_log("Matriz com nome já existente: " . $dados['nome']);
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Já existe outra matriz com este nome'
-        ]);
-        exit;
-    }
-    
-    // Atualiza a matriz
-    $stmt = $conn->prepare("
+    // Atualizar a matriz
+    $stmt = $pdo->prepare("
         UPDATE matrizes 
-        SET nome = ?, 
-            data_nascimento = ?, 
-            raca = ?, 
-            ninhadas = ?, 
-            caracteristicas_filhotes = ?, 
-            foto = ?, 
-            linhagem = ?
+        SET nome = ?, data_nascimento = ?, raca = ?, ninhadas = ?, 
+            caracteristicas = ?, foto = ?, linhagem = ?
         WHERE id = ?
     ");
     
@@ -113,19 +54,20 @@ try {
         $dados['id']
     ]);
     
-    error_log("Matriz atualizada com sucesso. ID: " . $dados['id']);
-    
-    echo json_encode([
-        'success' => true,
-        'message' => 'Matriz atualizada com sucesso'
-    ]);
+    // Verificar se a atualização foi bem-sucedida
+    if ($stmt->rowCount() > 0) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => 'Matriz atualizada com sucesso']);
+    } else {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => 'Nenhuma alteração foi feita']);
+    }
     
 } catch (PDOException $e) {
-    error_log("Erro ao atualizar matriz: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Erro ao atualizar matriz: ' . $e->getMessage()
-    ]);
+    // Log do erro
+    file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . ' - Erro em editar_matriz.php: ' . $e->getMessage() . "\n", FILE_APPEND);
+    
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Erro ao atualizar matriz: ' . $e->getMessage()]);
 }
 ?> 

@@ -1,93 +1,106 @@
 <?php
+// Iniciar sessão
 session_start();
+
+// Incluir arquivo de configuração
 require_once 'config.php';
 
-// Headers necessários
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: https://gatilzaidan.com.br');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type, Accept');
-header('Access-Control-Allow-Credentials: true');
+// Definir cabeçalhos para JSON
+header('Content-Type: application/json');
 
-// Log para debug
-error_log("Iniciando cadastrar_usuario.php");
-
-// Responde à requisição OPTIONS do CORS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-// Verifica se o usuário está logado e é admin
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    error_log("Usuário não autorizado: user_id=" . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'não definido') . ", user_type=" . (isset($_SESSION['user_type']) ? $_SESSION['user_type'] : 'não definido'));
-    http_response_code(403);
+// Verificar se o usuário está logado e é administrador
+if (!usuarioAdmin()) {
     echo json_encode([
         'success' => false,
-        'message' => 'Usuário não autorizado'
+        'message' => 'Acesso negado. Apenas administradores podem cadastrar usuários.'
     ]);
     exit;
 }
 
-// Recebe os dados do POST
-$input = file_get_contents('php://input');
-error_log("Dados brutos recebidos: " . $input);
-
-$dados = json_decode($input, true);
-error_log("Dados decodificados: " . print_r($dados, true));
-
-// Validação dos dados
-if (!isset($dados['nome']) || empty($dados['nome']) ||
-    !isset($dados['username']) || empty($dados['username']) ||
-    !isset($dados['password']) || empty($dados['password']) ||
-    !isset($dados['tipo']) || empty($dados['tipo'])) {
-    
-    error_log("Dados incompletos: " . print_r($dados, true));
-    http_response_code(400);
+// Verificar se a requisição é POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode([
         'success' => false,
-        'message' => 'Dados incompletos',
-        'dados' => $dados
+        'message' => 'Método de requisição inválido'
     ]);
     exit;
+}
+
+// Obter dados do corpo da requisição (JSON)
+$json = file_get_contents('php://input');
+$data = json_decode($json, true);
+
+// Se não conseguir decodificar o JSON, tenta obter do $_POST
+if (json_last_error() !== JSON_ERROR_NONE) {
+    $data = $_POST;
+}
+
+// Obter dados do formulário
+$name = isset($data['nome']) ? trim($data['nome']) : '';
+$user_name = isset($data['username']) ? trim($data['username']) : '';
+$password = isset($data['password']) ? trim($data['password']) : '';
+$type = isset($data['tipo']) ? trim($data['tipo']) : 'user';
+
+// Validar dados
+if (empty($name) || empty($user_name) || empty($password)) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Todos os campos são obrigatórios'
+    ]);
+    exit;
+}
+
+// Validar tipo de usuário
+if ($type !== 'admin' && $type !== 'user' && $type !== 'usuario') {
+    $type = 'user'; // Valor padrão
+}
+
+// Converter 'usuario' para 'user' para compatibilidade
+if ($type === 'usuario') {
+    $type = 'user';
 }
 
 try {
-    // Verifica se o usuário já existe
-    $stmt = $conn->prepare("SELECT id FROM user WHERE user = ?");
-    $stmt->execute([$dados['username']]);
+    // Conectar ao banco de dados
+    $pdo = conectarBD();
     
-    if ($stmt->fetch()) {
-        error_log("Usuário já existe: " . $dados['username']);
-        http_response_code(400);
+    // Verificar se o usuário já existe
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM `usuarios` WHERE `user_name` = ?");
+    $stmt->execute([$user_name]);
+    $count = $stmt->fetchColumn();
+    
+    if ($count > 0) {
         echo json_encode([
             'success' => false,
-            'message' => 'Nome de usuário já existe'
+            'message' => 'Nome de usuário já está em uso'
         ]);
         exit;
     }
-
-    // Insere o novo usuário
-    $stmt = $conn->prepare("INSERT INTO user (name, user, password, type) VALUES (?, ?, ?, ?)");
-    $result = $stmt->execute([
-        $dados['nome'],
-        $dados['username'],
-        md5($dados['password']),
-        $dados['tipo']
+    
+    // Criptografar senha com MD5
+    $password_md5 = criptografarSenha($password);
+    
+    // Inserir novo usuário
+    $stmt = $pdo->prepare("INSERT INTO `usuarios` (`name`, `user_name`, `password`, `type`) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$name, $user_name, $password_md5, $type]);
+    
+    // Obter ID do usuário inserido
+    $id = $pdo->lastInsertId();
+    
+    // Retornar sucesso
+    echo json_encode([
+        'success' => true,
+        'message' => 'Usuário cadastrado com sucesso',
+        'usuario' => [
+            'id' => $id,
+            'name' => $name,
+            'user_name' => $user_name,
+            'type' => $type
+        ]
     ]);
-
-    if ($result) {
-        error_log("Usuário cadastrado com sucesso: " . $dados['username']);
-        echo json_encode([
-            'success' => true,
-            'message' => 'Usuário cadastrado com sucesso'
-        ]);
-    } else {
-        throw new Exception('Erro ao inserir usuário no banco de dados');
-    }
-} catch (Exception $e) {
-    error_log("Erro ao cadastrar usuário: " . $e->getMessage());
-    http_response_code(500);
+    
+} catch (PDOException $e) {
+    // Erro de conexão com o banco de dados
     echo json_encode([
         'success' => false,
         'message' => 'Erro ao cadastrar usuário: ' . $e->getMessage()

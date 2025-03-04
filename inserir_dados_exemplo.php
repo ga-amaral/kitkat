@@ -1,251 +1,260 @@
 <?php
+// Incluir arquivo de configuração
 require_once 'config.php';
 
-// Habilitar exibição de erros para debug
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Função para verificar se uma tabela existe
-function tabelaExiste($conn, $tabela) {
-    try {
-        $stmt = $conn->prepare("SHOW TABLES LIKE ?");
-        $stmt->execute([$tabela]);
-        return $stmt->rowCount() > 0;
-    } catch (PDOException $e) {
-        echo "Erro ao verificar tabela {$tabela}: " . $e->getMessage() . "<br>";
-        return false;
+// Conexão com o banco de dados
+try {
+    // Conectar ao banco de dados
+    $pdo = conectarBD();
+    
+    echo "<h2>Inserindo dados de exemplo...</h2>";
+    
+    // Inserir usuários de exemplo
+    $usuarios = [
+        [
+            'name' => 'Administrador',
+            'user_name' => 'admin',
+            'password' => criptografarSenha('admin123'),
+            'type' => 'admin'
+        ],
+        [
+            'name' => 'Bernardo Zaidan',
+            'user_name' => 'bernardo',
+            'password' => criptografarSenha('bernardo123'),
+            'type' => 'admin'
+        ],
+        [
+            'name' => 'Usuário Teste',
+            'user_name' => 'usuario',
+            'password' => criptografarSenha('usuario123'),
+            'type' => 'user'
+        ]
+    ];
+    
+    // Inserir usuários
+    $stmt = $pdo->prepare("INSERT IGNORE INTO `usuarios` (`name`, `user_name`, `password`, `type`) VALUES (?, ?, ?, ?)");
+    
+    foreach ($usuarios as $usuario) {
+        // Verificar se o usuário já existe
+        $check = $pdo->prepare("SELECT COUNT(*) FROM `usuarios` WHERE `user_name` = ?");
+        $check->execute([$usuario['user_name']]);
+        $exists = $check->fetchColumn();
+        
+        if (!$exists) {
+            $stmt->execute([
+                $usuario['name'],
+                $usuario['user_name'],
+                $usuario['password'],
+                $usuario['type']
+            ]);
+            echo "<p>Usuário '{$usuario['user_name']}' inserido com sucesso!</p>";
+        } else {
+            echo "<p>Usuário '{$usuario['user_name']}' já existe.</p>";
+        }
     }
-}
-
-// Função para contar registros em uma tabela
-function contarRegistros($conn, $tabela) {
-    try {
-        $stmt = $conn->prepare("SELECT COUNT(*) FROM {$tabela}");
-        $stmt->execute();
-        return $stmt->fetchColumn();
-    } catch (PDOException $e) {
-        echo "Erro ao contar registros da tabela {$tabela}: " . $e->getMessage() . "<br>";
-        return 0;
-    }
-}
-
-// Verificar se as tabelas existem
-$tabelas = [
-    'matrizes',
-    'padreadores',
-    'gatos',
-    'gatos_tags_saude',
-    'gatos_tags_personalidade'
-];
-
-foreach ($tabelas as $tabela) {
-    if (!tabelaExiste($conn, $tabela)) {
-        echo "<p style='color: red;'>A tabela {$tabela} não existe. Execute o script criar_tabelas_agora.php primeiro.</p>";
-        exit;
-    }
-}
-
-echo "<h1>Inserção de Dados de Exemplo</h1>";
-
-// Inserir matrizes de exemplo
-$matrizes = [
-    [
-        'nome' => 'Luna',
-        'data_nascimento' => '2020-05-15',
-        'raca' => 'Persa',
-        'ninhadas' => 2,
-        'caracteristicas_filhotes' => 'Pelagem longa e densa, temperamento calmo',
-        'foto' => 'img/matrizes/luna.jpg',
-        'linhagem' => 'Linhagem europeia'
-    ],
-    [
-        'nome' => 'Bella',
-        'data_nascimento' => '2019-08-10',
-        'raca' => 'Maine Coon',
-        'ninhadas' => 3,
-        'caracteristicas_filhotes' => 'Porte grande, pelagem densa, sociáveis',
-        'foto' => 'img/matrizes/bella.jpg',
-        'linhagem' => 'Linhagem americana'
-    ]
-];
-
-// Verificar se já existem matrizes
-if (contarRegistros($conn, 'matrizes') == 0) {
-    echo "<h2>Inserindo Matrizes</h2>";
+    
+    // Inserir matrizes de exemplo
+    $matrizes = [
+        [
+            'nome' => 'Luna',
+            'data_nascimento' => '2020-05-15',
+            'raca' => 'Persa',
+            'ninhadas' => 3,
+            'caracteristicas' => 'Filhotes com pelagem longa e densa, geralmente de cores claras.',
+            'foto' => 'https://example.com/images/luna.jpg',
+            'linhagem' => 'Descendente de campeões de exposição.'
+        ],
+        [
+            'nome' => 'Mia',
+            'data_nascimento' => '2019-08-22',
+            'raca' => 'Maine Coon',
+            'ninhadas' => 2,
+            'caracteristicas' => 'Filhotes grandes e robustos, com pelagem semi-longa.',
+            'foto' => 'https://example.com/images/mia.jpg',
+            'linhagem' => 'Linhagem americana pura.'
+        ],
+        [
+            'nome' => 'Bella',
+            'data_nascimento' => '2021-03-10',
+            'raca' => 'Siamês',
+            'ninhadas' => 1,
+            'caracteristicas' => 'Filhotes com pontas escuras e olhos azuis intensos.',
+            'foto' => 'https://example.com/images/bella.jpg',
+            'linhagem' => 'Linhagem tailandesa tradicional.'
+        ]
+    ];
+    
+    // Inserir matrizes
+    $stmt = $pdo->prepare("INSERT IGNORE INTO `matrizes` (`nome`, `data_nascimento`, `raca`, `ninhadas`, `caracteristicas`, `foto`, `linhagem`) VALUES (?, ?, ?, ?, ?, ?, ?)");
     
     foreach ($matrizes as $matriz) {
-        try {
-            $stmt = $conn->prepare("
-                INSERT INTO matrizes (nome, data_nascimento, raca, ninhadas, caracteristicas_filhotes, foto, linhagem)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ");
-            
+        // Verificar se a matriz já existe
+        $check = $pdo->prepare("SELECT COUNT(*) FROM `matrizes` WHERE `nome` = ? AND `data_nascimento` = ?");
+        $check->execute([$matriz['nome'], $matriz['data_nascimento']]);
+        $exists = $check->fetchColumn();
+        
+        if (!$exists) {
             $stmt->execute([
                 $matriz['nome'],
                 $matriz['data_nascimento'],
                 $matriz['raca'],
                 $matriz['ninhadas'],
-                $matriz['caracteristicas_filhotes'],
+                $matriz['caracteristicas'],
                 $matriz['foto'],
                 $matriz['linhagem']
             ]);
-            
-            echo "Matriz <strong>{$matriz['nome']}</strong> inserida com sucesso!<br>";
-        } catch (PDOException $e) {
-            echo "Erro ao inserir matriz {$matriz['nome']}: " . $e->getMessage() . "<br>";
+            echo "<p>Matriz '{$matriz['nome']}' inserida com sucesso!</p>";
+        } else {
+            echo "<p>Matriz '{$matriz['nome']}' já existe.</p>";
         }
     }
-} else {
-    echo "<p>Já existem matrizes cadastradas. Pulando inserção.</p>";
-}
-
-// Inserir padreadores de exemplo
-$padreadores = [
-    [
-        'nome' => 'Thor',
-        'data_nascimento' => '2019-03-20',
-        'raca' => 'Persa',
-        'caracteristicas_filhotes' => 'Pelagem longa e sedosa, olhos expressivos',
-        'foto' => 'img/padreadores/thor.jpg',
-        'linhagem' => 'Linhagem europeia'
-    ],
-    [
-        'nome' => 'Max',
-        'data_nascimento' => '2018-11-05',
-        'raca' => 'Maine Coon',
-        'caracteristicas_filhotes' => 'Porte grande, orelhas com tufos, pelagem densa',
-        'foto' => 'img/padreadores/max.jpg',
-        'linhagem' => 'Linhagem americana'
-    ]
-];
-
-// Verificar se já existem padreadores
-if (contarRegistros($conn, 'padreadores') == 0) {
-    echo "<h2>Inserindo Padreadores</h2>";
+    
+    // Inserir padreadores de exemplo
+    $padreadores = [
+        [
+            'nome' => 'Thor',
+            'data_nascimento' => '2019-11-20',
+            'raca' => 'Persa',
+            'caracteristicas' => 'Transmite genes para pelagem longa e densa, geralmente em cores sólidas.',
+            'foto' => 'https://example.com/images/thor.jpg',
+            'linhagem' => 'Campeão de exposições internacionais.'
+        ],
+        [
+            'nome' => 'Max',
+            'data_nascimento' => '2018-07-14',
+            'raca' => 'Maine Coon',
+            'caracteristicas' => 'Transmite genes para tamanho grande e pelagem semi-longa.',
+            'foto' => 'https://example.com/images/max.jpg',
+            'linhagem' => 'Descendente de linhagem premiada.'
+        ],
+        [
+            'nome' => 'Leo',
+            'data_nascimento' => '2020-01-05',
+            'raca' => 'Siamês',
+            'caracteristicas' => 'Transmite genes para padrão de coloração point e olhos azuis.',
+            'foto' => 'https://example.com/images/leo.jpg',
+            'linhagem' => 'Linhagem pura siamesa.'
+        ]
+    ];
+    
+    // Inserir padreadores
+    $stmt = $pdo->prepare("INSERT IGNORE INTO `padreadores` (`nome`, `data_nascimento`, `raca`, `caracteristicas`, `foto`, `linhagem`) VALUES (?, ?, ?, ?, ?, ?)");
     
     foreach ($padreadores as $padreador) {
-        try {
-            $stmt = $conn->prepare("
-                INSERT INTO padreadores (nome, data_nascimento, raca, caracteristicas_filhotes, foto, linhagem)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ");
-            
+        // Verificar se o padreador já existe
+        $check = $pdo->prepare("SELECT COUNT(*) FROM `padreadores` WHERE `nome` = ? AND `data_nascimento` = ?");
+        $check->execute([$padreador['nome'], $padreador['data_nascimento']]);
+        $exists = $check->fetchColumn();
+        
+        if (!$exists) {
             $stmt->execute([
                 $padreador['nome'],
                 $padreador['data_nascimento'],
                 $padreador['raca'],
-                $padreador['caracteristicas_filhotes'],
+                $padreador['caracteristicas'],
                 $padreador['foto'],
                 $padreador['linhagem']
             ]);
-            
-            echo "Padreador <strong>{$padreador['nome']}</strong> inserido com sucesso!<br>";
-        } catch (PDOException $e) {
-            echo "Erro ao inserir padreador {$padreador['nome']}: " . $e->getMessage() . "<br>";
+            echo "<p>Padreador '{$padreador['nome']}' inserido com sucesso!</p>";
+        } else {
+            echo "<p>Padreador '{$padreador['nome']}' já existe.</p>";
         }
     }
-} else {
-    echo "<p>Já existem padreadores cadastrados. Pulando inserção.</p>";
-}
-
-// Buscar IDs das matrizes e padreadores
-$stmt = $conn->query("SELECT id, nome FROM matrizes LIMIT 2");
-$matrizesIds = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$stmt = $conn->query("SELECT id, nome FROM padreadores LIMIT 2");
-$padreadoresIds = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Inserir gatos de exemplo
-if (count($matrizesIds) > 0 && count($padreadoresIds) > 0 && contarRegistros($conn, 'gatos') == 0) {
-    echo "<h2>Inserindo Gatos</h2>";
     
-    $gatos = [
-        [
-            'nome' => 'Mia',
-            'data_nascimento' => '2022-01-10',
-            'cor' => 'Branco',
-            'descricao' => 'Filhote dócil e brincalhão',
-            'foto' => 'img/gatos/mia.jpg',
-            'status' => 'disponivel',
-            'matriz_id' => $matrizesIds[0]['id'],
-            'padreador_id' => $padreadoresIds[0]['id'],
-            'tags_saude' => ['Vacinado', 'Vermifugado'],
-            'tags_personalidade' => ['Dócil', 'Brincalhão']
-        ],
-        [
-            'nome' => 'Leo',
-            'data_nascimento' => '2021-11-15',
-            'cor' => 'Cinza',
-            'descricao' => 'Filhote sociável e independente',
-            'foto' => 'img/gatos/leo.jpg',
-            'status' => 'disponivel',
-            'matriz_id' => $matrizesIds[1]['id'],
-            'padreador_id' => $padreadoresIds[1]['id'],
-            'tags_saude' => ['Vacinado', 'Vermifugado', 'Microchipado'],
-            'tags_personalidade' => ['Sociável', 'Independente']
-        ]
-    ];
-    
-    foreach ($gatos as $gato) {
-        try {
-            // Iniciar transação
-            $conn->beginTransaction();
-            
-            // Inserir gato
-            $stmt = $conn->prepare("
-                INSERT INTO gatos (nome, data_nascimento, cor, descricao, foto, status, matriz_id, padreador_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            
-            $stmt->execute([
-                $gato['nome'],
-                $gato['data_nascimento'],
-                $gato['cor'],
-                $gato['descricao'],
-                $gato['foto'],
-                $gato['status'],
-                $gato['matriz_id'],
-                $gato['padreador_id']
-            ]);
-            
-            $gatoId = $conn->lastInsertId();
-            
-            // Inserir tags de saúde
-            foreach ($gato['tags_saude'] as $tag) {
-                $stmt = $conn->prepare("
-                    INSERT INTO gatos_tags_saude (gato_id, tag)
-                    VALUES (?, ?)
-                ");
-                $stmt->execute([$gatoId, $tag]);
-            }
-            
-            // Inserir tags de personalidade
-            foreach ($gato['tags_personalidade'] as $tag) {
-                $stmt = $conn->prepare("
-                    INSERT INTO gatos_tags_personalidade (gato_id, tag)
-                    VALUES (?, ?)
-                ");
-                $stmt->execute([$gatoId, $tag]);
-            }
-            
-            // Confirmar transação
-            $conn->commit();
-            
-            echo "Gato <strong>{$gato['nome']}</strong> inserido com sucesso!<br>";
-        } catch (PDOException $e) {
-            // Reverter transação em caso de erro
-            $conn->rollBack();
-            echo "Erro ao inserir gato {$gato['nome']}: " . $e->getMessage() . "<br>";
-        }
+    // Obter IDs das matrizes e padreadores inseridos
+    $matrizesIds = [];
+    $stmt = $pdo->query("SELECT `id`, `nome` FROM `matrizes`");
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $matrizesIds[$row['nome']] = $row['id'];
     }
-} else {
-    if (contarRegistros($conn, 'gatos') > 0) {
-        echo "<p>Já existem gatos cadastrados. Pulando inserção.</p>";
+    
+    $padreadoresIds = [];
+    $stmt = $pdo->query("SELECT `id`, `nome` FROM `padreadores`");
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $padreadoresIds[$row['nome']] = $row['id'];
+    }
+    
+    // Inserir gatos de exemplo
+    if (!empty($matrizesIds) && !empty($padreadoresIds)) {
+        $gatos = [
+            [
+                'nome' => 'Simba',
+                'data_nascimento' => '2022-06-10',
+                'cor' => 'Laranja',
+                'foto' => 'https://example.com/images/simba.jpg',
+                'descricao' => 'Gato persa de pelagem longa e densa, muito brincalhão e sociável.',
+                'status' => 'disponivel',
+                'matriz_nome' => 'Luna',
+                'padreador_nome' => 'Thor',
+                'tags_saude' => ['Vacinado', 'Vermifugado', 'Testado FIV/FeLV'],
+                'tags_personalidade' => ['Dócil', 'Brincalhão', 'Sociável']
+            ],
+            [
+                'nome' => 'Nina',
+                'data_nascimento' => '2022-08-15',
+                'cor' => 'Cinza',
+                'foto' => 'https://example.com/images/nina.jpg',
+                'descricao' => 'Gata Maine Coon de porte grande, muito carinhosa e calma.',
+                'status' => 'disponivel',
+                'matriz_nome' => 'Mia',
+                'padreador_nome' => 'Max',
+                'tags_saude' => ['Vacinado', 'Vermifugado', 'Testado FIV/FeLV'],
+                'tags_personalidade' => ['Dócil', 'Calmo']
+            ],
+            [
+                'nome' => 'Felix',
+                'data_nascimento' => '2022-09-20',
+                'cor' => 'Preto e Branco',
+                'foto' => 'https://example.com/images/felix.jpg',
+                'descricao' => 'Gato siamês com olhos azuis intensos, muito ativo e brincalhão.',
+                'status' => 'disponivel',
+                'matriz_nome' => 'Bella',
+                'padreador_nome' => 'Leo',
+                'tags_saude' => ['Vacinado', 'Vermifugado', 'Testado FIV/FeLV', 'Castrado'],
+                'tags_personalidade' => ['Brincalhão', 'Independente']
+            ]
+        ];
+        
+        // Inserir gatos
+        $stmt = $pdo->prepare("INSERT IGNORE INTO `gatos` (`nome`, `data_nascimento`, `cor`, `foto`, `descricao`, `status`, `matriz_id`, `padreador_id`, `tags_saude`, `tags_personalidade`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        foreach ($gatos as $gato) {
+            // Verificar se o gato já existe
+            $check = $pdo->prepare("SELECT COUNT(*) FROM `gatos` WHERE `nome` = ? AND `data_nascimento` = ?");
+            $check->execute([$gato['nome'], $gato['data_nascimento']]);
+            $exists = $check->fetchColumn();
+            
+            if (!$exists) {
+                $matriz_id = isset($matrizesIds[$gato['matriz_nome']]) ? $matrizesIds[$gato['matriz_nome']] : null;
+                $padreador_id = isset($padreadoresIds[$gato['padreador_nome']]) ? $padreadoresIds[$gato['padreador_nome']] : null;
+                
+                $tags_saude_json = json_encode($gato['tags_saude']);
+                $tags_personalidade_json = json_encode($gato['tags_personalidade']);
+                
+                $stmt->execute([
+                    $gato['nome'],
+                    $gato['data_nascimento'],
+                    $gato['cor'],
+                    $gato['foto'],
+                    $gato['descricao'],
+                    $gato['status'],
+                    $matriz_id,
+                    $padreador_id,
+                    $tags_saude_json,
+                    $tags_personalidade_json
+                ]);
+                echo "<p>Gato '{$gato['nome']}' inserido com sucesso!</p>";
+            } else {
+                echo "<p>Gato '{$gato['nome']}' já existe.</p>";
+            }
+        }
     } else {
-        echo "<p>Não foi possível inserir gatos. Verifique se existem matrizes e padreadores cadastrados.</p>";
+        echo "<p>Não foi possível inserir gatos de exemplo porque não há matrizes ou padreadores cadastrados.</p>";
     }
+    
+    echo "<h2>Dados de exemplo inseridos com sucesso!</h2>";
+    
+} catch (PDOException $e) {
+    die("<h2>Erro ao inserir dados de exemplo:</h2><p>" . $e->getMessage() . "</p>");
 }
-
-echo "<p>Processo concluído!</p>";
 ?> 

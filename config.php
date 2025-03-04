@@ -1,78 +1,61 @@
 <?php
-// Desabilitar exibição de erros
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-error_reporting(0);
-
 // Configurações do banco de dados
-define('DB_HOST', 'localhost');           // Endereço do servidor MySQL
-define('DB_USER', 'gatilbernardo');       // Usuário do MySQL
-define('DB_PASS', 'V6$Z2Asn95');         // Senha do MySQL
-define('DB_NAME', 'gatilzaidan');         // Nome do banco de dados
+$config = [
+    'db' => [
+        'host' => '127.0.0.1',
+        'dbname' => 'gatilzaidan',
+        'username' => 'gatilbernardo',
+        'password' => 'V6$Z2Asn95',
+        'charset' => 'utf8'
+    ],
+    'app' => [
+        'name' => 'Gatil Zaidan',
+        'url' => 'https://gatilzaidan.com.br'
+    ]
+];
 
-// Função para testar conexão sem banco de dados
-function testarConexaoServidor() {
+// Função para conectar ao banco de dados
+function conectarBD() {
+    global $config;
+    
     try {
-        $conn = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        return true;
-    } catch(PDOException $e) {
-        error_log("Erro na conexão com servidor: " . $e->getMessage());
-        throw new Exception("Erro ao conectar ao servidor MySQL: " . $e->getMessage());
+        // Log para depuração
+        file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . ' - Tentando conectar ao banco de dados: ' . $config['db']['host'] . '/' . $config['db']['dbname'] . "\n", FILE_APPEND);
+        
+        $dsn = "mysql:host={$config['db']['host']};port=3306;dbname={$config['db']['dbname']};charset={$config['db']['charset']}";
+        $pdo = new PDO($dsn, $config['db']['username'], $config['db']['password']);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // Log para depuração
+        file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . ' - Conexão bem-sucedida ao banco de dados' . "\n", FILE_APPEND);
+        
+        return $pdo;
+    } catch (PDOException $e) {
+        // Log para depuração
+        file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . ' - Erro de conexão ao banco de dados: ' . $e->getMessage() . "\n", FILE_APPEND);
+        
+        die("Erro de conexão: " . $e->getMessage());
     }
 }
 
-// Função para verificar se o banco existe
-function verificarBancoDados() {
-    try {
-        $conn = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $stmt = $conn->query("SHOW DATABASES LIKE '" . DB_NAME . "'");
-        return $stmt->rowCount() > 0;
-    } catch(PDOException $e) {
-        error_log("Erro ao verificar banco: " . $e->getMessage());
-        throw new Exception("Erro ao verificar banco de dados: " . $e->getMessage());
-    }
+// Função para verificar se o usuário está logado
+function usuarioLogado() {
+    return isset($_SESSION['logado']) && $_SESSION['logado'] === true;
 }
 
-// Criar conexão
-try {
-    $conn = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8",
-        DB_USER,
-        DB_PASS,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-
-    // Configura o charset
-    $conn->exec("SET CHARACTER SET utf8");
-    $conn->exec("SET collation_connection = utf8_general_ci");
-
-} catch(PDOException $e) {
-    error_log("Erro na conexão com o banco: " . $e->getMessage());
-    die(json_encode([
-        'success' => false,
-        'message' => 'Erro na conexão com o banco de dados'
-    ]));
+// Função para verificar se o usuário é administrador
+function usuarioAdmin() {
+    return usuarioLogado() && isset($_SESSION['usuario_tipo']) && $_SESSION['usuario_tipo'] === 'admin';
 }
 
-// Função para testar a conexão
-function testarConexao() {
-    global $conn;
-    try {
-        $conn->query("SELECT 1");
-        return true;
-    } catch(PDOException $e) {
-        error_log("Erro ao testar conexão: " . $e->getMessage());
-        throw new Exception("Erro ao testar conexão: " . $e->getMessage());
-    }
+// Função para redirecionar para a página de login
+function redirecionarLogin() {
+    header('Location: login.html');
+    exit;
 }
 
-// Testa a conexão
-if (!testarConexao()) {
-    die(json_encode([
-        'success' => false,
-        'message' => 'A conexão foi estabelecida mas não está respondendo'
-    ]));
+// Função para criptografar senha
+function criptografarSenha($senha) {
+    return md5($senha);
 }
-?>
+?> 

@@ -1,21 +1,12 @@
 <?php
-// Iniciar sessão
-session_start();
-
 // Incluir arquivo de configuração
 require_once 'config.php';
 
-// Definir cabeçalhos para JSON
+// Definir cabeçalhos para JSON e CORS
 header('Content-Type: application/json');
-
-// Verificar se o usuário está logado
-if (!usuarioLogado()) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Acesso negado. Usuário não está logado.'
-    ]);
-    exit;
-}
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Headers: Content-Type');
 
 try {
     // Conectar ao banco de dados

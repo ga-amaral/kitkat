@@ -119,6 +119,40 @@
             max-height: 100px;
             width: auto;
         }
+
+        .loading, .erro, .info {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+        }
+
+        .erro {
+            color: #F44336;
+        }
+
+        .info {
+            color: #2196F3;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 0.3rem;
+        }
+
+        .status.disponivel {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status.vendido {
+            background-color: #F44336;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -162,65 +196,99 @@
             adminLink.href = 'admin.html';
         }
 
-        // Carregar dados do localStorage
-        const gatos = JSON.parse(localStorage.getItem('gatos')) || [
-            {
-                "nome": "Luna",
-                "idade": "6 meses",
-                "cor": "Branco e Cinza",
-                "foto": "./img/1.jpg"
-            },
-            {
-                "nome": "Thor",
-                "idade": "4 meses",
-                "cor": "Laranja Tigrado",
-                "foto": "./img/2.jpg"
-            },
-            {
-                "nome": "Nina",
-                "idade": "5 meses",
-                "cor": "Preto",
-                "foto": "./img/3.jpg"
-            },
-            {
-                "nome": "Felix",
-                "idade": "3 meses",
-                "cor": "Tricolor",
-                "foto": "./img/7.jpg"
+        // Função para formatar a data de nascimento em idade
+        function calcularIdade(dataNascimento) {
+            const hoje = new Date();
+            const nascimento = new Date(dataNascimento);
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const m = hoje.getMonth() - nascimento.getMonth();
+            
+            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
             }
-        ];
+            
+            if (idade === 0) {
+                // Calcular meses
+                let meses = hoje.getMonth() - nascimento.getMonth();
+                if (meses < 0) {
+                    meses += 12;
+                }
+                if (hoje.getDate() < nascimento.getDate()) {
+                    meses--;
+                }
+                return meses === 1 ? '1 mês' : meses + ' meses';
+            }
+            
+            return idade === 1 ? '1 ano' : idade + ' anos';
+        }
 
-        const gatosContainer = document.getElementById('gatos-container');
-        
-        // Filtrar apenas gatos disponíveis
-        const gatosDisponiveis = gatos.filter(gato => gato.status !== 'vendido');
-        
-        gatosDisponiveis.forEach(gato => {
-            const gatoCard = document.createElement('div');
-            gatoCard.className = 'gato-card';
-            gatoCard.innerHTML = `
-                <a href="detalhes-gato.html?gato=${gato.nome}" class="gato-link">
-                    <img src="${gato.foto}" alt="${gato.nome}">
-                    <h2>${gato.nome}</h2>
-                    <div class="caracteristicas-gato">
-                        <div class="caracteristica-bloco">
-                            <i class="fas fa-birthday-cake"></i>
-                            <span>Idade: ${gato.idade}</span>
-                        </div>
-                        <div class="caracteristica-bloco">
-                            <i class="fas fa-palette"></i>
-                            <span>Cor: ${gato.cor}</span>
-                        </div>
-                    </div>
-                    <div class="ver-mais">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Ver mais informações</span>
-                    </div>
-                </a>
-                <a href="contato.html?gato=${gato.nome}" class="btn-interesse">Tenho Interesse</a>
-            `;
-            gatosContainer.appendChild(gatoCard);
-        });
+        // Função para carregar gatos disponíveis
+        function carregarGatosDisponiveis() {
+            const gatosContainer = document.getElementById('gatos-container');
+            gatosContainer.innerHTML = '<p class="loading">Carregando gatos disponíveis...</p>';
+            
+            fetch('buscar_gatos_disponiveis.php')
+                .then(response => response.json())
+                .then(data => {
+                    gatosContainer.innerHTML = '';
+                    
+                    if (!data.success) {
+                        gatosContainer.innerHTML = `<p class="erro">Erro ao carregar gatos: ${data.message}</p>`;
+                        return;
+                    }
+                    
+                    if (data.gatos.length === 0) {
+                        gatosContainer.innerHTML = '<p class="info">Não há gatos disponíveis no momento.</p>';
+                        return;
+                    }
+                    
+                    data.gatos.forEach(gato => {
+                        const idade = calcularIdade(gato.data_nascimento);
+                        
+                        const gatoCard = document.createElement('div');
+                        gatoCard.className = 'gato-card';
+                        gatoCard.innerHTML = `
+                            <a href="detalhes-gato.html?id=${gato.id}" class="gato-link">
+                                <img src="${gato.foto}" alt="${gato.nome}">
+                                <h2>${gato.nome}</h2>
+                                <div class="caracteristicas-gato">
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-birthday-cake"></i>
+                                        <span>Idade: ${idade}</span>
+                                    </div>
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-palette"></i>
+                                        <span>Cor: ${gato.cor}</span>
+                                    </div>
+                                    ${gato.matriz_nome ? `
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-venus"></i>
+                                        <span>Matriz: ${gato.matriz_nome}</span>
+                                    </div>` : ''}
+                                    ${gato.padreador_nome ? `
+                                    <div class="caracteristica-bloco">
+                                        <i class="fas fa-mars"></i>
+                                        <span>Padreador: ${gato.padreador_nome}</span>
+                                    </div>` : ''}
+                                </div>
+                                <div class="ver-mais">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span>Ver mais informações</span>
+                                </div>
+                            </a>
+                            <a href="contato.html?gato=${gato.id}" class="btn-interesse">Tenho Interesse</a>
+                        `;
+                        gatosContainer.appendChild(gatoCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    gatosContainer.innerHTML = `<p class="erro">Erro ao carregar gatos: ${error.message}</p>`;
+                });
+        }
+
+        // Carregar gatos ao iniciar a página
+        document.addEventListener('DOMContentLoaded', carregarGatosDisponiveis);
     </script>
 </body>
 </html> 

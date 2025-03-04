@@ -1,58 +1,50 @@
 <?php
+// Iniciar sessão
 session_start();
+
+// Incluir arquivo de configuração
 require_once 'config.php';
 
-// Headers necessários
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: https://gatilzaidan.com.br');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Accept');
-header('Access-Control-Allow-Credentials: true');
+// Definir cabeçalhos para JSON
+header('Content-Type: application/json');
 
-// Log para debug
-error_log("Iniciando cadastro de padreador");
-
-// Responde à requisição OPTIONS do CORS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    echo json_encode(['success' => true]);
-    exit;
-}
-
-// Verifica se o usuário está logado e é admin
-if (!isset($_SESSION['user_id'])) {
-    error_log("Usuário não está logado");
-    http_response_code(403);
+// Verificar se o usuário está logado e é administrador
+if (!usuarioAdmin()) {
     echo json_encode([
         'success' => false,
-        'message' => 'Usuário não está logado'
+        'message' => 'Acesso negado. Apenas administradores podem cadastrar padreadores.'
     ]);
     exit;
 }
 
-if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
-    error_log("Usuário não é administrador");
-    http_response_code(403);
+// Verificar se a requisição é POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode([
         'success' => false,
-        'message' => 'Acesso permitido apenas para administradores'
+        'message' => 'Método de requisição inválido'
     ]);
     exit;
 }
 
-// Recebe e decodifica os dados JSON
+// Obter dados do corpo da requisição (JSON)
 $json = file_get_contents('php://input');
-$dados = json_decode($json, true);
+$data = json_decode($json, true);
 
-error_log("Dados recebidos: " . print_r($dados, true));
+// Se não conseguir decodificar o JSON, tenta obter do $_POST
+if (json_last_error() !== JSON_ERROR_NONE) {
+    $data = $_POST;
+}
 
-// Verifica se todos os campos necessários foram enviados
-if (!isset($dados['nome']) || !isset($dados['data_nascimento']) || 
-    !isset($dados['raca']) || !isset($dados['caracteristicas']) || 
-    !isset($dados['foto']) || !isset($dados['linhagem'])) {
-    
-    error_log("Dados incompletos");
-    http_response_code(400);
+// Obter dados do formulário
+$nome = isset($data['nome']) ? trim($data['nome']) : '';
+$data_nascimento = isset($data['data_nascimento']) ? trim($data['data_nascimento']) : '';
+$raca = isset($data['raca']) ? trim($data['raca']) : '';
+$caracteristicas = isset($data['caracteristicas']) ? trim($data['caracteristicas']) : '';
+$foto = isset($data['foto']) ? trim($data['foto']) : '';
+$linhagem = isset($data['linhagem']) ? trim($data['linhagem']) : '';
+
+// Validar dados
+if (empty($nome) || empty($data_nascimento) || empty($raca) || empty($caracteristicas) || empty($foto)) {
     echo json_encode([
         'success' => false,
         'message' => 'Todos os campos são obrigatórios'
@@ -61,47 +53,46 @@ if (!isset($dados['nome']) || !isset($dados['data_nascimento']) ||
 }
 
 try {
-    // Verifica se já existe um padreador com o mesmo nome
-    $stmt = $conn->prepare("SELECT id FROM padreadores WHERE nome = ?");
-    $stmt->execute([$dados['nome']]);
+    // Conectar ao banco de dados
+    $pdo = conectarBD();
     
-    if ($stmt->rowCount() > 0) {
-        error_log("Padreador com nome já existente: " . $dados['nome']);
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Já existe um padreador com este nome'
-        ]);
-        exit;
-    }
+    // Criar tabela de padreadores se não existir
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `padreadores` (
+        `id` INT(11) NOT NULL AUTO_INCREMENT,
+        `nome` VARCHAR(100) NOT NULL,
+        `data_nascimento` DATE NOT NULL,
+        `raca` VARCHAR(100) NOT NULL,
+        `caracteristicas` TEXT NOT NULL,
+        `foto` VARCHAR(255) NOT NULL,
+        `linhagem` TEXT,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
     
-    // Insere o padreador
-    $stmt = $conn->prepare("
-        INSERT INTO padreadores (nome, data_nascimento, raca, caracteristicas_filhotes, foto, linhagem)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
+    // Inserir novo padreador
+    $stmt = $pdo->prepare("INSERT INTO `padreadores` (`nome`, `data_nascimento`, `raca`, `caracteristicas`, `foto`, `linhagem`) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$nome, $data_nascimento, $raca, $caracteristicas, $foto, $linhagem]);
     
-    $stmt->execute([
-        $dados['nome'],
-        $dados['data_nascimento'],
-        $dados['raca'],
-        $dados['caracteristicas'],
-        $dados['foto'],
-        $dados['linhagem']
-    ]);
+    // Obter ID do padreador inserido
+    $id = $pdo->lastInsertId();
     
-    $padreadorId = $conn->lastInsertId();
-    error_log("Padreador cadastrado com sucesso. ID: " . $padreadorId);
-    
+    // Retornar sucesso
     echo json_encode([
         'success' => true,
         'message' => 'Padreador cadastrado com sucesso',
-        'id' => $padreadorId
+        'padreador' => [
+            'id' => $id,
+            'nome' => $nome,
+            'data_nascimento' => $data_nascimento,
+            'raca' => $raca,
+            'caracteristicas' => $caracteristicas,
+            'foto' => $foto,
+            'linhagem' => $linhagem
+        ]
     ]);
     
 } catch (PDOException $e) {
-    error_log("Erro ao cadastrar padreador: " . $e->getMessage());
-    http_response_code(500);
+    // Erro de conexão com o banco de dados
     echo json_encode([
         'success' => false,
         'message' => 'Erro ao cadastrar padreador: ' . $e->getMessage()

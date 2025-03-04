@@ -1,95 +1,71 @@
 <?php
+// Iniciar sessão
 session_start();
+
+// Incluir arquivo de configuração
 require_once 'config.php';
 
-// Headers necessários
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: https://gatilzaidan.com.br');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type, Accept');
-header('Access-Control-Allow-Credentials: true');
+// Definir cabeçalhos para JSON
+header('Content-Type: application/json');
 
-// Log para debug
-error_log("Iniciando excluir_usuario.php");
-
-// Responde à requisição OPTIONS do CORS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-// Verifica se o usuário está logado e é admin
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    error_log("Usuário não autorizado: user_id=" . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'não definido') . ", user_type=" . (isset($_SESSION['user_type']) ? $_SESSION['user_type'] : 'não definido'));
-    http_response_code(403);
+// Verificar se o usuário está logado e é administrador
+if (!usuarioAdmin()) {
     echo json_encode([
         'success' => false,
-        'message' => 'Usuário não autorizado'
+        'message' => 'Acesso negado. Apenas administradores podem excluir usuários.'
     ]);
     exit;
 }
 
-// Recebe os dados do POST
-$input = file_get_contents('php://input');
-error_log("Dados brutos recebidos: " . $input);
-
-$dados = json_decode($input, true);
-error_log("Dados decodificados: " . print_r($dados, true));
-
-// Validação dos dados
-if (!isset($dados['id']) || empty($dados['id'])) {
-    error_log("ID do usuário não fornecido");
-    http_response_code(400);
+// Verificar se o ID foi fornecido
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     echo json_encode([
         'success' => false,
-        'message' => 'ID do usuário não fornecido'
+        'message' => 'ID do usuário não fornecido ou inválido'
+    ]);
+    exit;
+}
+
+$id = (int) $_GET['id'];
+
+// Impedir que o usuário exclua a si mesmo
+if ($id === (int) $_SESSION['usuario_id']) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Você não pode excluir seu próprio usuário'
     ]);
     exit;
 }
 
 try {
-    // Verifica se o usuário existe e não é o adminamaral
-    $stmt = $conn->prepare("SELECT user FROM user WHERE id = ?");
-    $stmt->execute([$dados['id']]);
-    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$usuario) {
-        error_log("Usuário não encontrado: ID " . $dados['id']);
-        http_response_code(404);
+    // Conectar ao banco de dados
+    $pdo = conectarBD();
+    
+    // Verificar se o usuário existe
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM `usuarios` WHERE `id` = ?");
+    $stmt->execute([$id]);
+    $count = $stmt->fetchColumn();
+    
+    if ($count === 0) {
         echo json_encode([
             'success' => false,
             'message' => 'Usuário não encontrado'
         ]);
         exit;
     }
-
-    // Impede a exclusão do usuário adminamaral
-    if ($usuario['user'] === 'adminamaral') {
-        error_log("Tentativa de excluir usuário adminamaral");
-        http_response_code(403);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Não é permitido excluir o usuário administrador principal'
-        ]);
-        exit;
-    }
-
-    // Exclui o usuário
-    $stmt = $conn->prepare("DELETE FROM user WHERE id = ?");
-    $result = $stmt->execute([$dados['id']]);
-
-    if ($result) {
-        error_log("Usuário excluído com sucesso: ID " . $dados['id']);
-        echo json_encode([
-            'success' => true,
-            'message' => 'Usuário excluído com sucesso'
-        ]);
-    } else {
-        throw new Exception('Erro ao excluir usuário do banco de dados');
-    }
-} catch (Exception $e) {
-    error_log("Erro ao excluir usuário: " . $e->getMessage());
-    http_response_code(500);
+    
+    // Excluir o usuário
+    $stmt = $pdo->prepare("DELETE FROM `usuarios` WHERE `id` = ?");
+    $stmt->execute([$id]);
+    
+    // Retornar sucesso
+    echo json_encode([
+        'success' => true,
+        'message' => 'Usuário excluído com sucesso'
+    ]);
+    
+} catch (PDOException $e) {
+    // Erro de conexão com o banco de dados
     echo json_encode([
         'success' => false,
         'message' => 'Erro ao excluir usuário: ' . $e->getMessage()

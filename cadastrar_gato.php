@@ -1,105 +1,124 @@
 <?php
+// Iniciar sessão
 session_start();
+
+// Incluir arquivo de configuração
 require_once 'config.php';
 
-// Configurar cabeçalhos para JSON e CORS
+// Definir cabeçalhos para JSON
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: https://gatilzaidan.com.br');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Credentials: true');
 
-// Log para debug
-error_log("Iniciando cadastro de gato");
-
-// Responder à requisição OPTIONS do CORS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    echo json_encode(['success' => true]);
+// Verificar se o usuário está logado e é administrador
+if (!usuarioAdmin()) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Acesso negado. Apenas administradores podem cadastrar gatos.'
+    ]);
     exit;
 }
 
-// Verificar se o usuário está logado
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
-    error_log("Acesso não autorizado: usuário não está logado");
-    echo json_encode(['success' => false, 'message' => 'Acesso não autorizado']);
+// Verificar se a requisição é POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Método de requisição inválido'
+    ]);
     exit;
 }
 
-// Obter dados do corpo da requisição
-$data = json_decode(file_get_contents('php://input'), true);
-error_log("Dados recebidos: " . json_encode($data));
+// Obter dados do corpo da requisição (JSON)
+$json = file_get_contents('php://input');
+$data = json_decode($json, true);
 
-// Verificar se todos os campos obrigatórios foram fornecidos
-$campos_obrigatorios = ['nome', 'data_nascimento', 'cor', 'foto', 'descricao', 'status'];
-foreach ($campos_obrigatorios as $campo) {
-    if (!isset($data[$campo]) || empty($data[$campo])) {
-        error_log("Campo obrigatório não fornecido: $campo");
-        echo json_encode(['success' => false, 'message' => "Campo obrigatório não fornecido: $campo"]);
-        exit;
-    }
+// Se não conseguir decodificar o JSON, tenta obter do $_POST
+if (json_last_error() !== JSON_ERROR_NONE) {
+    $data = $_POST;
+}
+
+// Obter dados do formulário
+$nome = isset($data['nome']) ? trim($data['nome']) : '';
+$data_nascimento = isset($data['data_nascimento']) ? trim($data['data_nascimento']) : '';
+$cor = isset($data['cor']) ? trim($data['cor']) : '';
+$foto = isset($data['foto']) ? trim($data['foto']) : '';
+$descricao = isset($data['descricao']) ? trim($data['descricao']) : '';
+$status = isset($data['status']) ? trim($data['status']) : 'disponivel';
+$matriz_id = isset($data['matriz_id']) ? intval($data['matriz_id']) : 0;
+$padreador_id = isset($data['padreador_id']) ? intval($data['padreador_id']) : 0;
+$tags_saude = isset($data['tags_saude']) ? $data['tags_saude'] : [];
+$tags_personalidade = isset($data['tags_personalidade']) ? $data['tags_personalidade'] : [];
+
+// Validar dados
+if (empty($nome) || empty($data_nascimento) || empty($cor) || empty($foto) || empty($descricao)) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Todos os campos são obrigatórios'
+    ]);
+    exit;
+}
+
+// Validar status
+if ($status !== 'disponivel' && $status !== 'vendido') {
+    $status = 'disponivel'; // Valor padrão
 }
 
 try {
-    // Iniciar transação
-    $conn->begin_transaction();
+    // Conectar ao banco de dados
+    $pdo = conectarBD();
     
-    // Inserir o gato
-    $stmt = $conn->prepare("
-        INSERT INTO gatos (
-            nome, data_nascimento, cor, foto, descricao, status, matriz_id, padreador_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ");
+    // Criar tabela de gatos se não existir
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `gatos` (
+        `id` INT(11) NOT NULL AUTO_INCREMENT,
+        `nome` VARCHAR(100) NOT NULL,
+        `data_nascimento` DATE NOT NULL,
+        `cor` VARCHAR(100) NOT NULL,
+        `foto` VARCHAR(255) NOT NULL,
+        `descricao` TEXT NOT NULL,
+        `status` ENUM('disponivel', 'vendido') NOT NULL DEFAULT 'disponivel',
+        `matriz_id` INT(11),
+        `padreador_id` INT(11),
+        `tags_saude` TEXT,
+        `tags_personalidade` TEXT,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        FOREIGN KEY (`matriz_id`) REFERENCES `matrizes`(`id`) ON DELETE SET NULL,
+        FOREIGN KEY (`padreador_id`) REFERENCES `padreadores`(`id`) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
     
-    // Converter IDs vazios para NULL
-    $matriz_id = !empty($data['matriz_id']) ? $data['matriz_id'] : null;
-    $padreador_id = !empty($data['padreador_id']) ? $data['padreador_id'] : null;
+    // Converter arrays de tags para strings JSON
+    $tags_saude_json = json_encode($tags_saude);
+    $tags_personalidade_json = json_encode($tags_personalidade);
     
-    $stmt->bind_param(
-        "ssssssii", 
-        $data['nome'], 
-        $data['data_nascimento'], 
-        $data['cor'], 
-        $data['foto'], 
-        $data['descricao'], 
-        $data['status'], 
-        $matriz_id, 
-        $padreador_id
-    );
+    // Inserir novo gato
+    $stmt = $pdo->prepare("INSERT INTO `gatos` (`nome`, `data_nascimento`, `cor`, `foto`, `descricao`, `status`, `matriz_id`, `padreador_id`, `tags_saude`, `tags_personalidade`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$nome, $data_nascimento, $cor, $foto, $descricao, $status, $matriz_id ?: null, $padreador_id ?: null, $tags_saude_json, $tags_personalidade_json]);
     
-    $stmt->execute();
-    $gato_id = $conn->insert_id;
+    // Obter ID do gato inserido
+    $id = $pdo->lastInsertId();
     
-    // Inserir tags de saúde
-    if (isset($data['tags_saude']) && is_array($data['tags_saude'])) {
-        $stmt = $conn->prepare("INSERT INTO gatos_tags_saude (gato_id, tag) VALUES (?, ?)");
-        
-        foreach ($data['tags_saude'] as $tag) {
-            $stmt->bind_param("is", $gato_id, $tag);
-            $stmt->execute();
-        }
-    }
+    // Retornar sucesso
+    echo json_encode([
+        'success' => true,
+        'message' => 'Gato cadastrado com sucesso',
+        'gato' => [
+            'id' => $id,
+            'nome' => $nome,
+            'data_nascimento' => $data_nascimento,
+            'cor' => $cor,
+            'foto' => $foto,
+            'descricao' => $descricao,
+            'status' => $status,
+            'matriz_id' => $matriz_id,
+            'padreador_id' => $padreador_id,
+            'tags_saude' => $tags_saude,
+            'tags_personalidade' => $tags_personalidade
+        ]
+    ]);
     
-    // Inserir tags de personalidade
-    if (isset($data['tags_personalidade']) && is_array($data['tags_personalidade'])) {
-        $stmt = $conn->prepare("INSERT INTO gatos_tags_personalidade (gato_id, tag) VALUES (?, ?)");
-        
-        foreach ($data['tags_personalidade'] as $tag) {
-            $stmt->bind_param("is", $gato_id, $tag);
-            $stmt->execute();
-        }
-    }
-    
-    // Commit da transação
-    $conn->commit();
-    
-    error_log("Gato cadastrado com sucesso: $gato_id");
-    echo json_encode(['success' => true, 'message' => 'Gato cadastrado com sucesso', 'id' => $gato_id]);
-    
-} catch (Exception $e) {
-    // Rollback em caso de erro
-    $conn->rollback();
-    error_log("Erro ao cadastrar gato: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Erro ao cadastrar gato: ' . $e->getMessage()]);
+} catch (PDOException $e) {
+    // Erro de conexão com o banco de dados
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro ao cadastrar gato: ' . $e->getMessage()
+    ]);
 }
 ?> 

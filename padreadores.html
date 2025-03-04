@@ -227,6 +227,115 @@
         .tag-personalidade {
             color: rgb(224,190,82);
         }
+
+        /* Estilos para filhotes */
+        .padreador-filhotes {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background-color: #1a1a1a;
+            border-radius: 0 0 10px 10px;
+            border-top: 1px solid rgba(224,190,82,0.2);
+        }
+
+        .padreador-filhotes h3 {
+            color: rgb(224,190,82);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .filhotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .filhote-card {
+            background-color: #262626;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            border: 1px solid rgba(224,190,82,0.2);
+        }
+
+        .filhote-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .filhote-link {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .filhote-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .filhote-card h4 {
+            padding: 0.5rem;
+            margin: 0;
+            font-size: 1rem;
+            text-align: center;
+            color: white;
+        }
+
+        .filhote-info {
+            padding: 0 0.5rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+        }
+
+        .filhote-info span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filhote-info i {
+            color: rgb(224,190,82);
+            width: 16px;
+            text-align: center;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 0.3rem;
+        }
+
+        .status.disponivel {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status.vendido {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .loading, .erro, .info {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .erro {
+            color: #F44336;
+        }
+
+        .info {
+            color: #2196F3;
+        }
     </style>
 </head>
 <body>
@@ -254,7 +363,7 @@
 
     <main>
         <h1>Nossos Padreadores</h1>
-        <div id="padreadores-container" class="padreadores-grid"></div>
+        <div id="padreadores-container"></div>
     </main>
 
     <footer>
@@ -263,6 +372,8 @@
 
     <script src="menu.js"></script>
     <script>
+        console.log('Script da página padreadores.html iniciado');
+        
         // Verificar estado de login
         const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
         const adminLink = document.querySelector('a[href="login.html"]');
@@ -270,41 +381,94 @@
             adminLink.href = 'admin.html';
         }
 
-        // Carregar dados do localStorage
-        const padreadores = JSON.parse(localStorage.getItem('padreadores')) || [
-            {
-                "nome": "Zeus",
-                "idade": "4 anos",
-                "raca": "British Shorthair",
-                "caracteristicas_filhotes": "Pelagem densa, estrutura robusta, temperamento equilibrado",
-                "foto": "./img/8.jpg",
-                "premios": ["Campeão Internacional 2023", "Melhor da Raça 2022"]
-            },
-            {
-                "nome": "Max",
-                "idade": "5 anos",
-                "raca": "Maine Coon",
-                "caracteristicas_filhotes": "Pelagem longa, porte grande, personalidade dócil",
-                "foto": "./img/9.jpg",
-                "premios": ["Grande Campeão 2023", "Melhor Maine Coon 2022"]
-            },
-            {
-                "nome": "Tom",
-                "idade": "3 anos",
-                "raca": "Ragdoll",
-                "caracteristicas_filhotes": "Pelagem sedosa, olhos azuis, temperamento calmo",
-                "foto": "./img/10.jpg",
-                "premios": ["Melhor Ragdoll 2023", "Vice-Campeão Nacional 2022"]
-            }
-        ];
-
-        function exibirPadreadores() {
-            const container = document.getElementById('padreadores-container');
-            const padreadores = JSON.parse(localStorage.getItem('padreadores')) || [];
+        // Função para formatar a data de nascimento em idade
+        function calcularIdade(dataNascimento) {
+            const hoje = new Date();
+            const nascimento = new Date(dataNascimento);
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const m = hoje.getMonth() - nascimento.getMonth();
             
-            container.innerHTML = `
-                <div class="padreadores-grid">
-                    ${padreadores.map(padreador => `
+            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
+            }
+            
+            if (idade === 0) {
+                // Calcular meses
+                let meses = hoje.getMonth() - nascimento.getMonth();
+                if (meses < 0) {
+                    meses += 12;
+                }
+                if (hoje.getDate() < nascimento.getDate()) {
+                    meses--;
+                }
+                return meses === 1 ? '1 mês' : meses + ' meses';
+            }
+            
+            return idade === 1 ? '1 ano' : idade + ' anos';
+        }
+
+        // Função para carregar gatos de um padreador específico
+        async function carregarGatosPadreador(padreadorId) {
+            try {
+                const response = await fetch(`buscar_gatos_por_padreador.php?padreador_id=${padreadorId}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    console.error('Erro ao carregar gatos do padreador:', data.message);
+                    return [];
+                }
+                
+                return data.gatos;
+            } catch (error) {
+                console.error('Erro ao carregar gatos do padreador:', error);
+                return [];
+            }
+        }
+
+        // Função para exibir padreadores
+        async function exibirPadreadores() {
+            console.log('Função exibirPadreadores iniciada');
+            const container = document.getElementById('padreadores-container');
+            
+            if (!container) {
+                console.error('Elemento padreadores-container não encontrado');
+                return;
+            }
+            
+            container.innerHTML = '<p class="loading">Carregando padreadores...</p>';
+            
+            try {
+                console.log('Iniciando fetch para buscar_padreadores_publico.php');
+                const response = await fetch('./buscar_padreadores_publico.php');
+                console.log('Resposta recebida:', response);
+                const data = await response.json();
+                console.log('Dados recebidos:', data);
+                
+                if (!data.success) {
+                    console.error('Erro nos dados recebidos:', data.message);
+                    container.innerHTML = `<p class="erro">Erro ao carregar padreadores: ${data.message}</p>`;
+                    return;
+                }
+                
+                if (data.padreadores.length === 0) {
+                    console.log('Nenhum padreador encontrado');
+                    container.innerHTML = '<p class="info">Não há padreadores cadastrados.</p>';
+                    return;
+                }
+                
+                console.log(`Encontrados ${data.padreadores.length} padreadores`);
+                
+                let padreadoresHTML = '';
+                
+                for (const padreador of data.padreadores) {
+                    console.log(`Processando padreador: ${padreador.nome}`);
+                    const idade = calcularIdade(padreador.data_nascimento);
+                    
+                    // Carregar gatos relacionados a este padreador
+                    const gatosPadreador = await carregarGatosPadreador(padreador.id);
+                    console.log(`Encontrados ${gatosPadreador.length} gatos para o padreador ${padreador.nome}`);
+                    
+                    padreadoresHTML += `
                         <div class="padreador-card">
                             <div class="padreador-link">
                                 <div class="padreador-foto-container">
@@ -316,7 +480,7 @@
                                     <div class="caracteristicas">
                                         <div class="caracteristica">
                                             <i class="fas fa-birthday-cake"></i>
-                                            <span>Idade: ${padreador.idade}</span>
+                                            <span>Idade: ${idade}</span>
                                         </div>
                                         <div class="caracteristica">
                                             <i class="fas fa-cat"></i>
@@ -324,31 +488,56 @@
                                         </div>
                                         <div class="caracteristica">
                                             <i class="fas fa-paw"></i>
-                                            <span>Características dos filhotes: ${padreador.caracteristicas_filhotes}</span>
+                                            <span>Características: ${padreador.caracteristicas}</span>
                                         </div>
+                                        ${padreador.linhagem ? `
+                                        <div class="caracteristica">
+                                            <i class="fas fa-dna"></i>
+                                            <span>Linhagem: ${padreador.linhagem}</span>
+                                        </div>
+                                        ` : ''}
                                     </div>
-                                    ${padreador.premios && padreador.premios.length > 0 ? `
-                                        <div class="filhotes">
-                                            <h4>Prêmios</h4>
-                                            <ul>
-                                                ${padreador.premios.map(premio => `
-                                                    <li class="filhote-item">
-                                                        <i class="fas fa-trophy"></i>
-                                                        <span>${premio}</span>
-                                                    </li>
-                                                `).join('')}
-                                            </ul>
-                                        </div>
-                                    ` : ''}
                                 </div>
                             </div>
+                            
+                            ${gatosPadreador.length > 0 ? `
+                                <div class="padreador-filhotes">
+                                    <h3>Filhotes deste padreador</h3>
+                                    <div class="filhotes-grid">
+                                        ${gatosPadreador.map(gato => {
+                                            const idadeGato = calcularIdade(gato.data_nascimento);
+                                            return `
+                                                <div class="filhote-card">
+                                                    <a href="detalhes-gato.html?id=${gato.id}" class="filhote-link">
+                                                        <img src="${gato.foto}" alt="${gato.nome}">
+                                                        <h4>${gato.nome}</h4>
+                                                        <div class="filhote-info">
+                                                            <span><i class="fas fa-birthday-cake"></i> ${idadeGato}</span>
+                                                            <span><i class="fas fa-palette"></i> ${gato.cor}</span>
+                                                            <span class="status ${gato.status}">${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
-                    `).join('')}
-                </div>
-            `;
+                    `;
+                }
+                
+                container.innerHTML = `<div class="padreadores-grid">${padreadoresHTML}</div>`;
+                console.log('Padreadores exibidos com sucesso');
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                container.innerHTML = `<p class="erro">Erro ao carregar padreadores: ${error.message}</p>`;
+            }
         }
 
-        exibirPadreadores();
+        // Carregar padreadores ao iniciar a página
+        document.addEventListener('DOMContentLoaded', exibirPadreadores);
     </script>
 </body>
 </html> 

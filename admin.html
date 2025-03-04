@@ -622,7 +622,7 @@
                                     <input type="checkbox" id="tag-vermifugado" checked> Vermifugado
                                 </label>
                                 <label>
-                                    <input type="checkbox" id="tag-microchipado" checked> Microchipado
+                                    <input type="checkbox" id="tag-microchipado" checked> Testado FIV/FeLV
                                 </label>
                                 <label>
                                     <input type="checkbox" id="tag-castrado"> Castrado
@@ -830,7 +830,7 @@
                             <input type="checkbox" id="editar-tag-vermifugado"> Vermifugado
                         </label>
                         <label>
-                            <input type="checkbox" id="editar-tag-microchipado"> Microchipado
+                            <input type="checkbox" id="editar-tag-microchipado"> Testado FIV/FeLV
                         </label>
                         <label>
                             <input type="checkbox" id="editar-tag-castrado"> Castrado
@@ -1093,7 +1093,8 @@
                 await Promise.all([
                     atualizarListaGatos(),
                     atualizarListaMatrizes(),
-                    atualizarListaPadreadores()
+                    atualizarListaPadreadores(),
+                    atualizarListaUsuarios()
                 ]);
                 
                 // Preenche os selects de matrizes e padreadores
@@ -1151,7 +1152,7 @@
             const tagsSaude = [];
             if (document.getElementById('editar-tag-vacinado').checked) tagsSaude.push('Vacinado');
             if (document.getElementById('editar-tag-vermifugado').checked) tagsSaude.push('Vermifugado');
-            if (document.getElementById('editar-tag-microchipado').checked) tagsSaude.push('Microchipado');
+            if (document.getElementById('editar-tag-microchipado').checked) tagsSaude.push('Testado FIV/FeLV');
             if (document.getElementById('editar-tag-castrado').checked) tagsSaude.push('Castrado');
             
             // Obter tags de personalidade
@@ -1244,7 +1245,7 @@
                     // Marcar checkboxes de saúde
                     document.getElementById('editar-tag-vacinado').checked = gato.tags_saude?.includes('Vacinado');
                     document.getElementById('editar-tag-vermifugado').checked = gato.tags_saude?.includes('Vermifugado');
-                    document.getElementById('editar-tag-microchipado').checked = gato.tags_saude?.includes('Microchipado');
+                    document.getElementById('editar-tag-microchipado').checked = gato.tags_saude?.includes('Testado FIV/FeLV');
                     document.getElementById('editar-tag-castrado').checked = gato.tags_saude?.includes('Castrado');
 
                     // Marcar checkboxes de personalidade
@@ -1295,7 +1296,7 @@
                     document.getElementById('editar-matriz-data-nascimento').value = matriz.data_nascimento;
                     document.getElementById('editar-matriz-raca').value = matriz.raca;
                     document.getElementById('editar-matriz-ninhadas').value = matriz.ninhadas;
-                    document.getElementById('editar-matriz-caracteristicas').value = matriz.caracteristicas_filhotes;
+                    document.getElementById('editar-matriz-caracteristicas').value = matriz.caracteristicas;
                     document.getElementById('editar-matriz-foto').value = matriz.foto;
                     document.getElementById('editar-matriz-linhagem').value = matriz.linhagem;
 
@@ -1381,7 +1382,7 @@
                     document.getElementById('editar-padreador-nome').value = padreador.nome;
                     document.getElementById('editar-padreador-data-nascimento').value = padreador.data_nascimento;
                     document.getElementById('editar-padreador-raca').value = padreador.raca;
-                    document.getElementById('editar-padreador-caracteristicas').value = padreador.caracteristicas_filhotes;
+                    document.getElementById('editar-padreador-caracteristicas').value = padreador.caracteristicas;
                     document.getElementById('editar-padreador-foto').value = padreador.foto;
                     document.getElementById('editar-padreador-linhagem').value = padreador.linhagem;
                     
@@ -1504,12 +1505,22 @@
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
                     },
                     body: JSON.stringify(novaMatriz)
                 });
 
-                const data = await response.json();
+                const responseText = await response.text();
+                console.log('Resposta do servidor:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Erro ao fazer parse da resposta:', parseError);
+                    throw new Error('Resposta inválida do servidor: ' + responseText);
+                }
                 
                 if (data.success) {
                     // Limpa o formulário
@@ -1528,7 +1539,7 @@
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao cadastrar matriz');
+                alert('Erro ao cadastrar matriz: ' + error.message);
             } finally {
                 toggleLoading(false);
             }
@@ -1554,12 +1565,22 @@
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
                     },
                     body: JSON.stringify(novoPadreador)
                 });
 
-                const data = await response.json();
+                const responseText = await response.text();
+                console.log('Resposta do servidor:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Erro ao fazer parse da resposta:', parseError);
+                    throw new Error('Resposta inválida do servidor: ' + responseText);
+                }
                 
                 if (data.success) {
                     // Limpa o formulário
@@ -1578,7 +1599,7 @@
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao cadastrar padreador');
+                alert('Erro ao cadastrar padreador: ' + error.message);
             } finally {
                 toggleLoading(false);
             }
@@ -1593,7 +1614,7 @@
             const tagsSaude = [];
             if (document.getElementById('tag-vacinado').checked) tagsSaude.push('Vacinado');
             if (document.getElementById('tag-vermifugado').checked) tagsSaude.push('Vermifugado');
-            if (document.getElementById('tag-microchipado').checked) tagsSaude.push('Microchipado');
+            if (document.getElementById('tag-microchipado').checked) tagsSaude.push('Testado FIV/FeLV');
             if (document.getElementById('tag-castrado').checked) tagsSaude.push('Castrado');
             
             // Coleta as tags de personalidade marcadas
@@ -1623,12 +1644,22 @@
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
                     },
                     body: JSON.stringify(novoGato)
                 });
 
-                const data = await response.json();
+                const responseText = await response.text();
+                console.log('Resposta do servidor:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Erro ao fazer parse da resposta:', parseError);
+                    throw new Error('Resposta inválida do servidor: ' + responseText);
+                }
                 
                 if (data.success) {
                     // Limpa o formulário
@@ -1647,7 +1678,7 @@
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao cadastrar gato');
+                alert('Erro ao cadastrar gato: ' + error.message);
             } finally {
                 toggleLoading(false);
             }
@@ -1965,6 +1996,137 @@
                     toggleLoading(false);
                 });
             }
+        };
+
+        // Função para atualizar a lista de usuários
+        async function atualizarListaUsuarios() {
+            try {
+                const response = await fetch('listar_usuarios.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const usuariosGrid = document.getElementById('usuarios-grid');
+                    usuariosGrid.innerHTML = '';
+                    
+                    data.usuarios.forEach(usuario => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <h3>${usuario.name}</h3>
+                            <p><strong>Usuário:</strong> ${usuario.user}</p>
+                            <p><strong>Tipo:</strong> ${usuario.type}</p>
+                            <div class="card-actions">
+                                <button class="btn-delete" onclick="excluirUsuario(${usuario.id})">
+                                    <i class="fas fa-trash"></i> Excluir
+                                </button>
+                            </div>
+                        `;
+                        usuariosGrid.appendChild(card);
+                    });
+                } else {
+                    console.error('Erro ao carregar usuários:', data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuários:', error);
+            }
+        }
+
+        // Evento de submit do formulário de novo usuário
+        document.getElementById('form-novo-usuario').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            toggleLoading(true);
+            
+            const nome = document.getElementById('novo-nome').value;
+            const username = document.getElementById('novo-username').value;
+            const password = document.getElementById('novo-password').value;
+            const tipo = document.getElementById('novo-tipo').value;
+            
+            try {
+                const response = await fetch('cadastrar_usuario.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nome: nome,
+                        username: username,
+                        password: password,
+                        tipo: tipo
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Limpa o formulário
+                    document.getElementById('form-novo-usuario').reset();
+                    
+                    // Mostra mensagem de sucesso
+                    const successMessage = document.getElementById('usuario-success');
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                    
+                    // Atualiza a lista de usuários
+                    await atualizarListaUsuarios();
+                } else {
+                    alert('Erro ao cadastrar usuário: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao cadastrar usuário:', error);
+                alert('Erro ao cadastrar usuário: ' + error.message);
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        // Função para excluir usuário
+        window.excluirUsuario = async function(id) {
+            if (!confirm('Tem certeza que deseja excluir este usuário?')) {
+                return;
+            }
+            
+            toggleLoading(true);
+            
+            try {
+                const response = await fetch(`excluir_usuario.php?id=${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    await atualizarListaUsuarios();
+                } else {
+                    alert('Erro ao excluir usuário: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao excluir usuário:', error);
+                alert('Erro ao excluir usuário: ' + error.message);
+            } finally {
+                toggleLoading(false);
+            }
+        };
+
+        // Função para editar usuário
+        window.editarUsuario = function(id) {
+            alert('Funcionalidade de edição de usuário em desenvolvimento');
+            // Aqui você pode implementar a lógica para abrir um popup de edição de usuário
         };
     </script>
 </body>

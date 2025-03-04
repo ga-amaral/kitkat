@@ -1,103 +1,45 @@
 <?php
-session_start();
+// Incluir arquivo de configuração
 require_once 'config.php';
+require_once 'proteger_admin.php';
 
-// Headers necessários
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: https://gatilzaidan.com.br');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Accept');
-header('Access-Control-Allow-Credentials: true');
-
-// Log para debug
-error_log("Iniciando edição de padreador");
-
-// Responde à requisição OPTIONS do CORS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    echo json_encode(['success' => true]);
+// Verificar se a requisição é POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Método não permitido']);
     exit;
 }
 
-// Verifica se o usuário está logado e é admin
-if (!isset($_SESSION['user_id'])) {
-    error_log("Usuário não está logado");
-    http_response_code(403);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Usuário não está logado'
-    ]);
-    exit;
-}
+// Obter dados do corpo da requisição
+$dados = json_decode(file_get_contents('php://input'), true);
 
-if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
-    error_log("Usuário não é administrador");
-    http_response_code(403);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Acesso permitido apenas para administradores'
-    ]);
-    exit;
-}
-
-// Recebe e decodifica os dados JSON
-$json = file_get_contents('php://input');
-$dados = json_decode($json, true);
-
-error_log("Dados recebidos: " . print_r($dados, true));
-
-// Verifica se todos os campos necessários foram enviados
+// Verificar se os dados necessários foram fornecidos
 if (!isset($dados['id']) || !isset($dados['nome']) || !isset($dados['data_nascimento']) || 
     !isset($dados['raca']) || !isset($dados['caracteristicas']) || 
     !isset($dados['foto']) || !isset($dados['linhagem'])) {
-    
-    error_log("Dados incompletos");
-    http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Todos os campos são obrigatórios'
-    ]);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Dados incompletos']);
     exit;
 }
 
 try {
-    // Verifica se o padreador existe
-    $stmt = $conn->prepare("SELECT id FROM padreadores WHERE id = ?");
+    // Conectar ao banco de dados usando a função do config.php
+    $pdo = conectarBD();
+    
+    // Verificar se o padreador existe
+    $stmt = $pdo->prepare("SELECT id FROM padreadores WHERE id = ?");
     $stmt->execute([$dados['id']]);
-    
     if ($stmt->rowCount() === 0) {
-        error_log("Padreador não encontrado: " . $dados['id']);
-        http_response_code(404);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Padreador não encontrado'
-        ]);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Padreador não encontrado']);
         exit;
     }
     
-    // Verifica se já existe outro padreador com o mesmo nome
-    $stmt = $conn->prepare("SELECT id FROM padreadores WHERE nome = ? AND id != ?");
-    $stmt->execute([$dados['nome'], $dados['id']]);
-    
-    if ($stmt->rowCount() > 0) {
-        error_log("Padreador com nome já existente: " . $dados['nome']);
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Já existe outro padreador com este nome'
-        ]);
-        exit;
-    }
-    
-    // Atualiza o padreador
-    $stmt = $conn->prepare("
+    // Atualizar o padreador
+    $stmt = $pdo->prepare("
         UPDATE padreadores 
-        SET nome = ?, 
-            data_nascimento = ?, 
-            raca = ?, 
-            caracteristicas_filhotes = ?, 
-            foto = ?, 
-            linhagem = ?
+        SET nome = ?, data_nascimento = ?, raca = ?, 
+            caracteristicas = ?, foto = ?, linhagem = ?
         WHERE id = ?
     ");
     
@@ -111,19 +53,20 @@ try {
         $dados['id']
     ]);
     
-    error_log("Padreador atualizado com sucesso. ID: " . $dados['id']);
-    
-    echo json_encode([
-        'success' => true,
-        'message' => 'Padreador atualizado com sucesso'
-    ]);
+    // Verificar se a atualização foi bem-sucedida
+    if ($stmt->rowCount() > 0) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => 'Padreador atualizado com sucesso']);
+    } else {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => 'Nenhuma alteração foi feita']);
+    }
     
 } catch (PDOException $e) {
-    error_log("Erro ao atualizar padreador: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Erro ao atualizar padreador: ' . $e->getMessage()
-    ]);
+    // Log do erro
+    file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . ' - Erro em editar_padreador.php: ' . $e->getMessage() . "\n", FILE_APPEND);
+    
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Erro ao atualizar padreador: ' . $e->getMessage()]);
 }
 ?> 

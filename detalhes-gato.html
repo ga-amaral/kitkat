@@ -3,469 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gatil - Detalhes do Gato</title>
+    <title>Detalhes do Gato - Gatil</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="menu.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        #detalhes-container {
+        .detalhes-container {
+            max-width: 1000px;
+            margin: 0 auto;
             padding: 2rem;
-            background-color: black;
-            min-height: calc(100vh - 200px); /* Altura da viewport menos header/footer */
+        }
+
+        .gato-detalhes {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-        }
-
-        .btn-voltar {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background-color: rgb(224,190,82);
-            color: black;
-            text-decoration: none;
-            padding: 0.8rem 1.2rem;
-            border-radius: 8px;
-            font-weight: 500;
-            margin-bottom: 1.5rem;
-            transition: all 0.2s;
-        }
-
-        .btn-voltar:hover {
-            background-color: rgb(201,171,74);
-            transform: translateX(-5px);
-        }
-
-        .btn-voltar i {
-            font-size: 0.9rem;
-            color: black;
-        }
-
-        .gato-detalhes-card {
-            background: #262626;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(224,190,82,0.1);
-            overflow: hidden;
-            margin: 0 auto 2rem auto; /* Centraliza horizontalmente */
-            border: 1px solid rgba(224,190,82,0.2);
-            max-width: 1200px; /* Limita a largura máxima */
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .gato-foto-container {
-            width: 100%;
-            max-width: 600px;
-            height: 400px;
-            margin: 0 auto;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background-color: #1a1a1a;
-            border-radius: 8px;
-            flex: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(224,190,82,0.2);
         }
 
-        .gato-foto-grande {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .detalhes-content {
-            padding: 2rem;
-            flex: 1;
-            min-width: 300px;
-        }
-
-        .detalhes-content h1 {
-            color: rgb(224,190,82);
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 0 0 1.5rem 0;
-        }
-
-        .caracteristicas-gato {
+        .gato-header {
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin: 1rem 0;
-            padding: 0.5rem 0;
+            flex-direction: column;
+            position: relative;
         }
 
-        .caracteristica-bloco {
+        .gato-foto {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .gato-titulo {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 2rem;
+            color: white;
+        }
+
+        .gato-titulo h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        .status-badge.disponivel {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status-badge.vendido {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .gato-info {
+            padding: 2rem;
+            color: white;
+        }
+
+        .info-section {
+            margin-bottom: 2rem;
+        }
+
+        .info-section h2 {
+            color: rgb(224,190,82);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            border-bottom: 1px solid rgba(224,190,82,0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            background-color: #1a1a1a;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: white;
+            background-color: #262626;
+            padding: 1rem;
+            border-radius: 8px;
             border: 1px solid rgba(224,190,82,0.2);
         }
 
-        .caracteristica-bloco i {
+        .info-item i {
             color: rgb(224,190,82);
-            width: 16px;
+            font-size: 1.2rem;
+            width: 20px;
             text-align: center;
         }
 
-        .descricao-gato {
-            color: white;
+        .descricao {
             line-height: 1.6;
-            margin: 1.5rem 0;
-        }
-
-        .tags-section {
-            margin: 1.5rem 0;
-        }
-
-        .tags-section h3 {
-            color: rgb(224,190,82);
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .tags-section h3 i {
-            color: rgb(224,190,82);
+            margin-bottom: 2rem;
         }
 
         .tags-container {
             display: flex;
             flex-wrap: wrap;
             gap: 0.8rem;
+            margin-top: 1rem;
         }
 
         .tag {
-            font-size: 0.9rem;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            background-color: #1a1a1a;
+            background-color: #262626;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
             border: 1px solid rgba(224,190,82,0.2);
         }
 
         .tag i {
-            width: 16px;
-            text-align: center;
-        }
-
-        .tag-saude {
             color: rgb(224,190,82);
         }
 
-        .tag-personalidade {
-            color: rgb(224,190,82);
-        }
-
-        #pais-container {
-            background: #262626;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(224,190,82,0.1);
-            padding: 2rem;
-            border: 1px solid rgba(224,190,82,0.2);
-        }
-
-        #pais-container h2 {
-            color: rgb(224,190,82);
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-
-        #pais-container h2 i {
-            color: rgb(224,190,82);
-        }
-
-        .pais-grid {
+        .pais-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
+            margin-top: 1rem;
         }
 
         .pai-card {
-            background: #1a1a1a;
-            border-radius: 10px;
-            padding: 1.5rem;
+            background-color: #262626;
+            border-radius: 8px;
+            overflow: hidden;
             border: 1px solid rgba(224,190,82,0.2);
         }
 
-        .pai-card h3 {
+        .pai-header {
+            padding: 1rem;
+            background-color: rgba(224,190,82,0.1);
             color: rgb(224,190,82);
-            font-size: 1.2rem;
             font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .pai-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-
-        .pai-info p {
-            margin: 0.5rem 0;
-            color: white;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .pai-info p i {
+        .pai-info {
+            display: flex;
+            padding: 1rem;
+        }
+
+        .pai-foto {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+
+        .pai-detalhes {
+            flex: 1;
+        }
+
+        .pai-nome {
+            font-size: 1.2rem;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .pai-caracteristicas {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .pai-caracteristicas i.fa-dna {
             color: rgb(224,190,82);
-            width: 16px;
-            text-align: center;
+            margin-right: 5px;
         }
 
         .btn-interesse {
             display: block;
             text-align: center;
             background-color: rgb(224,190,82);
-            color: black;
+            color: white;
             text-decoration: none;
             padding: 1rem;
             border-radius: 8px;
             font-weight: bold;
-            transition: background-color 0.2s;
             margin-top: 2rem;
+            transition: background-color 0.2s;
         }
 
         .btn-interesse:hover {
-            background-color: rgb(201,171,74);
+            background-color: rgb(173, 148, 65);
         }
 
-        .erro-mensagem {
+        .loading, .erro {
             text-align: center;
-            color: rgb(224,190,82);
-            font-size: 1.2rem;
-            margin: 2rem 0;
-        }
-
-        /* Estilos responsivos para dispositivos móveis */
-        @media screen and (max-width: 768px) {
-            #detalhes-container {
-                padding: 1rem;
-            }
-
-            .gato-detalhes-card {
-                margin: 0 0.5rem 1rem 0.5rem;
-                flex-direction: column;
-            }
-
-            .gato-foto-container {
-                width: 100%;
-                max-width: 100%;
-                height: 300px;
-                padding: 0.5rem;
-                margin: 1rem auto;
-            }
-
-            .detalhes-content {
-                padding: 1rem;
-                width: 100%;
-            }
-
-            .detalhes-content h1 {
-                font-size: 1.5rem;
-                margin-bottom: 1rem;
-            }
-
-            .caracteristicas-gato {
-                gap: 0.5rem;
-            }
-
-            .caracteristica-bloco {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
-            }
-
-            .pais-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .pai-card {
-                padding: 1rem;
-            }
-
-            .pai-card img {
-                height: 180px;
-            }
-        }
-
-        @media screen and (max-width: 480px) {
-            .gato-foto-container {
-                height: 250px;
-            }
-
-            .detalhes-content h1 {
-                font-size: 1.3rem;
-            }
-
-            .tags-container {
-                gap: 0.5rem;
-            }
-
-            .tag {
-                font-size: 0.8rem;
-                padding: 0.4rem 0.8rem;
-            }
-
-            .btn-interesse {
-                padding: 0.8rem;
-                font-size: 0.9rem;
-            }
-        }
-
-        /* Estilos do Menu */
-        header {
-            background-color: black;
-            padding: 1rem;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .logo-container {
-            display: flex;
-            justify-content: center;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .logo-container img {
-            max-height: 100px;
-            width: auto;
-        }
-
-        .menu-toggle {
-            display: none; /* Inicialmente oculto */
-            flex-direction: column;
-            justify-content: space-between;
-            width: 30px;
-            height: 21px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            margin: 0.5rem 0;
-            z-index: 100;
-        }
-
-        .menu-toggle span {
-            width: 100%;
-            height: 3px;
-            background-color: rgb(224,190,82);
-            transition: all 0.3s ease;
-        }
-
-        nav {
-            width: 100%;
-        }
-
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-        }
-
-        nav li {
-            text-align: center;
-        }
-
-        nav a {
-            color: rgb(224,190,82);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-            padding: 0.5rem 1rem;
-            font-size: 1.1rem;
-        }
-
-        nav a:hover {
+            padding: 2rem;
             color: white;
         }
 
-        .menu-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 80;
+        .erro {
+            color: #F44336;
         }
 
-        /* Estilos responsivos para dispositivos móveis */
-        @media screen and (max-width: 768px) {
-            .menu-toggle {
-                display: flex; /* Mostrar apenas em telas móveis */
+        @media (max-width: 768px) {
+            .gato-foto {
+                height: 300px;
             }
 
-            .menu-toggle.active span:nth-child(1) {
-                transform: translateY(9px) rotate(45deg);
+            .gato-titulo h1 {
+                font-size: 2rem;
             }
 
-            .menu-toggle.active span:nth-child(2) {
-                opacity: 0;
-            }
-
-            .menu-toggle.active span:nth-child(3) {
-                transform: translateY(-9px) rotate(-45deg);
-            }
-
-            nav ul {
-                display: none;
-                flex-direction: column;
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 70%;
-                height: 100vh;
-                background-color: rgba(0, 0, 0, 0.95);
-                padding: 80px 2rem 2rem 2rem;
-                transition: right 0.3s ease;
-                gap: 1rem;
-                z-index: 90;
-                align-items: center;
-            }
-
-            nav ul.active {
-                display: flex;
-                right: 0;
-            }
-
-            nav li {
-                width: 100%;
-            }
-
-            nav a {
-                display: block;
-                padding: 1rem;
-            }
-
-            .menu-overlay.active {
-                display: block;
+            .pais-container {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -494,11 +260,9 @@
     </header>
 
     <main>
-        <div id="detalhes-container">
-            <div id="gato-detalhes"></div>
-            <div id="pais-container">
-                <h2><i class="fas fa-paw"></i> Informações dos Pais</h2>
-                <div class="pais-grid"></div>
+        <div class="detalhes-container">
+            <div id="gato-detalhes-container">
+                <p class="loading">Carregando detalhes do gato...</p>
             </div>
         </div>
     </main>
@@ -516,158 +280,193 @@
             adminLink.href = 'admin.html';
         }
 
-        // Carregar dados do localStorage
-        const gatos = JSON.parse(localStorage.getItem('gatos')) || [
-            {
-                "nome": "Luna",
-                "idade": "6 meses",
-                "cor": "Branco e Cinza",
-                "foto": "./img/1.jpg",
-                "descricao": "Luna é uma gatinha doce e brincalhona. Ela adora brincar com bolinhas e se esconder em caixas. Muito sociável, se dá bem com outros gatos e adora receber carinho. Filha de Bella, uma Persa premiada, e Zeus, um campeão da raça British Shorthair.",
-                "personalidade": ["Dócil", "Brincalhona", "Sociável"],
-                "saude": ["Vacinada", "Vermifugada", "Microchipada", "Castrada"],
-                "pais": {
-                    "mae": "Bella",
-                    "pai": "Zeus"
-                }
-            },
-            {
-                "nome": "Thor",
-                "idade": "4 meses",
-                "cor": "Laranja Tigrado",
-                "foto": "./img/2.jpg",
-                "descricao": "Thor é um filhote muito energético e corajoso. Adora explorar novos ambientes e é muito carinhoso com humanos. Será um excelente companheiro para famílias ativas. Filho de Mia, uma Siamesa de linhagem pura, e Max, um premiado Maine Coon.",
-                "personalidade": ["Energético", "Corajoso", "Carinhoso"],
-                "saude": ["Vacinado", "Vermifugado", "Microchipado"],
-                "pais": {
-                    "mae": "Mia",
-                    "pai": "Max"
-                }
+        // Função para formatar a data de nascimento em idade
+        function calcularIdade(dataNascimento) {
+            const hoje = new Date();
+            const nascimento = new Date(dataNascimento);
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const m = hoje.getMonth() - nascimento.getMonth();
+            
+            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
             }
-        ];
+            
+            if (idade === 0) {
+                // Calcular meses
+                let meses = hoje.getMonth() - nascimento.getMonth();
+                if (meses < 0) {
+                    meses += 12;
+                }
+                if (hoje.getDate() < nascimento.getDate()) {
+                    meses--;
+                }
+                return meses === 1 ? '1 mês' : meses + ' meses';
+            }
+            
+            return idade === 1 ? '1 ano' : idade + ' anos';
+        }
 
-        const matrizes = JSON.parse(localStorage.getItem('matrizes')) || [];
-        const padreadores = JSON.parse(localStorage.getItem('padreadores')) || [];
+        // Função para obter parâmetros da URL
+        function obterParametroURL(nome) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(nome);
+        }
 
-        // Pegar o nome do gato da URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const gatoNome = urlParams.get('gato');
+        // Função para buscar detalhes do gato
+        async function buscarDetalhesGato() {
+            const gatoId = obterParametroURL('id');
+            if (!gatoId) {
+                document.getElementById('gato-detalhes-container').innerHTML = 
+                    '<p class="erro">ID do gato não fornecido. <a href="index.html">Voltar para a página inicial</a></p>';
+                return;
+            }
 
-        if (gatoNome) {
-            const gato = gatos.find(g => g.nome === gatoNome);
-            if (gato) {
-                // Mostrar detalhes do gato
-                const detalhesContainer = document.getElementById('gato-detalhes');
-                detalhesContainer.innerHTML = `
-                    <a href="javascript:history.back()" class="btn-voltar">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>Voltar</span>
-                    </a>
-                    <div class="gato-detalhes-card">
-                        <div class="gato-foto-container">
-                            <img src="${gato.foto}" alt="${gato.nome}" class="gato-foto-grande">
+            try {
+                const response = await fetch(`buscar_gato.php?id=${gatoId}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    document.getElementById('gato-detalhes-container').innerHTML = 
+                        `<p class="erro">Erro ao carregar detalhes do gato: ${data.message}. <a href="index.html">Voltar para a página inicial</a></p>`;
+                    return;
+                }
+                
+                const gato = data.gato;
+                const idade = calcularIdade(gato.data_nascimento);
+                
+                // Formatar tags
+                const tagsSaude = Array.isArray(gato.tags_saude) ? gato.tags_saude : [];
+                const tagsPersonalidade = Array.isArray(gato.tags_personalidade) ? gato.tags_personalidade : [];
+                
+                let html = `
+                    <div class="gato-detalhes">
+                        <div class="gato-header">
+                            <img src="${gato.foto}" alt="${gato.nome}" class="gato-foto">
+                            <div class="gato-titulo">
+                                <h1>${gato.nome}</h1>
+                                <span class="status-badge ${gato.status}">${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}</span>
+                            </div>
                         </div>
-                        <div class="detalhes-content">
-                            <h1>${gato.nome}</h1>
-                            <div class="caracteristicas-gato">
-                                <div class="caracteristica-bloco">
-                                    <i class="fas fa-birthday-cake"></i>
-                                    <span>Idade: ${gato.idade}</span>
+                        <div class="gato-info">
+                            <div class="info-section">
+                                <h2>Informações Básicas</h2>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <i class="fas fa-birthday-cake"></i>
+                                        <span>Idade: ${idade}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-palette"></i>
+                                        <span>Cor: ${gato.cor}</span>
+                                    </div>
+                                    ${gato.matriz_nome ? `
+                                    <div class="info-item">
+                                        <i class="fas fa-venus"></i>
+                                        <span>Matriz: ${gato.matriz_nome}</span>
+                                    </div>` : ''}
+                                    ${gato.padreador_nome ? `
+                                    <div class="info-item">
+                                        <i class="fas fa-mars"></i>
+                                        <span>Padreador: ${gato.padreador_nome}</span>
+                                    </div>` : ''}
                                 </div>
-                                <div class="caracteristica-bloco">
-                                    <i class="fas fa-palette"></i>
-                                    <span>Cor: ${gato.cor}</span>
-                                </div>
-                                ${gato.status ? `
-                                <div class="caracteristica-bloco">
-                                    <i class="fas fa-tag"></i>
-                                    <span>Status: ${gato.status === 'disponivel' ? 'Disponível' : 'Vendido'}</span>
-                                </div>
-                                ` : ''}
                             </div>
-                            <p class="descricao-gato">${gato.descricao || 'Descrição não disponível'}</p>
                             
-                            <div class="tags-section">
-                                <h3><i class="fas fa-heart"></i> Saúde</h3>
-                                <div class="tags-container">
-                                    ${gato.saude ? gato.saude.map(tag => `
-                                    <span class="tag tag-saude">
-                                        <i class="fas fa-heart"></i> ${tag}
-                                    </span>
-                                    `).join('') : `
-                                    <span class="tag tag-saude">
-                                        <i class="fas fa-check"></i> Vacinado
-                                    </span>
-                                    <span class="tag tag-saude">
-                                        <i class="fas fa-heart"></i> Vermifugado
-                                    </span>
-                                    <span class="tag tag-saude">
-                                        <i class="fas fa-microchip"></i> Microchipado
-                                    </span>
-                                    `}
+                            <div class="info-section">
+                                <h2>Sobre ${gato.nome}</h2>
+                                <div class="descricao">
+                                    ${gato.descricao}
                                 </div>
                             </div>
-
-                            ${gato.personalidade && gato.personalidade.length > 0 ? `
-                            <div class="tags-section">
-                                <h3><i class="fas fa-smile"></i> Personalidade</h3>
+                            
+                            ${tagsSaude.length > 0 ? `
+                            <div class="info-section">
+                                <h2>Saúde</h2>
                                 <div class="tags-container">
-                                    ${gato.personalidade.map(tag => `
-                                    <span class="tag tag-personalidade">
-                                        <i class="fas fa-smile"></i> ${tag}
-                                    </span>
+                                    ${tagsSaude.map(tag => `
+                                        <span class="tag">
+                                            <i class="fas fa-heartbeat"></i>
+                                            ${tag}
+                                        </span>
                                     `).join('')}
                                 </div>
-                            </div>
-                            ` : ''}
-
-                            <a href="contato.html?gato=${gato.nome}" class="btn-interesse">Tenho Interesse</a>
+                            </div>` : ''}
+                            
+                            ${tagsPersonalidade.length > 0 ? `
+                            <div class="info-section">
+                                <h2>Personalidade</h2>
+                                <div class="tags-container">
+                                    ${tagsPersonalidade.map(tag => `
+                                        <span class="tag">
+                                            <i class="fas fa-smile"></i>
+                                            ${tag}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>` : ''}
+                            
+                            ${(gato.matriz_nome || gato.padreador_nome) ? `
+                            <div class="info-section">
+                                <h2>Pais</h2>
+                                <div class="pais-container">
+                                    ${gato.matriz_nome ? `
+                                    <div class="pai-card">
+                                        <div class="pai-header">
+                                            <i class="fas fa-venus"></i>
+                                            Matriz
+                                        </div>
+                                        <div class="pai-info">
+                                            <img src="${gato.matriz_foto || './img/placeholder.jpg'}" alt="${gato.matriz_nome}" class="pai-foto">
+                                            <div class="pai-detalhes">
+                                                <h3 class="pai-nome">${gato.matriz_nome}</h3>
+                                                <div class="pai-caracteristicas">
+                                                    <p>Raça: ${gato.matriz_raca || 'Não informada'}</p>
+                                                    <p>Ninhadas: ${gato.matriz_ninhadas || '0'}</p>
+                                                    ${gato.matriz_linhagem ? `<p><i class="fas fa-dna"></i> Linhagem: ${gato.matriz_linhagem}</p>` : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>` : ''}
+                                    
+                                    ${gato.padreador_nome ? `
+                                    <div class="pai-card">
+                                        <div class="pai-header">
+                                            <i class="fas fa-mars"></i>
+                                            Padreador
+                                        </div>
+                                        <div class="pai-info">
+                                            <img src="${gato.padreador_foto || './img/placeholder.jpg'}" alt="${gato.padreador_nome}" class="pai-foto">
+                                            <div class="pai-detalhes">
+                                                <h3 class="pai-nome">${gato.padreador_nome}</h3>
+                                                <div class="pai-caracteristicas">
+                                                    <p>Raça: ${gato.padreador_raca || 'Não informada'}</p>
+                                                    ${gato.padreador_linhagem ? `<p><i class="fas fa-dna"></i> Linhagem: ${gato.padreador_linhagem}</p>` : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>` : ''}
+                                </div>
+                            </div>` : ''}
+                            
+                            ${gato.status === 'disponivel' ? `
+                            <a href="contato.html?gato=${gato.id}" class="btn-interesse">
+                                <i class="fas fa-heart"></i> Tenho Interesse em ${gato.nome}
+                            </a>` : ''}
                         </div>
                     </div>
                 `;
-
-                // Mostrar informações dos pais se disponíveis
-                if (gato.pais) {
-                    const paisContainer = document.querySelector('.pais-grid');
-                    const mae = matrizes.find(m => m.nome === gato.pais.mae);
-                    const pai = padreadores.find(p => p.nome === gato.pais.pai);
-
-                    if (mae) {
-                        const maeCard = document.createElement('div');
-                        maeCard.className = 'pai-card';
-                        maeCard.innerHTML = `
-                            <h3>Mãe - ${mae.nome}</h3>
-                            <img src="${mae.foto}" alt="${mae.nome}">
-                            <div class="pai-info">
-                                <p><i class="fas fa-cat"></i> <strong>Raça:</strong> ${mae.raca}</p>
-                                <p><i class="fas fa-birthday-cake"></i> <strong>Idade:</strong> ${mae.idade}</p>
-                                <p><i class="fas fa-baby"></i> <strong>Ninhadas:</strong> ${mae.ninhadas}</p>
-                            </div>
-                        `;
-                        paisContainer.appendChild(maeCard);
-                    }
-
-                    if (pai) {
-                        const paiCard = document.createElement('div');
-                        paiCard.className = 'pai-card';
-                        paiCard.innerHTML = `
-                            <h3>Pai - ${pai.nome}</h3>
-                            <img src="${pai.foto}" alt="${pai.nome}">
-                            <div class="pai-info">
-                                <p><i class="fas fa-cat"></i> <strong>Raça:</strong> ${pai.raca}</p>
-                                <p><i class="fas fa-birthday-cake"></i> <strong>Idade:</strong> ${pai.idade}</p>
-                                ${pai.premios ? `
-                                <p><i class="fas fa-trophy"></i> <strong>Premiações:</strong> ${pai.premios.length}</p>
-                                ` : ''}
-                            </div>
-                        `;
-                        paisContainer.appendChild(paiCard);
-                    }
-                }
-            } else {
-                document.getElementById('detalhes-container').innerHTML = '<p class="erro-mensagem">Gato não encontrado</p>';
+                
+                document.getElementById('gato-detalhes-container').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('gato-detalhes-container').innerHTML = 
+                    `<p class="erro">Erro ao carregar detalhes do gato: ${error.message}. <a href="index.html">Voltar para a página inicial</a></p>`;
             }
         }
+
+        // Carregar detalhes do gato ao iniciar a página
+        document.addEventListener('DOMContentLoaded', buscarDetalhesGato);
     </script>
 </body>
 </html> 

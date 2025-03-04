@@ -1,79 +1,97 @@
 <?php
-session_start();
+// Log para depuração
+file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . ' - Acessou buscar_gato.php - ID: ' . ($_GET['id'] ?? 'não informado') . "\n", FILE_APPEND);
+
+// Incluir arquivo de configuração
 require_once 'config.php';
 
-// Configurar cabeçalhos para JSON e CORS
+// Definir cabeçalhos para JSON e CORS
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: https://gatilzaidan.com.br');
+header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Credentials: true');
-
-// Log para debug
-error_log("Iniciando busca de gato por ID");
-
-// Verificar se o usuário está logado
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
-    error_log("Acesso não autorizado: usuário não está logado");
-    echo json_encode(['success' => false, 'message' => 'Acesso não autorizado']);
-    exit;
-}
+header('Access-Control-Allow-Headers: Content-Type');
 
 // Verificar se o ID foi fornecido
-if (!isset($_GET['id']) || empty($_GET['id'])) {
-    error_log("ID do gato não fornecido");
-    echo json_encode(['success' => false, 'message' => 'ID do gato não fornecido']);
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'ID do gato não fornecido ou inválido'
+    ]);
     exit;
 }
 
-$id = intval($_GET['id']);
+$id = (int)$_GET['id'];
 
 try {
-    // Buscar o gato no banco de dados
-    $stmt = $conn->prepare("SELECT * FROM gatos WHERE id = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // Conectar ao banco de dados
+    $pdo = conectarBD();
     
-    if ($result->num_rows === 0) {
-        error_log("Gato não encontrado com ID: $id");
-        echo json_encode(['success' => false, 'message' => 'Gato não encontrado']);
+    // Verificar se a tabela existe
+    $stmt = $pdo->query("SHOW TABLES LIKE 'gatos'");
+    if ($stmt->rowCount() === 0) {
+        // Tabela não existe
+        echo json_encode([
+            'success' => false,
+            'message' => 'Tabela de gatos não existe'
+        ]);
         exit;
     }
     
-    $gato = $result->fetch_assoc();
+    // Consultar gato pelo ID com informações das matrizes e padreadores, incluindo linhagem
+    $query = "
+        SELECT g.*, 
+               m.nome as matriz_nome, 
+               m.raca as matriz_raca,
+               m.foto as matriz_foto,
+               m.ninhadas as matriz_ninhadas,
+               m.linhagem as matriz_linhagem,
+               p.nome as padreador_nome,
+               p.raca as padreador_raca,
+               p.foto as padreador_foto,
+               p.linhagem as padreador_linhagem
+        FROM `gatos` g
+        LEFT JOIN `matrizes` m ON g.matriz_id = m.id
+        LEFT JOIN `padreadores` p ON g.padreador_id = p.id
+        WHERE g.id = ?
+    ";
     
-    // Buscar tags de saúde
-    $stmt = $conn->prepare("SELECT tag FROM gatos_tags_saude WHERE gato_id = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$id]);
     
-    $tags_saude = [];
-    while ($row = $result->fetch_assoc()) {
-        $tags_saude[] = $row['tag'];
+    if ($stmt->rowCount() === 0) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Gato não encontrado'
+        ]);
+        exit;
     }
     
-    // Buscar tags de personalidade
-    $stmt = $conn->prepare("SELECT tag FROM gatos_tags_personalidade WHERE gato_id = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $gato = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    $tags_personalidade = [];
-    while ($row = $result->fetch_assoc()) {
-        $tags_personalidade[] = $row['tag'];
+    // Processar os dados para converter as tags de JSON para arrays
+    if (isset($gato['tags_saude'])) {
+        $gato['tags_saude'] = json_decode($gato['tags_saude'], true) ?: [];
+    } else {
+        $gato['tags_saude'] = [];
     }
     
-    // Adicionar as tags ao objeto do gato
-    $gato['tags_saude'] = $tags_saude;
-    $gato['tags_personalidade'] = $tags_personalidade;
+    if (isset($gato['tags_personalidade'])) {
+        $gato['tags_personalidade'] = json_decode($gato['tags_personalidade'], true) ?: [];
+    } else {
+        $gato['tags_personalidade'] = [];
+    }
     
-    error_log("Gato encontrado com sucesso: " . json_encode($gato));
-    echo json_encode(['success' => true, 'gato' => $gato]);
+    // Retornar detalhes do gato
+    echo json_encode([
+        'success' => true,
+        'gato' => $gato
+    ]);
     
-} catch (Exception $e) {
-    error_log("Erro ao buscar gato: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Erro ao buscar gato: ' . $e->getMessage()]);
+} catch (PDOException $e) {
+    // Erro de conexão com o banco de dados
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro ao buscar gato: ' . $e->getMessage()
+    ]);
 }
 ?> 
